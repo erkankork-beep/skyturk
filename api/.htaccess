@@ -1,0 +1,3 @@
+<FilesMatch "^(config\.php|feeds\.php|data\.bak\.json|fetch\.log)$">
+Require all denied
+</FilesMatch>

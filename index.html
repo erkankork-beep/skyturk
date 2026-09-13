@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SKYTÜRK — Son Dakika Haberler, Gündem, Ekonomi, Spor</title>
+<meta name="description" content="SKYTÜRK: Türkiye ve dünyadan son dakika haberleri, ekonomi, spor, kültür-sanat ve yaşam.">
+<meta name="theme-color" content="#0B4F9E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B4F9E; --sky:#2E9BF0; --red:#E8262C; --ink:#14213D; --ink2:#4A5568;
+  --line:#E3E8EF; --paper:#fff; --soft:#F3F6FA; --gold:#F9A825;
+  --fh:'Oswald',Impact,'Arial Narrow',sans-serif; --fb:'Source Sans 3','Segoe UI',Roboto,Arial,sans-serif;
+  --w:1240px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);color:var(--ink);background:var(--paper);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.wrap{max-width:var(--w);margin:0 auto;padding:0 20px}
+h1,h2,h3,h4,.fh{font-family:var(--fh);letter-spacing:.005em;line-height:1.15}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- Üst bant ---------- */
+.topbar{background:var(--ink);color:#C9D3E3;font-size:13px}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:34px}
+.topbar .date{color:#fff;font-weight:600;white-space:nowrap}
+.ticker{flex:1;overflow:hidden;position:relative;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.ticker ul{display:flex;gap:28px;list-style:none;white-space:nowrap;animation:tick 40s linear infinite;width:max-content}
+.ticker li b{color:#fff;font-weight:600;margin-right:6px}
+.ticker .up{color:#4ADE80}.ticker .dn{color:#F87171}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.topbar .links{display:flex;gap:14px;white-space:nowrap}
+.topbar .links a:hover{color:#fff}
+
+/* ---------- Header ---------- */
+.header{border-bottom:1px solid var(--line)}
+.header .wrap{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:92px;gap:20px}
+.logo{display:inline-flex;align-items:baseline;gap:2px;font-family:var(--fh);font-weight:700;font-size:44px;letter-spacing:-.01em;color:var(--navy);line-height:1}
+.logo .sky{color:var(--sky)}.logo .dot{width:10px;height:10px;background:var(--red);border-radius:50%;align-self:flex-end;margin-bottom:6px;margin-left:4px}
+.logo small{font-family:var(--fb);font-weight:600;font-size:11px;letter-spacing:.18em;color:var(--ink2);margin-left:10px;align-self:center}
+.hdr-left{display:flex;gap:16px;align-items:center;color:var(--ink2);font-size:14px}
+.hdr-left .w{display:flex;align-items:center;gap:8px;padding-right:16px;border-right:1px solid var(--line)}
+.hdr-left .w b{font-family:var(--fh);font-size:22px;color:var(--ink)}
+.hdr-right{display:flex;justify-content:flex-end;align-items:center;gap:10px}
+.search{display:flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:0 6px 0 14px;height:40px;width:260px;background:var(--soft)}
+.search input{border:0;background:transparent;flex:1;font:inherit;font-size:14px;outline:0;color:var(--ink)}
+.search button{width:30px;height:30px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:8px;font-weight:600;font-size:14px}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:#093f80}
+.btn-ghost{border:1px solid var(--line);color:var(--ink)}
+
+/* ---------- Kategori menüsü ---------- */
+.nav{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:3px solid var(--navy);box-shadow:0 1px 0 var(--line)}
+.nav .wrap{display:flex;align-items:stretch;height:48px}
+.nav .home{display:grid;place-items:center;width:48px;color:var(--navy);border-right:1px solid var(--line)}
+.nav ul{display:flex;list-style:none;flex:1;overflow-x:auto;scrollbar-width:none}
+.nav ul::-webkit-scrollbar{display:none}
+.nav li a{display:flex;align-items:center;height:48px;padding:0 11px;font-family:var(--fh);font-weight:500;font-size:15px;text-transform:uppercase;letter-spacing:.03em;position:relative;white-space:nowrap;color:var(--ink)}
+.nav li a::after{content:"";position:absolute;left:11px;right:11px;bottom:0;height:3px;background:var(--cc,var(--navy));transform:scaleX(0);transition:transform .2s}
+.nav li a:hover::after,.nav li a.on::after{transform:scaleX(1)}
+.nav li a.sd{color:var(--red)}
+.nav .live{display:flex;align-items:center;gap:8px;padding-left:16px;border-left:1px solid var(--line);font-size:13px;font-weight:600;color:var(--red);white-space:nowrap}
+.nav .live i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(232,38,44,.6);animation:pulse 1.6s infinite}
+@keyframes pulse{to{box-shadow:0 0 0 8px rgba(232,38,44,0)}}
+
+/* ---------- Son dakika bandı ---------- */
+.breaking{background:var(--red);color:#fff}
+.breaking .wrap{display:flex;align-items:center;height:42px;gap:0}
+.breaking .lbl{font-family:var(--fh);font-weight:700;font-size:15px;letter-spacing:.06em;background:#B91C1C;height:42px;display:flex;align-items:center;padding:0 16px;margin-left:-20px;clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%);padding-right:26px}
+.breaking .items{flex:1;overflow:hidden;position:relative;height:42px}
+.breaking .items a{position:absolute;inset:0;display:flex;align-items:center;padding:0 16px;font-weight:600;font-size:15px;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.breaking .items a.on{opacity:1;transform:none}
+.breaking .items a time{font-family:var(--fh);font-weight:400;opacity:.8;margin-right:12px}
+
+/* ---------- Ana grid ---------- */
+main{padding:26px 0 40px}
+.grid-hero{display:grid;grid-template-columns:1fr 340px;gap:26px;align-items:start}
+.hero{position:relative;border-radius:14px;overflow:hidden;background:var(--ink);height:560px}
+.hero .slide{position:absolute;inset:0;opacity:0;transition:opacity .5s}
+.hero .slide.on{opacity:1}
+.hero .slide img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.hero .slide .cap{position:absolute;left:0;right:0;bottom:0;padding:110px 34px 34px;background:linear-gradient(180deg,transparent,rgba(10,20,45,.92) 60%);color:#fff}
+.hero .slide .cap .cat{display:inline-block;background:var(--cc,var(--navy));font-family:var(--fh);font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px;margin-bottom:12px}
+.hero .slide .cap h2{font-size:38px;font-weight:600;max-width:820px;text-wrap:balance}
+.hero .slide .cap p{margin-top:10px;font-size:16px;opacity:.85;max-width:720px}
+.hero .dots{position:absolute;left:0;right:0;bottom:0;display:flex;background:rgba(10,20,45,.55);backdrop-filter:blur(6px)}
+.hero .dots button{flex:1;height:44px;font-family:var(--fh);font-size:18px;color:#C9D3E3;border-right:1px solid rgba(255,255,255,.08);position:relative}
+.hero .dots button.on{color:#fff;background:rgba(255,255,255,.12)}
+.hero .dots button.on::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--sky)}
+.hero .slide .cap{padding-bottom:74px}
+.hero .arrow{position:absolute;top:44%;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;backdrop-filter:blur(4px)}
+.hero .arrow:hover{background:rgba(255,255,255,.3)}
+.hero .arrow.l{left:16px}.hero .arrow.r{right:16px}
+
+/* Sağ sütun */
+.side{display:flex;flex-direction:column;gap:20px}
+.box{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.box-h{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.box-h h3{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px}
+.box-h h3 i{width:4px;height:18px;border-radius:2px;background:var(--cc,var(--navy))}
+.box-h a{font-size:13px;color:var(--ink2);font-weight:600}
+.box-h a:hover{color:var(--navy)}
+.sd-list{list-style:none;max-height:394px;overflow:auto}
+.sd-list li a{display:flex;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.35;font-weight:600}
+.sd-list li a:hover{background:var(--soft)}
+.sd-list li:last-child a{border:0}
+.sd-list time{font-family:var(--fh);color:var(--red);font-weight:500;flex:0 0 46px;font-size:15px}
+.widget-w{display:grid;grid-template-columns:1fr 1fr}
+.widget-w>div{padding:14px 16px}
+.widget-w>div+div{border-left:1px solid var(--line)}
+.widget-w .big{font-family:var(--fh);font-size:40px;line-height:1;color:var(--ink)}
+.widget-w .big sup{font-size:16px;vertical-align:top;color:var(--ink2)}
+.widget-w .sm{font-size:13px;color:var(--ink2)}
+.widget-w .row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.widget-w .row:last-child{border:0}
+.widget-w .row b{font-family:var(--fh);font-weight:500;font-size:14px}
+.widget-w .cityname{font-weight:700;font-size:14px;margin-bottom:6px;display:flex;justify-content:space-between}
+.widget-w .cityname span{color:var(--ink2);font-weight:400}
+
+/* Bölüm başlıkları */
+.sec{margin-top:40px}
+.sec-h{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.sec-h h2{font-size:26px;font-weight:600;display:flex;align-items:center;gap:12px;white-space:nowrap}
+.sec-h h2::before{content:"";width:6px;height:26px;background:var(--cc,var(--navy));border-radius:2px}
+.sec-h hr{flex:1;border:0;border-top:1px solid var(--line)}
+.sec-h a{font-size:13px;font-weight:700;color:var(--cc,var(--navy))}
+.sec-h a:hover{text-decoration:underline}
+
+/* Kartlar */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.card{display:flex;flex-direction:column;gap:10px}
+.card .im{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:16/9.6;background:var(--soft)}
+.card .im img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.card:hover .im img{transform:scale(1.04)}
+.card .im .cat{position:absolute;left:10px;top:10px;background:var(--cc,var(--navy));color:#fff;font-family:var(--fh);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.card h3{font-size:19px;font-weight:600;line-height:1.25}
+.card h3 a:hover{color:var(--navy)}
+.card p{font-size:14px;color:var(--ink2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .meta{font-size:12px;color:var(--ink2);display:flex;gap:10px}
+.card .meta time{font-weight:600;color:var(--ink)}
+.cards.three{grid-template-columns:repeat(3,1fr)}
+.cards.two{grid-template-columns:repeat(2,1fr)}
+
+/* Kategori blokları (2 sütun) */
+.catblocks{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.catblock .lead{display:grid;grid-template-columns:1fr;gap:12px}
+.catblock .lead .im{aspect-ratio:16/8.4}
+.catblock .lead h3{font-size:24px}
+.catblock ul{list-style:none;margin-top:14px;border-top:1px solid var(--line)}
+.catblock ul li a{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.catblock ul li a img{width:96px;height:64px;object-fit:cover;border-radius:6px;flex:none}
+.catblock ul li a span{font-weight:600;font-size:15.5px;line-height:1.3}
+.catblock ul li a:hover span{color:var(--navy)}
+
+/* Yazarlar */
+.authors{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.author{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.author .av{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--fh);font-size:24px;flex:none;border:3px solid #fff;box-shadow:0 0 0 2px var(--cc)}
+.author b{display:block;font-size:14px;color:var(--ink2);font-weight:600}
+.author span{font-family:var(--fh);font-size:18px;font-weight:500;line-height:1.2;display:block;margin-top:2px}
+.author:hover span{color:var(--navy)}
+
+/* Galeri bandı */
+.gallery-band{background:var(--ink);color:#fff;padding:40px 0;margin-top:44px}
+.gallery-band .sec-h h2{color:#fff}.gallery-band .sec-h hr{border-color:rgba(255,255,255,.12)}
+.gallery-band .card h3 a:hover{color:var(--sky)}
+.gallery-band .card p,.gallery-band .card .meta{color:#B7C2D4}.gallery-band .card .meta time{color:#fff}
+.gallery-band .im .play{position:absolute;inset:0;display:grid;place-items:center}
+.gallery-band .im .play i{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--red);font-size:20px;padding-left:4px}
+.gallery-band .im .cnt{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);font-size:12px;padding:3px 8px;border-radius:4px}
+
+/* Manşet listesi (sütun tabanlı) */
+.two-col{display:grid;grid-template-columns:1fr 340px;gap:26px;margin-top:40px}
+.list-news{list-style:none}
+.list-news li{display:grid;grid-template-columns:220px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+.list-news li img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px}
+.list-news h3{font-size:21px;font-weight:600;line-height:1.25}
+.list-news h3 a:hover{color:var(--navy)}
+.list-news p{color:var(--ink2);font-size:14.5px;margin-top:6px}
+.list-news .meta{font-size:12px;color:var(--ink2);margin-top:8px;display:flex;gap:10px}
+.list-news .meta .cat{color:var(--cc);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ad{background:var(--soft);border:1px dashed var(--line);border-radius:10px;display:grid;place-items:center;color:var(--ink2);font-size:13px}
+.ad.h-100{height:100px}.ad.h-250{height:250px}
+.ad span{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.mostread{list-style:none;counter-reset:mr}
+.mostread li a{display:flex;gap:14px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:flex-start}
+.mostread li a::before{counter-increment:mr;content:counter(mr);font-family:var(--fh);font-size:30px;line-height:1;color:var(--sky);font-weight:600;flex:0 0 26px}
+.mostread li a span{font-weight:600;font-size:15px;line-height:1.35}
+.mostread li:last-child a{border:0}
+.mostread li a:hover span{color:var(--navy)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px}
+.tags a{background:var(--soft);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;color:var(--ink2)}
+.tags a:hover{background:var(--navy);color:#fff}
+
+/* Haber sayfası */
+.article{display:grid;grid-template-columns:1fr 340px;gap:40px;margin-top:20px}
+.crumb{font-size:13px;color:var(--ink2);display:flex;gap:8px;margin-bottom:14px}
+.crumb a:hover{color:var(--navy)}
+.article h1{font-size:40px;font-weight:600;text-wrap:balance}
+.article .lead-p{font-size:20px;color:var(--ink2);margin-top:14px;line-height:1.5}
+.article .abar{display:flex;justify-content:space-between;align-items:center;padding:16px 0;margin:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14px;color:var(--ink2);flex-wrap:wrap;gap:12px}
+.article .abar b{color:var(--ink)}
+.share{display:flex;gap:8px}
+.share button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink2);font-size:13px;font-weight:700}
+.share button:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.article figure img{width:100%;border-radius:12px;aspect-ratio:16/9;object-fit:cover}
+.article figcaption{font-size:13px;color:var(--ink2);margin-top:8px}
+.article .body{margin-top:26px;font-size:18px;line-height:1.7;max-width:720px}
+.article .body p{margin-bottom:18px}
+.article .body p:first-child::first-letter{font-family:var(--fh);font-size:64px;float:left;line-height:.85;margin:6px 10px 0 0;color:var(--navy)}
+.article .body h2{font-size:26px;margin:28px 0 12px}
+.srcbox{background:var(--soft);border-left:4px solid var(--sky);padding:14px 18px;border-radius:0 8px 8px 0;font-size:15px;margin-top:8px}.srcbox a{color:var(--navy);font-weight:700}
+.article .body blockquote{border-left:4px solid var(--sky);padding:6px 20px;margin:24px 0;font-size:21px;font-family:var(--fh);font-weight:400;color:var(--navy)}
+.related h3{font-size:22px;margin:36px 0 16px;padding-top:24px;border-top:2px solid var(--ink)}
+.comments{margin-top:36px;border-top:2px solid var(--ink);padding-top:24px}
+.comments h3{font-size:22px;margin-bottom:14px}
+.comments textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;font-size:15px;resize:vertical}
+.comments .row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;color:var(--ink2)}
+.cmt{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.cmt .av{width:40px;height:40px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-weight:700;color:var(--navy);flex:none}
+.cmt b{font-size:14px}.cmt small{color:var(--ink2);margin-left:8px}.cmt p{font-size:15px;margin-top:4px}
+.sticky{position:sticky;top:70px}
+
+/* Kategori sayfası */
+.cat-head{padding:26px 0 18px;border-bottom:3px solid var(--cc,var(--navy));margin-bottom:22px;display:flex;align-items:flex-end;justify-content:space-between}
+.cat-head h1{font-size:40px;font-weight:600;color:var(--cc,var(--navy))}
+.cat-head p{color:var(--ink2);font-size:15px}
+.pager{display:flex;gap:6px;justify-content:center;margin-top:30px}
+.pager button{width:38px;height:38px;border:1px solid var(--line);border-radius:8px;font-family:var(--fh);font-size:16px}
+.pager button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* Statik sayfalar */
+.page{max-width:820px;margin:20px auto 0}
+.page h1{font-size:40px;font-weight:600;margin-bottom:8px}
+.page .sub{color:var(--ink2);font-size:17px;margin-bottom:26px}
+.page h2{font-size:24px;margin:28px 0 10px}
+.page p,.page li{font-size:17px;line-height:1.65;color:#2D3748;margin-bottom:12px}
+.kunye{display:grid;grid-template-columns:1fr 1fr;gap:12px 30px;margin-top:20px}
+.kunye div{padding:12px 0;border-bottom:1px solid var(--line)}
+.kunye small{display:block;font-size:12px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.kunye b{font-size:17px}
+.form{display:grid;gap:14px;margin-top:20px}
+.form label{font-size:13px;font-weight:700;color:var(--ink2);display:grid;gap:6px}
+.form input,.form textarea,.form select{border:1px solid var(--line);border-radius:8px;padding:11px 12px;font:inherit;font-size:15px;background:#fff}
+.form .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.authors.page-grid{grid-template-columns:repeat(2,1fr);margin-top:20px}
+.epaper{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:20px}
+.epaper a{display:block;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.epaper a img{aspect-ratio:3/4;width:100%;object-fit:cover}
+.epaper a b{display:block;padding:10px 12px;font-family:var(--fh);font-weight:500;font-size:16px}
+
+
+/* Sekmeli kategori bloğu */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+.tabs button{padding:10px 16px;font-family:var(--fh);font-size:16px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink2);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-color:var(--cc,var(--navy))}
+/* Özel haber */
+.ozel{display:grid;grid-template-columns:1.3fr 1fr;gap:22px}
+.ozel .big{position:relative;border-radius:12px;overflow:hidden;min-height:360px;display:block}
+.ozel .big img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ozel .big .cap{position:absolute;inset:auto 0 0 0;padding:90px 26px 26px;background:linear-gradient(180deg,transparent,rgba(10,20,45,.9));color:#fff}
+.ozel .big .cap h3{font-size:28px;font-weight:600}
+.ozel .big .cap span{display:inline-block;background:var(--gold);color:#222;font-family:var(--fh);font-size:12px;letter-spacing:.06em;padding:3px 8px;border-radius:4px;margin-bottom:10px}
+.ozel ul{list-style:none;display:grid;gap:0}
+.ozel ul li a{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.ozel ul li a img{width:120px;height:78px;object-fit:cover;border-radius:6px;flex:none}
+.ozel ul li a b{font-size:16px;line-height:1.3;display:block}
+.ozel ul li a small{color:var(--ink2);font-size:12px}
+/* Röportaj / biyografi */
+.people{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.person{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--paper)}
+.person .top{height:110px;background:var(--cc);position:relative}
+.person .top .av{position:absolute;left:18px;bottom:-28px;width:64px;height:64px;border-radius:50%;background:#fff;color:var(--cc);display:grid;place-items:center;font-family:var(--fh);font-size:22px;font-weight:600;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.person .bd{padding:36px 18px 18px}
+.person .bd b{display:block;font-size:16px}
+.person .bd small{display:block;color:var(--ink2);font-size:13px;margin-bottom:8px}
+.person .bd h3{font-size:18px;font-weight:500;line-height:1.3}
+.person .bd p{font-size:14px;color:var(--ink2);margin-top:6px}
+/* Anket */
+.poll{padding:14px 16px}
+.poll p{font-weight:700;font-size:15px;margin-bottom:12px}
+.poll .opt{display:grid;gap:4px;margin-bottom:8px;cursor:pointer}
+.poll .opt .lbl{display:flex;justify-content:space-between;font-size:13.5px}
+.poll .opt .bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.poll .opt .bar i{display:block;height:100%;background:var(--sky);width:var(--w)}
+.poll small{color:var(--ink2);font-size:12px}
+/* Puan durumu */
+.stand{width:100%;border-collapse:collapse;font-size:13.5px}
+.stand th{text-align:left;font-size:11px;color:var(--ink2);letter-spacing:.06em;padding:8px 14px;border-bottom:1px solid var(--line);font-weight:700}
+.stand td{padding:7px 14px;border-bottom:1px solid var(--line)}
+.stand td:first-child{font-family:var(--fh);color:var(--ink2);width:34px}
+.stand tr:nth-child(-n+4) td:first-child{color:var(--green,#2E7D32);font-weight:600}
+.stand td.pts{font-weight:700;text-align:right}
+/* Trafik */
+.traffic{list-style:none}
+.traffic li{display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.traffic li b{font-weight:600}.traffic li span{font-weight:700;font-size:12.5px;padding:2px 10px;border-radius:999px;color:#fff;background:var(--c)}
+/* Rehber / ilan */
+.dir{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.dir a{border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:4px}
+.dir a b{font-size:16px}.dir a small{color:var(--ink2);font-size:13px}
+.dir a .tag{justify-self:start;font-size:11.5px;font-weight:700;background:var(--soft);padding:3px 8px;border-radius:4px;color:var(--navy);margin-top:6px}
+.ilan-widget{padding:14px 16px;font-size:13.5px}
+.ilan-widget a{display:block;padding:8px 0;border-bottom:1px dashed var(--line);font-weight:600}
+.ilan-widget a:last-child{border:0}
+@media (max-width:1024px){.ozel{grid-template-columns:1fr}.people{grid-template-columns:repeat(2,1fr)}.dir{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.people,.dir{grid-template-columns:1fr}}
+/* Footer */
+footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
+.foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding:44px 0 36px;border-bottom:1px solid rgba(255,255,255,.1)}
+.foot-top .logo{color:#fff}.foot-top .logo .sky{color:var(--sky)}
+.foot-top p{font-size:14px;line-height:1.6;margin-top:14px;max-width:380px}
+.foot-top h4{color:#fff;font-size:17px;font-weight:500;margin-bottom:14px;letter-spacing:.04em}
+.foot-top ul{list-style:none}
+.foot-top li{font-size:14px;padding:5px 0}
+.foot-top li a:hover{color:#fff}
+.soc{display:flex;gap:10px;margin-top:18px}
+.soc a{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff}
+.soc a:hover{background:var(--sky)}
+.foot-bot{display:flex;justify-content:space-between;align-items:center;padding:18px 0;font-size:13px;flex-wrap:wrap;gap:10px}
+.foot-bot a:hover{color:#fff}
+.totop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(11,79,158,.35);opacity:0;pointer-events:none;transition:opacity .3s;z-index:60}
+.totop.show{opacity:1;pointer-events:auto}
+
+/* Mobil */
+.burger{display:none;width:44px;height:44px;place-items:center;color:var(--navy)}
+@media (max-width:1024px){
+  .grid-hero,.two-col,.article{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .authors{grid-template-columns:repeat(2,1fr)}
+  .catblocks{grid-template-columns:1fr}
+  .foot-top{grid-template-columns:1fr 1fr}
+  .hdr-left{display:none}
+  .header .wrap{grid-template-columns:auto 1fr auto}
+  .hero{height:440px}
+  .hero .slide .cap h2{font-size:28px}
+  .article h1{font-size:30px}
+  .sticky{position:static}
+}
+@media (max-width:640px){
+  .topbar .links{display:none}
+  .header .wrap{height:70px}
+  .logo{font-size:32px}.logo small{display:none}
+  .search{display:none}
+  .burger{display:grid}
+  .btn-navy{display:none}
+  .cards,.cards.three,.authors,.epaper{grid-template-columns:1fr}
+  .list-news li{grid-template-columns:1fr}
+  .hero{height:380px;border-radius:10px}
+  .hero .slide .cap{padding:80px 18px 70px}
+  .hero .slide .cap h2{font-size:22px}.hero .slide .cap p{display:none}
+  .hero .dots button{font-size:14px}
+  .breaking .lbl{font-size:13px;padding:0 10px 0 20px}
+  .cat-head h1,.page h1{font-size:30px}
+  .kunye,.form .g2{grid-template-columns:1fr}
+  .foot-top{grid-template-columns:1fr;gap:26px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="date" id="topDate"></span>
+    <div class="ticker"><ul id="tickerList"></ul></div>
+    <div class="links">
+      <a href="#/kunye">Künye</a><a href="#/iletisim">İletişim</a><a href="#/dijital-gazete">Dijital Gazete</a>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="wrap">
+    <div class="hdr-left">
+      <div class="w"><span id="hdrWx">☁</span><b id="hdrTemp">24°</b><span>İstanbul</span></div>
+      <span id="hdrPrayer">Öğle 13:03</span>
+    </div>
+    <a class="logo" href="#/" aria-label="Skytürk ana sayfa">SKY<span class="sky">TÜRK</span><i class="dot"></i><small>HABER</small></a>
+    <div class="hdr-right">
+      <button class="burger" aria-label="Menü" onclick="document.querySelector('.nav ul').scrollIntoView({behavior:'smooth',block:'center'})">☰</button>
+      <form class="search" onsubmit="event.preventDefault();go('/arama/'+encodeURIComponent(this.q.value))">
+        <input name="q" placeholder="Haber ara…" aria-label="Haber ara">
+        <button type="submit" aria-label="Ara">⌕</button>
+      </form>
+      <a class="btn btn-navy" href="#/dijital-gazete">Dijital Gazete</a>
+    </div>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Kategoriler">
+  <div class="wrap">
+    <a class="home" href="#/" aria-label="Ana sayfa">⌂</a>
+    <ul id="navList"></ul>
+    <a class="live" href="#/kategori/son-dakika"><i></i> CANLI</a>
+  </div>
+</nav>
+
+<div class="breaking">
+  <div class="wrap">
+    <span class="lbl">SON DAKİKA</span>
+    <div class="items" id="breakItems"></div>
+  </div>
+</div>
+
+<main><div class="wrap" id="app"></div></main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <a class="logo" href="#/">SKY<span class="sky">TÜRK</span><i class="dot"></i></a>
+        <p>SKYTÜRK, Türkiye ve dünyadan son dakika gelişmelerini doğrulanmış kaynaklarla, tarafsız ve hızlı biçimde okuyucusuna ulaştırır. Gündem, ekonomi, spor, kültür-sanat ve yaşam haberleri tek adreste.</p>
+        <div class="soc"><a href="#" aria-label="X">X</a><a href="#" aria-label="Instagram">IG</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="YouTube">▶</a><a href="#" aria-label="LinkedIn">in</a></div>
+      </div>
+      <div><h4>Kategoriler</h4><ul id="footCats"></ul></div>
+      <div><h4>Servisler</h4><ul>
+        <li><a href="#/hava-durumu">Hava Durumu</a></li><li><a href="#/trafik">Trafik Durumu</a></li><li><a href="#/puan-durumu">Puan Durumu ve Fikstür</a></li><li><a href="#/tum-mansetler">Tüm Manşetler</a></li><li><a href="#/kategori/son-dakika">Son Dakika Haberleri</a></li><li><a href="#/anketler">Anketler</a></li><li><a href="#/rehber">Firma Rehberi</a></li><li><a href="#/ilan">Seri İlan</a></li><li><a href="#/arsiv">Haber Arşivi</a></li><li><a href="#/rss">RSS</a></li>
+      </ul></div>
+      <div><h4>Kurumsal</h4><ul>
+        <li><a href="#/kunye">Künye</a></li><li><a href="#/iletisim">İletişim</a></li><li><a href="#/yazarlar">Yazarlar</a></li><li><a href="#/roportaj">Röportaj</a></li><li><a href="#/biyografi">Biyografi</a></li><li><a href="#/ozel-haber">Özel Haber</a></li><li><a href="#/yayin-ilkeleri">Yayın İlkeleri</a></li><li><a href="#/gizlilik">Gizlilik ve KVKK</a></li><li><a href="#/cerez">Çerez Politikası</a></li>
+      </ul></div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 SKYTÜRK Medya. Tüm hakları saklıdır.</span>
+      <span>Bu sitede yer alan içerikler izinsiz kullanılamaz. <a href="#/gizlilik">KVKK Aydınlatma Metni</a> · <a href="cms/">Yönetim Paneli</a></span>
+    </div>
+  </div>
+</footer>
+<button class="totop" id="toTop" aria-label="Üste çık" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* SKYTÜRK — ortak veri (site ve CMS aynı kaynağı kullanır) */
+const CATS = [
+  {id:'son-dakika',n:'Son Dakika',c:'#E8262C'},
+  {id:'gundem',n:'Gündem',c:'#0B4F9E'},
+  {id:'politika',n:'Politika',c:'#3F51B5'},
+  {id:'dunya',n:'Dünya',c:'#00897B'},
+  {id:'ekonomi',n:'Ekonomi',c:'#F9A825'},
+  {id:'spor',n:'Spor',c:'#2E7D32'},
+  {id:'kultur-sanat',n:'Kültür-Sanat',c:'#8E24AA'},
+  {id:'saglik',n:'Sağlık',c:'#D81B60'},
+  {id:'yasam',n:'Yaşam',c:'#FB8C00'},
+  {id:'teknoloji',n:'Teknoloji',c:'#2E9BF0'},
+  {id:'egitim',n:'Eğitim',c:'#5C6BC0'},
+  {id:'genel',n:'Genel',c:'#546E7A'},
+  {id:'ankara',n:'Ankara Haberleri',c:'#7B1FA2'},
+  {id:'istanbul',n:'İstanbul',c:'#455A64'},
+  {id:'resmi-ilan',n:'Resmi İlan',c:'#37474F'}
+];
+const CAT = Object.fromEntries(CATS.map(c=>[c.id,c]));
+
+function ph(seed, w, h, label){
+  /* SVG yer tutucu — kategori renginden türetilen gradyan ve grid dokusu */
+  const cat = CAT[seed] || CATS[1];
+  const c1 = cat.c, c2 = shade(cat.c,-35);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+  <pattern id="p" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#fff" stroke-opacity=".08"/></pattern></defs>
+  <rect width="100%" height="100%" fill="url(#g)"/><rect width="100%" height="100%" fill="url(#p)"/>
+  <circle cx="${w*0.78}" cy="${h*0.3}" r="${h*0.55}" fill="#fff" fill-opacity=".06"/>
+  ${label?`<text x="24" y="${h-24}" font-family="Oswald,Arial" font-size="${Math.max(14,h/9)}" fill="#fff" fill-opacity=".55" letter-spacing="2">${label.toUpperCase()}</text>`:''}
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+function shade(hex,p){const n=parseInt(hex.slice(1),16);let r=(n>>16)+p,g=((n>>8)&255)+p,b=(n&255)+p;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+
+const LOREM = [
+  'Yetkililer, konuya ilişkin çalışmaların titizlikle sürdürüldüğünü ve kamuoyunun gelişmelerden şeffaf biçimde bilgilendirileceğini açıkladı.',
+  'Uzmanlar, sürecin önümüzdeki haftalarda hız kazanmasını bekliyor; ilk somut adımların ay sonuna kadar atılması planlanıyor.',
+  'Edinilen bilgiye göre hazırlıklar tamamlanmış durumda ve uygulama takvimi ilgili kurumlarla paylaşıldı.',
+  'Konunun tarafları bir araya gelerek ortak bir yol haritası üzerinde anlaştı. Detayların yakında duyurulması bekleniyor.',
+  'Gelişme, sektör temsilcileri tarafından olumlu karşılandı. Değerlendirmelerde uzun vadeli etkilerin altı çizildi.',
+  'Vatandaşlar, alınan kararların günlük yaşama yansımalarını yakından takip ediyor.'
+];
+function body(i){const out=[];for(let k=0;k<6;k++)out.push(LOREM[(i+k)%LOREM.length]);return out;}
+
+const NEWS = [
+  {id:3001,cat:'son-dakika',t:'Merkez Bankası faiz kararını açıkladı: Piyasalar kararı nasıl karşıladı?',s:'Para Politikası Kurulu toplantısının ardından açıklanan karar, beklentilerle uyumlu geldi. Döviz ve borsa tarafında ilk tepkiler ölçüldü.',d:'13.09.2026 15:47',by:'Skytürk Ekonomi',v:12480,st:'Yayında',tags:['faiz','merkez bankası','piyasa']},
+  {id:3002,cat:'gundem',t:'İstanbul\'da yeni metro hattı hizmete açıldı: 8 istasyon, 22 dakika',s:'Kent trafiğini rahatlatması beklenen hat, ilk gün yoğun ilgi gördü. Bilim insanları çevresel etkilerinin de olumlu olacağını söylüyor.',d:'13.09.2026 14:20',by:'Skytürk Haber',v:9876,st:'Yayında',tags:['metro','ulaşım','istanbul']},
+  {id:3003,cat:'ekonomi',t:'Akaryakıtta yeni tarife: Motorin ve benzin fiyatları güncellendi',s:'Uluslararası petrol fiyatlarındaki hareketlilik pompaya yansıdı. Sürücüler için güncel litre fiyatları ve şehirlere göre farklar.',d:'13.09.2026 13:05',by:'Skytürk Ekonomi',v:15320,st:'Yayında',tags:['akaryakıt','zam']},
+  {id:3004,cat:'spor',t:'Süper Lig\'de haftanın maçı: Derbi öncesi son gelişmeler ve muhtemel 11\'ler',s:'İki takım da eksiklerle sahaya çıkacak. Teknik direktörlerin taktik tercihleri ve tribün kararı açıklandı.',d:'13.09.2026 12:30',by:'Skytürk Spor',v:21400,st:'Yayında',tags:['süper lig','derbi']},
+  {id:3005,cat:'dunya',t:'Avrupa Birliği yeni dijital düzenleme paketini kabul etti',s:'Büyük teknoloji platformlarını kapsayan düzenleme, veri paylaşımı ve reklam şeffaflığında yeni kurallar getiriyor.',d:'13.09.2026 11:45',by:'Skytürk Dünya',v:6210,st:'Yayında',tags:['ab','dijital','regülasyon']},
+  {id:3006,cat:'teknoloji',t:'Yerli yapay zekâ modeli ilk kamuya açık testine başladı',s:'Türkçe dil verisiyle eğitilen model, önce akademik kurumların erişimine açıldı. Geliştiriciler için API takvimi paylaşıldı.',d:'13.09.2026 10:50',by:'Skytürk Teknoloji',v:8830,st:'Yayında',tags:['yapay zekâ','yerli']},
+  {id:3007,cat:'saglik',t:'Sonbahar gribine karşı uzmanlardan 7 pratik öneri',s:'Havaların soğumasıyla artan vakalar için bağışıklığı güçlendirme yolları ve aşı takvimi hakkında bilinmesi gerekenler.',d:'13.09.2026 09:30',by:'Skytürk Sağlık',v:4310,st:'Yayında',tags:['grip','sağlık']},
+  {id:3008,cat:'kultur-sanat',t:'İstanbul Bienali kapılarını açtı: Bu yıl 40 ülkeden 90 sanatçı',s:'Kentin tarihi mekânlarına yayılan sergiler ücretsiz gezilebilecek. Programda söyleşiler ve atölyeler de yer alıyor.',d:'12.09.2026 22:10',by:'Skytürk Kültür',v:3920,st:'Yayında',tags:['bienal','sergi']},
+  {id:3009,cat:'politika',t:'Meclis yeni yasama yılına başladı: Gündemde hangi düzenlemeler var?',s:'Ekonomi, eğitim ve yargı paketleri ilk sırada. Parti grupları öncelik listelerini açıkladı.',d:'12.09.2026 20:40',by:'Skytürk Politika',v:7140,st:'Yayında',tags:['meclis','yasama']},
+  {id:3010,cat:'yasam',t:'Boğaz\'da sonbahar rotası: Hafta sonu için 5 yürüyüş parkuru',s:'Şehrin gürültüsünden uzaklaşmak isteyenler için ulaşımı kolay, manzarası yüksek parkurları derledik.',d:'12.09.2026 18:15',by:'Skytürk Yaşam',v:5580,st:'Yayında',tags:['gezi','istanbul']},
+  {id:3011,cat:'ekonomi',t:'Asgari ücret için ara zam tartışması: Masadaki senaryolar',s:'İşçi ve işveren tarafının beklentileri farklı noktalarda. Uzmanlar enflasyon verisinin belirleyici olacağını söylüyor.',d:'12.09.2026 16:50',by:'Skytürk Ekonomi',v:18760,st:'Yayında',tags:['asgari ücret','zam']},
+  {id:3012,cat:'spor',t:'A Milli Takım aday kadrosu açıklandı: 3 yeni isim',s:'Ekim ayı maçları için hazırlıklar başlıyor. Kadroda genç oyunculara geniş yer verildi.',d:'12.09.2026 15:00',by:'Skytürk Spor',v:11200,st:'Yayında',tags:['milli takım']},
+  {id:3013,cat:'teknoloji',t:'Akıllı telefon pazarında yeni dönem: Katlanabilir modeller yaygınlaşıyor',s:'Fiyatların düşmesiyle satışlar geçen yıla göre yüzde 40 arttı. Kullanıcı yorumları ve teknik karşılaştırma.',d:'12.09.2026 13:30',by:'Skytürk Teknoloji',v:6640,st:'Yayında',tags:['telefon','katlanabilir']},
+  {id:3014,cat:'gundem',t:'Deprem toplanma alanları güncellendi: İlçe ilçe liste',s:'AFAD ve belediyelerin ortak çalışmasıyla kentteki toplanma alanı sayısı artırıldı. Haritaya nasıl ulaşılır?',d:'12.09.2026 11:10',by:'Skytürk Haber',v:9430,st:'Yayında',tags:['deprem','afad']},
+  {id:3015,cat:'dunya',t:'Küresel iklim zirvesinde ortak bildiri: Emisyon hedefleri sıkılaştırıldı',s:'Katılımcı ülkeler 2035 için yeni ara hedefleri kabul etti. Finansman konusunda ise görüş ayrılıkları sürüyor.',d:'12.09.2026 09:00',by:'Skytürk Dünya',v:3870,st:'Yayında',tags:['iklim','zirve']},
+  {id:3016,cat:'saglik',t:'Sağlık Bakanlığı\'ndan randevu sistemine yeni özellik',s:'Aile hekimi ve hastane randevuları artık tek ekranda yönetilebilecek. Uygulama güncellemesi yayında.',d:'11.09.2026 21:30',by:'Skytürk Sağlık',v:5120,st:'Yayında',tags:['mhrs','randevu']},
+  {id:3017,cat:'kultur-sanat',t:'Kapalıçarşı\'nın restorasyonu tamamlandı: 500 yıllık çatı yeniden ışığa kavuştu',s:'Beş yıl süren çalışmanın ardından tarihi çarşı yeni yüzüyle ziyaretçilerini karşılıyor.',d:'11.09.2026 19:45',by:'Skytürk Kültür',v:4460,st:'Yayında',tags:['restorasyon','tarih']},
+  {id:3018,cat:'istanbul',t:'Boğaz köprülerinde hafta sonu bakım çalışması: Alternatif güzergâhlar',s:'Cumartesi gece başlayacak çalışma pazar sabahı tamamlanacak. Sürücülere toplu taşıma önerisi.',d:'11.09.2026 17:20',by:'Skytürk İstanbul',v:8210,st:'Yayında',tags:['trafik','köprü']},
+  {id:3019,cat:'politika',t:'Yerel yönetimler için yeni bütçe modeli görüşülüyor',s:'Belediyelerin gelir kaynaklarını çeşitlendirecek düzenleme komisyonda. Muhalefetin itiraz noktaları.',d:'11.09.2026 15:10',by:'Skytürk Politika',v:2980,st:'Yayında',tags:['belediye','bütçe']},
+  {id:3020,cat:'yasam',t:'Okullar açıldı: Velilere ekran süresi ve uyku düzeni için rehber',s:'Pedagoglar ilk haftaların uyum için kritik olduğunu belirtiyor. Yaş gruplarına göre öneriler.',d:'11.09.2026 12:00',by:'Skytürk Yaşam',v:6780,st:'Yayında',tags:['okul','çocuk']},
+  {id:3021,cat:'ekonomi',t:'Konut satışlarında ağustos verisi: Yıllık artış yüzde 12',s:'İstanbul, Ankara ve İzmir ilk üçte. Yabancıya konut satışında ise düşüş eğilimi sürüyor.',d:'11.09.2026 10:30',by:'Skytürk Ekonomi',v:7350,st:'Yayında',tags:['konut','tüik']},
+  {id:3022,cat:'spor',t:'Basketbolda sezon başlıyor: Şampiyonluk favorileri ve transferler',s:'Avrupa kupalarında mücadele edecek takımların kadroları netleşti. Sezonun ilk haftası programı.',d:'10.09.2026 20:20',by:'Skytürk Spor',v:5890,st:'Yayında',tags:['basketbol']},
+  {id:3023,cat:'teknoloji',t:'Siber güvenlikte yeni tehdit dalgası: Kurumlara uyarı',s:'USOM, kritik altyapı işletmecilerine yönelik oltalama saldırılarında artış tespit etti. Korunma adımları.',d:'10.09.2026 17:45',by:'Skytürk Teknoloji',v:4120,st:'Yayında',tags:['siber güvenlik','usom']},
+  {id:3024,cat:'gundem',t:'Şehir hastanesine yeni bağlantı yolu açıldı',s:'Ulaşım süresi 25 dakika kısaldı. Toplu taşıma hatlarında düzenleme yapıldı.',d:'10.09.2026 14:30',by:'Skytürk Haber',v:3210,st:'Taslak',tags:['hastane','yol']},
+  {id:3025,cat:'dunya',t:'Uzay ajansları ortak Ay görevini duyurdu: 2029 hedefi',s:'Dört ülkenin katılımıyla planlanan görev, insanlı iniş öncesi son test aşaması olacak.',d:'10.09.2026 09:15',by:'Skytürk Dünya',v:9910,st:'Yayında',tags:['uzay','ay']},
+  {id:3026,cat:'yasam',t:'Kahve fiyatları neden yükseliyor? Üreticiden bardağa maliyet zinciri',s:'Küresel hasat ve kur etkisi zincirleme fiyat artışına yol açtı. Kafeler nasıl önlem alıyor?',d:'09.09.2026 16:00',by:'Skytürk Yaşam',v:7720,st:'Yayında',tags:['kahve','fiyat']},
+  {id:3027,cat:'istanbul',t:'Adalar\'da elektrikli ulaşım dönemi: Faytonlardan sonra yeni araçlar yolda',s:'Belediye, ada içi ulaşımı tamamen elektrikli araçlarla sağlayacak. İlk araçlar ekimde hizmette.',d:'09.09.2026 13:40',by:'Skytürk İstanbul',v:4570,st:'Yayında',tags:['adalar','elektrikli']},
+  {id:3028,cat:'saglik',t:'Uyku kalitesini artıran 5 bilimsel yöntem',s:'Araştırmalar düzenli uyku saatinin metabolizma üzerindeki etkisini bir kez daha ortaya koydu.',d:'09.09.2026 10:20',by:'Skytürk Sağlık',v:6230,st:'Yayında',tags:['uyku']},
+  {id:3029,cat:'kultur-sanat',t:'Antalya Film Festivali programı açıklandı: 12 ülkeden yarışma filmleri',s:'Ulusal yarışmada bu yıl ilk filmlerin ağırlığı dikkat çekiyor. Jüri üyeleri ve gala takvimi.',d:'08.09.2026 19:00',by:'Skytürk Kültür',v:3340,st:'Yayında',tags:['festival','sinema']},
+  {id:3030,cat:'son-dakika',t:'İstanbul\'da sağanak uyarısı: Meteoroloji saat verdi',s:'Öğleden sonra etkili olacak yağış için vatandaşlara dikkatli olma çağrısı yapıldı. Deniz ulaşımında iptal riski.',d:'13.09.2026 15:20',by:'Skytürk Haber',v:13100,st:'Yayında',tags:['hava','yağış']}
+];
+
+const REAL = [
+ ['son-dakika','Benzinin ardından motorine rekor zam bekleniyor','Motorinde salı gününden itibaren litre başına 6,6-7,7 lira aralığında bir artış öngörülüyor; gerçekleşmesi hâlinde litre fiyatı 100 liraya yaklaşacak.','13.09.2026 15:47',['akaryakıt','motorin','zam']],
+ ['ankara','Ankara Kent Konseyi\'nde Halil İbrahim Yılmaz yeniden başkan seçildi','Kent Konseyi genel kurulunda yapılan seçimde mevcut başkan güven tazeledi.','13.09.2026 15:43',['ankara','kent konseyi']],
+ ['kultur-sanat','Serhat Kılıç\'ın vefatına ilişkin Oyuncular Sendikası: "Hiçbir oyuncu ekmeği ve sağlığı arasında seçime zorlanamaz"','Sendika, oyuncuların çalışma koşulları ve sağlık güvencesine dikkat çeken bir açıklama yayımladı.','13.09.2026 15:36',['oyuncular sendikası','tiyatro']],
+ ['gundem','Kaşif Kozinoğlu soruşturmasında gözaltına alınan 9 kişi adliyeye sevk edildi','Yeniden açılan soruşturma kapsamında gözaltındaki şüpheliler ifade işlemlerinin ardından adliyeye gönderildi.','13.09.2026 14:59',['soruşturma','adliye']],
+ ['gundem','Kaşif Kozinoğlu soruşturmasında feth-i kabir işlemi tamamlandı','Savcılığın talimatıyla yürütülen mezar açma işlemi tamamlandı; alınan örnekler Adli Tıp\'a gönderildi.','13.09.2026 14:32',['soruşturma','adli tıp']],
+ ['dunya','Irak\'ta Suudi Arabistan\'a yönelik saldırılarda kullanılan İHA rampası bulundu','Irak ordusu sözcüsü, Riyad ve Medine bölgelerindeki boru hattını hedef alan saldırılarda kullanılan bir fırlatma rampasının tespit edildiğini bildirdi.','13.09.2026 00:15',['irak','iha','suudi arabistan']],
+ ['genel','Türkiye\'den ABD\'nin GKRY\'ye yönelik kararına ilişkin açıklama','Dışişleri, ABD\'nin GKRY\'ye silah ambargosunu kaldırma kararını uzatmasına tepki göstererek Ada\'da güveni zedeleyecek adımlardan kaçınılması çağrısı yaptı.','12.09.2026 23:49',['dışişleri','kıbrıs']],
+ ['ekonomi','Motorine zam yolda: Beklenen artış miktarı ve yeni fiyatlar belli oldu','Petrol fiyatları ve kur hareketi pompaya yansıyor; yeni tarifenin salı günü geçerli olması bekleniyor.','12.09.2026 23:08',['motorin','akaryakıt']],
+ ['spor','Trabzonspor, Konyaspor deplasmanından puansız döndü','Süper Lig\'in 5. haftasında Konyaspor, 2. dakikada bulduğu golle Trabzonspor\'u 1-0 mağlup etti.','12.09.2026 22:18',['süper lig','trabzonspor','konyaspor']],
+ ['gundem','Kaşif Kozinoğlu soruşturması: Selahattin Günday ve 2 ATT personeli için tutuklama talebi','Gözaltındaki gazeteci ve iki acil tıp teknisyeni tutuklama istemiyle mahkemeye sevk edildi.','12.09.2026 23:24',['soruşturma']],
+ ['gundem','Gülistan Doku soruşturmasında 7 ilde operasyon: 11 şüpheli gözaltında','Delil karartma iddiaları üzerine aralarında emniyet mensuplarının da bulunduğu şüphelilere eş zamanlı operasyon düzenlendi.','12.09.2026 22:31',['gülistan doku','operasyon']],
+ ['politika','Özgür Özel, Üsküdar\'da: "Tarihe utançla geçecek bir iş yaptılar"','CHP lideri Üsküdar\'da düzenlenen mitingde iktidara yönelik sert eleştirilerde bulundu.','12.09.2026 20:10',['chp','özgür özel']],
+ ['politika','Kılıçdaroğlu\'nun cumhurbaşkanlığı seçimi için "ortak aday" sözlerine açıklık getirildi','Eski CHP Genel Başkanı\'nın açıklamalarının ardından çevresinden sözlerin bağlamına ilişkin bilgilendirme yapıldı.','12.09.2026 19:20',['kılıçdaroğlu','seçim']],
+ ['gundem','Tutuklanan Görkem Duman\'dan Buca Belediyesi soruşturmasına ilişkin açıklama','Buca Belediye Başkanı, tutuklanmasının ardından avukatları aracılığıyla yazılı açıklama yaptı.','12.09.2026 18:40',['izmir','buca','belediye']],
+ ['ankara','Kent Konseyi\'nde konuşan Mansur Yavaş: "Tavandakiler istediği kadar ayrılsın biz tabanda birlikteyiz"','ABB Başkanı, Kent Konseyi genel kurulunda birlik mesajı verdi.','12.09.2026 17:05',['ankara','mansur yavaş']],
+ ['kultur-sanat','Kore Kültür Merkezi\'nin yeni müdürü Park Saeng: "Deneyim odaklı kültürel diplomasiyi büyüteceğiz"','Ankara\'daki merkezin yeni yöneticisi, kültürel etkinlik programına ilişkin hedeflerini paylaştı.','12.09.2026 16:30',['kültür','kore']],
+ ['egitim','YÖK\'ten akademisyenlerin sosyal medya paylaşımlarına ilişkin yeni açıklama geldi','Yükseköğretim Kurulu, akademik personelin sosyal medya kullanımına dair ilkeleri hatırlattı.','12.09.2026 15:50',['yök','akademi']],
+ ['politika','İmamoğlu için "tutuksuz yargılanabilirdi" diyen Kılıçdaroğlu: "Yargının ne bağımsızlığı ne tarafsızlığı var"','Kılıçdaroğlu, katıldığı programda yargı sürecine yönelik değerlendirmelerde bulundu.','12.09.2026 14:20',['kılıçdaroğlu','imamoğlu']],
+ ['politika','AYM Başkanı Özkaya: Tayfun Kahraman kararının gerekçesi yayımlanma sürecinde','Anayasa Mahkemesi Başkanı, kararın gerekçesinin kısa süre içinde yayımlanacağını söyledi.','12.09.2026 13:10',['aym','anayasa mahkemesi']],
+ ['ekonomi','Bakan Uraloğlu duyurdu: Ankara-Samsun arası YHT ile 2,5 saate inecek','Ulaştırma Bakanı, yüksek hızlı tren hattının tamamlanmasıyla seyahat süresinin ciddi biçimde kısalacağını açıkladı.','12.09.2026 12:00',['yht','ulaştırma','samsun']],
+ ['spor','Spor yazarlarından Beşiktaş - Erzurumspor maçı değerlendirmesi: "Bu çizgi şampiyonluk çizgisi"','Beşiktaş\'ın 3-0\'lık galibiyeti köşe yazarları tarafından sezonun en istikrarlı performansı olarak yorumlandı.','12.09.2026 11:30',['beşiktaş','süper lig']],
+ ['ekonomi','Resmi Gazete\'de yayımlandı: 2027 yatırımlarında yeni projeler sınırlandı','2027-2029 Kamu Yatırım Programı hazırlık genelgesi, yeni proje tekliflerine sınırlama getiriyor.','12.09.2026 10:15',['resmi gazete','yatırım']],
+ ['gundem','Yargılanması yeniden başlayan Seçil Erzan: "Tehdit ve darp edildim"','Eski banka müdürü, yeniden görülen davanın duruşmasında savunma yaptı.','12.09.2026 09:40',['dava','seçil erzan']],
+ ['ekonomi','Resmi Gazete\'de yayımlandı: 2027-2029 bütçe hazırlıkları başladı','Bütçe çağrısı ve hazırlık rehberi Resmi Gazete\'de yayımlanarak kurumlara duyuruldu.','12.09.2026 09:00',['bütçe','resmi gazete']],
+ ['ankara','Başkentte hafta sonu güneşli başlıyor: Ankara 12 Eylül 2026 Cumartesi hava durumu','Meteoroloji, hafta sonu boyunca başkentte açık ve güneşli hava bekleniyor öngörüsünde bulundu.','12.09.2026 07:30',['ankara','hava durumu']],
+ ['genel','Antalya Manavgat\'ta kayıp kadın için arama başlatıldı','Sabah saatlerinde haber alınamayan 44 yaşındaki kadın için jandarma ve AFAD ekipleri drone destekli arama yürütüyor.','12.09.2026 21:53',['antalya','kayıp']],
+ ['genel','Semih Varol hakkında "kamu görevlisine hakaret" soruşturması','Sosyal medya fenomeni canlı yayındaki ifadeleri nedeniyle gözaltına alındı; TCK 125 kapsamında işlem başlatıldı.','12.09.2026 21:53',['soruşturma','sosyal medya']],
+ ['spor','Defne Kurt\'tan Türk spor tarihinde bir ilk: Avrupa Şampiyonası\'nda 5 altın','Milli para yüzücü, Gebze\'deki şampiyonanın son gününde 100 m serbest S10 finalini kazanarak beşinci altınına ulaştı.','12.09.2026 21:45',['defne kurt','yüzme','para sporlar']],
+ ['genel','Bingöl Genç\'te orman yangını: Alevler kontrol altına alındı','Sarıbudak köyündeki ormanlık alanda çıkan yangın söndürüldü, soğutma çalışmaları sürüyor.','12.09.2026 21:35',['orman yangını','bingöl']],
+ ['genel','Siirt\'in Kurtalan ilçesinde sulama havuzuna giren 10 yaşındaki çocuk hayatını kaybetti','Tarımsal sulama havuzunda boğulma tehlikesi geçiren iki kardeşten biri hastanede yaşamını yitirdi.','12.09.2026 21:29',['siirt']],
+ ['teknoloji','Alper Gezeravcı Paris\'te Türkiye\'nin uzay yetkinliklerini anlattı','Türkiye\'nin ilk astronotu, Uluslararası Uzay Zirvesi\'nde ülkenin uzay programını ve iş birliği fırsatlarını aktardı.','12.09.2026 21:22',['uzay','gezeravcı']],
+ ['genel','Kütahya Hisarcık\'ta orman yangını: Ekiplerin müdahalesi sürüyor','Ormanlık alanda çıkan yangına kara ve hava araçlarıyla müdahale ediliyor.','12.09.2026 19:10',['orman yangını','kütahya']],
+ ['ekonomi','Türkiye otoyol ve köprülerini 30 yıllığına devretmeye hazırlanıyor: Dünyada otoyol imtiyazları ne getirdi?','Özel haber: Planlanan imtiyaz devri, diğer ülkelerdeki deneyimler ışığında ele alınıyor.','11.09.2026 18:00',['otoyol','imtiyaz','özel haber'],1],
+ ['gundem','JMO Başkanı Esina: Güvenli yapılar tek bir mühendislik disipliniyle üretilemez','Jeoloji Mühendisleri Odası Başkanı, yapı güvenliğinde disiplinler arası çalışmanın önemine dikkat çekti.','11.09.2026 16:20',['deprem','mühendislik'],1],
+ ['kultur-sanat','Ressam Baran Kamiloğlu "Haymatlos" ile anlatıyor: Modern kentte aidiyet meselesi','Sanatçı, yeni sergisinde kent içinde yaşanan yurtsuzluk hâlini tuvale taşıyor.','11.09.2026 14:00',['sergi','resim'],1],
+ ['egitim','Okul zili güvenlik soruları yanıtsızken çalıyor','Yeni eğitim yılı başlarken okul çevresi güvenliğine ilişkin tartışmalar sürüyor.','11.09.2026 12:30',['okul','güvenlik'],1],
+ ['dunya','Türkiye\'nin Eurofighter yolculuğu: Türk pilotlar Eurofighter Typhoon\'a nasıl hazırlanıyor?','Özel haber: Tedarik süreci ilerlerken pilot eğitim programının ayrıntıları.','11.09.2026 10:00',['eurofighter','savunma'],1],
+ ['ekonomi','EMEKLİ PROMOSYONLARI 2026 EYLÜL GÜNCEL LİSTE: En yüksek ödemeyi hangi banka yapıyor?','Bankaların emekli promosyon tutarları güncellendi; en yüksek ödemeler ve şartlar.','11.09.2026 09:00',['emekli','promosyon']],
+ ['spor','SÜPER LİG\'DE TRANSFER FIRTINASI: Dört büyüklere kimler geldi, kimler gitti?','Transfer dönemi kapandı; dört büyük kulübün gelen-giden listesi.','10.09.2026 20:00',['transfer','süper lig']],
+ ['ekonomi','KİM NE KADAR MAAŞ ALACAK? Temmuz zammı sonrası memur, emekli ve kamu çalışanı maaşları: 33 meslek için maaş tablosu','Zam sonrası meslek gruplarına göre güncel maaş tablosu.','10.09.2026 17:00',['maaş','memur']],
+ ['spor','EN DEĞERLİ TÜRK FUTBOLCULAR: İşte güncellenen piyasa değerleriyle en değerli Türk oyuncular','Piyasa değerleri güncellendi; ilk 10\'daki isimler.','10.09.2026 15:00',['futbol','piyasa değeri']],
+ ['saglik','Gençlerde gececilik ve ertelemecilik giderek artıyor','Uzmanlar, geç uyuma ve erteleme davranışının gençler arasında yaygınlaştığına dikkat çekiyor.','10.09.2026 12:00',['uyku','gençlik']],
+ ['gundem','Gazeteci Fethi Akkoç, 12 Eylül\'ün perde arkasını anlattı: "Kanlı terör neden bir anda kesildi, açıklayamadılar"','Kıdemli gazeteci, 12 Eylül darbesine giden süreci anlattı.','10.09.2026 10:00',['12 eylül','röportaj']],
+ ['saglik','Katarakt ameliyatı için görmenin tamamen kaybolmasını beklemek gerekmiyor','Göz hastalıkları uzmanları erken müdahalenin önemini vurguluyor.','09.09.2026 16:00',['göz sağlığı','katarakt']],
+ ['saglik','Sağlıklı ve uzun bir ömür için genç yaşlardan itibaren damar sağlığına yatırım yapmak gerekiyor','Kardiyologlar, damar sağlığının erken yaşta korunması gerektiğini söylüyor.','09.09.2026 14:00',['kalp','damar sağlığı']],
+ ['gundem','Fethi Akkoç 24 Saat Kayıt\'a anlattı: "Nihat Erim başbakan olacağını benden öğrendi"','Gazeteci, yakın tarihe ilişkin anılarını paylaştı.','09.09.2026 11:00',['röportaj','tarih']],
+ ['spor','Fransa\'da gol yağmuru: PSG, Bayern Münih\'i Şampiyonlar Ligi yarı final ilk maçında 5-4 yendi','Yarı final ilk maçında dokuz gollü karşılaşmayı ev sahibi PSG kazandı.','09.09.2026 00:59',['şampiyonlar ligi','psg']],
+ ['politika','Özel, 1 Mayıs öncesi işçi sendikaları konfederasyonlarını ziyaret edecek','CHP Genel Başkanı\'nın program kapsamında konfederasyonlara ziyaret takvimi açıklandı.','08.09.2026 00:47',['chp','sendika']],
+ ['spor','Fenerbahçe Beko, EuroLeague Play-off serisinde Zalgiris\'i 89-78 yenerek 1-0 öne geçti','Seride üç galibiyete ulaşan takım Final Four\'a yükselecek.','07.09.2026 22:00',['euroleague','fenerbahçe beko']],
+ ['spor','Ederson tedbirli olarak PFDK\'ya sevk edildi','Derbide kırmızı kart gören kaleci, hakaret ve sportmenliğe aykırı hareket gerekçesiyle disipline sevk edildi.','07.09.2026 18:00',['pfdk','derbi']],
+ ['ankara','Ankara\'da toplu taşımaya yeni hat: EGO 3 ilçeyi metroya bağlıyor','ABB, çevre ilçelerden metro istasyonlarına aktarmalı yeni otobüs hatlarını duyurdu.','07.09.2026 12:00',['ankara','ego','ulaşım']],
+ ['resmi-ilan','T.C. Ankara 4. Asliye Hukuk Mahkemesinden ilan','Basın İlan Kurumu aracılığıyla yayımlanan resmi ilan metni.','13.09.2026 08:00',['resmi ilan','mahkeme']],
+ ['resmi-ilan','Ankara Büyükşehir Belediyesi ihale ilanı: Park ve yeşil alan bakım hizmeti','İhale tarihi, şartname bedeli ve başvuru koşulları ilan metninde.','12.09.2026 08:00',['resmi ilan','ihale']],
+ ['resmi-ilan','Çankaya Kaymakamlığı kamulaştırma ilanı','2942 sayılı Kanun kapsamında kamulaştırma bildirimi.','11.09.2026 08:00',['resmi ilan','kamulaştırma']]
+];
+let RID=4000;
+REAL.forEach(r=>{NEWS.push({id:RID++,cat:r[0],t:r[1],s:r[2],d:r[3],by:r[0]==='resmi-ilan'?'Basın İlan Kurumu':'Skytürk Haber Merkezi',v:1500+Math.floor(Math.random()*18000),st:'Yayında',tags:r[4],ozel:!!r[5]});});
+
+NEWS.forEach((n,i)=>{n.p=body(i); n.img=(w,h)=>ph(n.cat,w,h,CAT[n.cat].n);});
+
+const AUTHORS = [
+  {id:'ayse-demirel',n:'Ayşe Demirel',t:'Ekonomide sonbahar dengesi',c:'#0B4F9E'},
+  {id:'kerem-aksoy',n:'Kerem Aksoy',t:'Derbi öncesi soğukkanlılık',c:'#2E7D32'},
+  {id:'selin-oruc',n:'Selin Oruç',t:'Şehrin yeni ritmi: metro',c:'#8E24AA'},
+  {id:'mehmet-ulu',n:'Mehmet Ulu',t:'Dijital düzenleme ne getirir?',c:'#00897B'},
+  {id:'zeynep-kaya',n:'Zeynep Kaya',t:'Okul çantasında ne var?',c:'#FB8C00'},
+  {id:'baris-eren',n:'Barış Eren',t:'Yapay zekânın Türkçesi',c:'#2E9BF0'},
+  {id:'nil-sahin',n:'Nil Şahin',t:'Bienal notları',c:'#D81B60'},
+  {id:'okan-tas',n:'Okan Taş',t:'Uzaya giden yol',c:'#3F51B5'}
+];
+const MARKETS = [
+  {k:'DOLAR',v:'48,65',d:'+0,12%',up:true,sym:'$'},
+  {k:'EURO',v:'56,49',d:'-0,08%',up:false,sym:'€'},
+  {k:'STERLİN',v:'65,91',d:'+0,04%',up:true,sym:'£'},
+  {k:'ALTIN',v:'6.784,88',d:'-0,31%',up:false,sym:'◆'},
+  {k:'BİST 100',v:'14.467',d:'+0,82%',up:true,sym:'▮'},
+  {k:'BİTCOİN',v:'3.754.831',d:'-0,80%',up:false,sym:'₿'}
+];
+const PRAYER = [['İmsak','05:10'],['Güneş','06:38'],['Öğle','13:03'],['İkindi','16:34'],['Akşam','19:18'],['Yatsı','20:41']];
+const WEATHER = {city:'İstanbul',day:'Pazar',date:'13 Eylül',temp:24,desc:'Parçalı Bulutlu',
+  days:[['Pzt',23,'Sağanak'],['Sal',22,'Yağmurlu'],['Çrş',25,'Az Bulutlu'],['Prş',26,'Güneşli']]};
+
+/* Görsel açıklamaları (ajans fotoğrafı yerine kendi görsel üretimi için) */
+NEWS.forEach(n=>{n.imgPrompt=`Editorial news photo, ${CAT[n.cat].n}, ${n.t.slice(0,80)}, Turkish setting, natural light, 16:9, no text`;});
+
+const INTERVIEWS=[
+ {id:'r1',n:'Prof. Dr. Ayla Kara',role:'Deprem mühendisi',t:'"Kentsel dönüşümde hız değil doğru sıralama önemli"',s:'Yapı stoğu, denetim ve finansman üzerine kapsamlı bir söyleşi.',cat:'gundem'},
+ {id:'r2',n:'Deniz Aksoy',role:'Yapay zekâ girişimcisi',t:'"Türkçe veri en büyük avantajımız"',s:'Yerli dil modellerinin geleceği ve regülasyon beklentileri.',cat:'teknoloji'},
+ {id:'r3',n:'Nazlı Erten',role:'Tiyatro yönetmeni',t:'"Sahne, kentin hafızasıdır"',s:'Yeni sezon, bağımsız sahneler ve seyirciyle ilişki.',cat:'kultur-sanat'},
+ {id:'r4',n:'Dr. Murat Şen',role:'Kardiyolog',t:'"Damar sağlığı 20\'li yaşlarda başlar"',s:'Erken yaşta önleyici sağlık üzerine.',cat:'saglik'}
+];
+const BIOS=[
+ {id:'b1',n:'Defne Kurt',role:'Milli para yüzücü',s:'Avrupa Şampiyonası\'nda 5 altın madalya kazanan ilk Türk sporcu.',cat:'spor'},
+ {id:'b2',n:'Alper Gezeravcı',role:'Türkiye\'nin ilk astronotu',s:'Uzay yolculuğu ve Türkiye Uzay Ajansı\'ndaki görevi.',cat:'teknoloji'},
+ {id:'b3',n:'Mansur Yavaş',role:'Ankara Büyükşehir Belediye Başkanı',s:'Hukukçu kimliği ve yerel yönetim kariyeri.',cat:'ankara'},
+ {id:'b4',n:'Fethi Akkoç',role:'Gazeteci',s:'Yakın siyasi tarihe tanıklık eden kıdemli gazeteci.',cat:'gundem'}
+];
+const POLLS=[
+ {id:'p1',q:'Motorine beklenen zam bütçenizi nasıl etkiler?',o:[['Ciddi etkiler',62],['Kısmen etkiler',27],['Etkilemez',11]],votes:4820,open:true},
+ {id:'p2',q:'Ankara-Samsun YHT hattını kullanır mısınız?',o:[['Evet, sık sık',48],['Yılda birkaç kez',35],['Hayır',17]],votes:2130,open:true},
+ {id:'p3',q:'Süper Lig\'de şampiyonluk favoriniz?',o:[['Galatasaray',34],['Fenerbahçe',31],['Beşiktaş',22],['Diğer',13]],votes:9870,open:false}
+];
+const DIRECTORY=[
+ ['Ankara Kardiyoloji Merkezi','Sağlık','Çankaya'],['Başkent Hukuk Bürosu','Hukuk','Kızılay'],['Kavaklıdere Emlak','Gayrimenkul','Kavaklıdere'],['Nova Yazılım','Teknoloji','Bilkent'],['Tunalı Fırın','Gıda','Tunalı Hilmi'],['Anadolu Oto Servis','Otomotiv','Ostim'],['Bahçeli Kitabevi','Kültür','Bahçelievler'],['Etimesgut Fizyoterapi','Sağlık','Etimesgut']
+];
+const CLASSIFIEDS=[
+ ['Çankaya\'da 3+1 kiralık daire','Emlak','45.000 ₺/ay'],['Deneyimli muhasebeci aranıyor','İş','Görüşülür'],['2021 model otomobil, düşük km','Vasıta','1.450.000 ₺'],['Piyano dersi — konservatuvar mezunu','Eğitim','800 ₺/saat'],['Ofis mobilyası toplu satış','Ticari','Görüşülür'],['Ev taşıma ve nakliyat','Hizmet','Fiyat alın']
+];
+const STANDINGS=[['Galatasaray',5,13,'+9'],['Fenerbahçe',5,11,'+7'],['Beşiktaş',5,10,'+6'],['Trabzonspor',5,9,'+3'],['Konyaspor',5,8,'+2'],['Göztepe',5,8,'+1'],['Kocaelispor',5,7,'0'],['Gençlerbirliği',5,6,'-1'],['Samsunspor',5,5,'-2'],['Erzurum FK',5,2,'-6']];
+const TRAFFIC=[['Kızılay - Sıhhiye','Yoğun','#E8262C'],['Eskişehir Yolu','Orta','#F9A825'],['Konya Yolu','Akıcı','#22A06B'],['Anadolu Bulvarı','Yoğun','#E8262C'],['Çevre Yolu (Batı)','Akıcı','#22A06B'],['İstanbul Yolu','Orta','#F9A825']];
+
+/* Sunucu köprüsü: CMS'in yayınladığı veriyi api/data.php'den al (yoksa tarayıcı depolaması) */
+function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!CAT[n.cat])n.cat='genel';if(!n.p)n.p=body(i);if(!n.tags)n.tags=[];n.img=(w,h)=>ph(n.cat,w,h,CAT[n.cat].n);NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}}
+try{const raw=localStorage.getItem('skyturk_news');if(raw)applySaved({news:JSON.parse(raw),polls:JSON.parse(localStorage.getItem('skyturk_polls')||'null')});}catch(e){}
+
+</script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const go=h=>{location.hash='#'+h};
+const byId=id=>NEWS.find(n=>n.id==id);
+const inCat=c=>NEWS.filter(n=>n.cat===c);
+const pd=d=>{const [dd,mm,yy]=d.slice(0,10).split('.');return new Date(`${yy}-${mm}-${dd}T${d.slice(11)}:00`)};
+let sorted=[...NEWS].filter(n=>n.cat!=='resmi-ilan').sort((a,b)=>pd(b.d)-pd(a.d));
+let ozelN=NEWS.filter(n=>n.ozel);
+const fmt=n=>n.toLocaleString('tr-TR');
+const dayNames=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+const now=new Date(2026,8,13);
+$('#topDate').textContent=now.toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'})+' '+dayNames[now.getDay()];
+
+/* Üst piyasa bandı */
+const tk=MARKETS.map(m=>`<li><b>${m.k}</b>${m.v} <span class="${m.up?'up':'dn'}">${m.d}</span></li>`).join('');
+$('#tickerList').innerHTML=tk+tk;
+
+/* Menü */
+const NAVCATS=['son-dakika','genel','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','egitim'];
+$('#navList').innerHTML=NAVCATS.map(id=>CAT[id]).map(c=>`<li><a href="#/kategori/${c.id}" data-cat="${c.id}" style="--cc:${c.c}" class="${c.id==='son-dakika'?'sd':''}">${c.n}</a></li>`).join('')+`<li><a href="#/yazarlar" data-cat="yazarlar">Yazarlar</a></li><li><a href="#/kategori/resmi-ilan" data-cat="resmi-ilan" style="--cc:#37474F">Resmi İlan</a></li><li><a href="#/dijital-gazete" data-cat="edergi">Dijital Gazete</a></li><li><a href="#/kategori/ankara" data-cat="ankara" style="--cc:#7B1FA2">Ankara Haberleri</a></li>`;
+$('#footCats').innerHTML=CATS.filter(c=>c.id!=='istanbul').map(c=>`<li><a href="#/kategori/${c.id}">${c.n}</a></li>`).join('');
+
+/* Son dakika bandı */
+const brk=sorted.slice(0,6);
+$('#breakItems').innerHTML=brk.map((n,i)=>`<a href="#/haber/${n.id}" class="${i?'':'on'}"><time>${n.d.slice(11)}</time>${esc(n.t)}</a>`).join('');
+var bi=0;setInterval(()=>{const a=$('#breakItems').children;a[bi].classList.remove('on');bi=(bi+1)%a.length;a[bi].classList.add('on')},4500);
+
+/* Yardımcı parçalar */
+const catTag=c=>`<span class="cat" style="--cc:${CAT[c].c}">${CAT[c].n}</span>`;
+function card(n,opts={}){return `<article class="card"><a class="im" href="#/haber/${n.id}"><img src="${n.img(640,384)}" alt="">${catTag(n.cat)}${opts.play?'<span class="play"><i>▶</i></span>':''}${opts.cnt?`<span class="cnt">${opts.cnt} fotoğraf</span>`:''}</a><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3>${opts.noP?'':`<p>${esc(n.s)}</p>`}<div class="meta"><time>${n.d.slice(0,10)}</time><span>${n.d.slice(11)}</span><span>${esc(n.by)}</span></div></article>`}
+function secH(t,c,link,label='Tümü'){return `<div class="sec-h" style="--cc:${c}"><h2>${t}</h2><hr>${link?`<a href="${link}">${label} ›</a>`:''}</div>`}
+function sideWidgets(){
+  const w=WEATHER;
+  return `
+  <div class="box" style="--cc:var(--red)"><div class="box-h"><h3><i></i>Son Dakika</h3><a href="#/kategori/son-dakika">Tümü</a></div>
+    <ul class="sd-list">${sorted.slice(0,9).map(n=>`<li><a href="#/haber/${n.id}"><time>${n.d.slice(11)}</time><span>${esc(n.t)}</span></a></li>`).join('')}</ul></div>
+  <div class="box"><div class="widget-w">
+    <div><div class="cityname">${w.city}<span>${w.day}</span></div><div class="big">${w.temp}<sup>°C</sup></div><div class="sm">${w.desc} · ${w.date}</div>
+      <div style="display:flex;gap:10px;margin-top:10px;font-size:12px;color:var(--ink2)">${w.days.map(d=>`<span><b style="color:var(--ink)">${d[0]}</b> ${d[1]}°</span>`).join('')}</div></div>
+    <div><div class="cityname">Namaz Vakitleri<span>İstanbul</span></div>${PRAYER.map(p=>`<div class="row"><span>${p[0]}</span><b>${p[1]}</b></div>`).join('')}</div>
+  </div></div>
+  <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Günün Anketi</h3><a href="#/anketler">Tüm anketler</a></div>${pollBox(POLLS[0])}</div>
+  <div class="box" style="--cc:#2E7D32"><div class="box-h"><h3><i></i>Süper Lig Puan Durumu</h3><a href="#/puan-durumu">Fikstür</a></div><table class="stand"><thead><tr><th>#</th><th>Takım</th><th>O</th><th style="text-align:right">P</th></tr></thead><tbody>${STANDINGS.slice(0,6).map((t,i)=>`<tr><td>${i+1}</td><td>${t[0]}</td><td>${t[1]}</td><td class="pts">${t[2]}</td></tr>`).join('')}</tbody></table></div>
+  <div class="box" style="--cc:#37474F"><div class="box-h"><h3><i></i>Resmi İlanlar</h3><a href="#/kategori/resmi-ilan">Tümü</a></div><div class="ilan-widget">${NEWS.filter(n=>n.cat==='resmi-ilan').map(n=>`<a href="#/haber/${n.id}">${esc(n.t)}</a>`).join('')}<small style="color:var(--ink2);display:block;margin-top:8px">Basın İlan Kurumu — ilan.gov.tr</small></div></div>
+  <div class="ad h-250"><div style="text-align:center"><span>Reklam</span>300×250</div></div>
+  <div class="box" style="--cc:var(--sky)"><div class="box-h"><h3><i></i>En Çok Okunanlar</h3></div>
+    <ol class="mostread">${[...NEWS].sort((a,b)=>b.v-a.v).slice(0,5).map(n=>`<li><a href="#/haber/${n.id}"><span>${esc(n.t)}</span></a></li>`).join('')}</ol></div>
+  <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Etiketler</h3></div><div class="tags">${[...new Set(NEWS.flatMap(n=>n.tags))].slice(0,14).map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div></div>`;
+}
+
+function pollBox(p){return `<div class="poll" data-id="${p.id}"><p>${esc(p.q)}</p>${p.o.map((o,i)=>`<div class="opt" onclick="vote('${p.id}',${i},this)"><div class="lbl"><span>${o[0]}</span><b>${o[1]}%</b></div><div class="bar"><i style="--w:${o[1]}%"></i></div></div>`).join('')}<small>${p.votes.toLocaleString('tr-TR')} oy · ${p.open?'Anket açık':'Sonuçlandı'}</small></div>`}
+function vote(id,i,el){const p=POLLS.find(x=>x.id===id);if(!p.open||p.voted)return;p.voted=true;p.votes++;el.closest('.poll').querySelector('small').textContent=`${p.votes.toLocaleString('tr-TR')} oy · Oyunuz alındı ✓`;el.querySelector('b').textContent=(p.o[i][1]+1)+'%'}
+function personCard(p,kind){return `<a class="person" href="#/${kind}/${p.id}" style="--cc:${CAT[p.cat].c}"><div class="top"><span class="av">${p.n.replace(/^(Prof\. |Dr\. )+/,'').split(' ').map(x=>x[0]).join('').slice(0,2)}</span></div><div class="bd"><b>${esc(p.n)}</b><small>${esc(p.role)}</small>${p.t?`<h3>${esc(p.t)}</h3>`:''}<p>${esc(p.s)}</p></div></a>`}
+function tabbed(){const ids=['dunya','ekonomi','kultur-sanat','spor','egitim','yasam','saglik','teknoloji'];return `<section class="sec" id="tabsec"><div class="tabs" style="--cc:${CAT.dunya.c}">${ids.map((id,i)=>`<button class="${i?'':'on'}" onclick="tabTo('${id}',this)">${CAT[id].n}</button>`).join('')}</div><div class="cards" id="tabBody">${inCat('dunya').slice(0,4).map(n=>card(n)).join('')}</div></section>`}
+function tabTo(id,btn){btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.parentNode.style.setProperty('--cc',CAT[id].c);$('#tabBody').innerHTML=inCat(id).slice(0,4).map(n=>card(n)).join('')||'<p style="color:var(--ink2)">Bu kategoride henüz haber yok.</p>'}
+/* ---- Sayfalar ---- */
+function home(){
+  const heroN=sorted.slice(0,6);
+  const hero=`<section class="hero" aria-label="Manşetler">
+    ${heroN.map((n,i)=>`<div class="slide ${i?'':'on'}"><img src="${n.img(1200,640)}" alt=""><a class="cap" href="#/haber/${n.id}"><span class="cat" style="--cc:${CAT[n.cat].c}">${CAT[n.cat].n}</span><h2>${esc(n.t)}</h2><p>${esc(n.s)}</p></a></div>`).join('')}
+    <button class="arrow l" onclick="slide(-1)" aria-label="Önceki">‹</button><button class="arrow r" onclick="slide(1)" aria-label="Sonraki">›</button>
+    <div class="dots">${heroN.map((n,i)=>`<button class="${i?'':'on'}" onclick="slideTo(${i})">${i+1}</button>`).join('')}</div>
+  </section>`;
+  const cb=(c)=>{const l=inCat(c);const lead=l[0];return `<div class="catblock" style="--cc:${CAT[c].c}">${secH(CAT[c].n,CAT[c].c,'#/kategori/'+c)}<div class="lead">${card(lead)}</div><ul>${l.slice(1,4).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(192,128)}" alt=""><span>${esc(n.t)}</span></a></li>`).join('')}</ul></div>`};
+  return `
+  <div class="grid-hero"><div>${hero}<div class="cards three" style="margin-top:22px">${sorted.slice(6,9).map(n=>card(n,{noP:true})).join('')}</div>
+  <section class="sec" style="margin-top:30px">${secH('Gündem','#0B4F9E','#/kategori/gundem')}<div class="cards two">${inCat('gundem').slice(0,4).map(n=>card(n)).join('')}</div></section>
+  <section class="sec" style="margin-top:30px">${secH('Özel Haber','#F9A825','#/ozel-haber')}<div class="ozel"><a class="big" href="#/haber/${ozelN[0].id}"><img src="${ozelN[0].img(900,520)}" alt=""><div class="cap"><span>ÖZEL HABER</span><h3>${esc(ozelN[0].t)}</h3></div></a><ul>${ozelN.slice(1,5).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(240,156)}" alt=""><div><b>${esc(n.t)}</b><small>${CAT[n.cat].n} · ${n.d.slice(0,10)}</small></div></a></li>`).join('')}</ul></div></section>
+  </div><aside class="side">${sideWidgets()}</aside></div>
+  <div class="ad h-100" style="margin-top:26px"><div style="text-align:center"><span>Reklam</span>970×90</div></div>
+  <section class="sec">${secH('Politika','#3F51B5','#/kategori/politika')}<div class="cards">${inCat('politika').slice(0,4).map(n=>card(n)).join('')}</div></section>
+  <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
+  <section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span></div></a>`).join('')}</div></section>
+  ${tabbed()}
+  <section class="sec">${secH('Ankara Haberleri','#7B1FA2','#/kategori/ankara')}<div class="cards">${inCat('ankara').slice(0,4).map(n=>card(n)).join('')}</div></section>
+  </div><section class="gallery-band"><div class="wrap">
+    ${secH('Foto Galeri','#2E9BF0','#/foto-galeri','Tüm Galeriler')}<div class="cards">${NEWS.filter(n=>/LİSTE|FIRTINASI|MAAŞ|DEĞERLİ/.test(n.t)).slice(0,4).map((n,i)=>card(n,{noP:true,cnt:[18,12,24,9][i]})).join('')}</div>
+    <div style="height:34px"></div>
+    ${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${NEWS.filter(n=>/gececilik|Fethi Akkoç|Katarakt|damar/i.test(n.t)).slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>
+  </div></section><div class="wrap">
+  <section class="sec"><div class="catblocks">${cb('saglik')}${cb('kultur-sanat')}</div></section>
+  <section class="sec">${secH('Röportaj','#00897B','#/roportaj')}<div class="people">${INTERVIEWS.map(p=>personCard(p,'roportaj')).join('')}</div></section>
+  <section class="sec"><div class="catblocks">${cb('dunya')}${cb('teknoloji')}</div></section>
+  <section class="sec">${secH('Biyografi','#3F51B5','#/biyografi')}<div class="people">${BIOS.map(p=>personCard(p,'biyografi')).join('')}</div></section>
+  <section class="sec">${secH('Yaşam','#FB8C00','#/kategori/yasam')}<div class="cards">${inCat('yasam').slice(0,4).map(n=>card(n)).join('')}</div></section>
+  <section class="sec">${secH('Dijital Gazete','#14213D','#/dijital-gazete','Arşiv')}<div class="epaper">${['13 Eylül 2026','12 Eylül 2026','11 Eylül 2026','10 Eylül 2026'].map((d,i)=>`<a href="#/dijital-gazete"><img src="${ph(['gundem','politika','ekonomi','istanbul'][i],300,400,'SKYTÜRK '+d.split(' ')[0]+' EYLÜL')}" alt=""><b>${d}</b></a>`).join('')}</div></section>`;
+}
+let si=0;function slideTo(i){const s=document.querySelectorAll('.hero .slide'),d=document.querySelectorAll('.hero .dots button');if(!s.length)return;s[si].classList.remove('on');d[si].classList.remove('on');si=(i+s.length)%s.length;s[si].classList.add('on');d[si].classList.add('on')}
+function slide(k){slideTo(si+k)}
+let heroTimer=setInterval(()=>{if(document.querySelector('.hero'))slide(1)},6000);
+
+function catPage(c){
+  const cat=CAT[c];if(!cat)return notFound();
+  const l=c==='son-dakika'?sorted:c==='resmi-ilan'?inCat(c):inCat(c).sort((a,b)=>pd(b.d)-pd(a.d));
+  return `<div class="cat-head" style="--cc:${cat.c}"><div><h1>${cat.n}</h1><p>${c==='resmi-ilan'?'Basın İlan Kurumu (ilan.gov.tr) aracılığıyla yayımlanan resmi ilanlar.':cat.n+' kategorisindeki son haberler, analizler ve gelişmeler.'}</p></div><span style="font-size:13px;color:var(--ink2)">${l.length} haber</span></div>
+  <div class="two-col" style="margin-top:0"><div>
+    ${l.length?`<div class="cards two" style="margin-bottom:10px">${l.slice(0,2).map(n=>card(n)).join('')}</div>
+    <ul class="list-news">${l.slice(2).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(440,275)}" alt=""></a><div><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3><p>${esc(n.s)}</p><div class="meta" style="--cc:${CAT[n.cat].c}"><span class="cat">${CAT[n.cat].n}</span><span>${n.d}</span><span>${esc(n.by)}</span></div></div></li>`).join('')}</ul>
+    <div class="pager"><button class="on">1</button><button>2</button><button>3</button><button>›</button></div>`
+    :`<p style="padding:40px 0;color:var(--ink2)">Bu kategoride henüz haber yok.</p>`}
+  </div><aside class="side sticky">${sideWidgets()}</aside></div>`;
+}
+function article(id){
+  const n=byId(id);if(!n)return notFound();
+  const c=CAT[n.cat];
+  const rel=NEWS.filter(x=>x.cat===n.cat&&x.id!==n.id).slice(0,3);
+  document.title=n.t+' — SKYTÜRK';
+  return `<article class="article"><div>
+    <div class="crumb"><a href="#/">Ana Sayfa</a>›<a href="#/kategori/${n.cat}" style="color:${c.c};font-weight:700">${c.n}</a>›<span>Haber</span></div>
+    <h1>${esc(n.t)}</h1><p class="lead-p">${esc(n.s)}</p>
+    <div class="abar"><div><b>${esc(n.by)}</b> · ${n.d} · Güncelleme ${n.d.slice(11)} · ${fmt(n.v)} okunma</div>
+      <div class="share"><button title="X">X</button><button title="Facebook">f</button><button title="WhatsApp">W</button><button title="Bağlantıyı kopyala" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);this.textContent='✓'">⧉</button><button title="Yazdır" onclick="print()">⎙</button></div></div>
+    <figure><img src="${n.img(1200,675)}" alt=""><figcaption>${esc(n.t)}${n.auto?'':' — Fotoğraf: SKYTÜRK Arşiv'}</figcaption></figure>
+    <div class="body">${n.auto?`<p>${esc(n.s)}</p><div class="srcbox"><b>Kaynak: ${esc(n.srcName||n.by)}</b> — Bu içerik kaynağın açık RSS akışından özet olarak alınmıştır.<br><a href="${esc(n.src)}" target="_blank" rel="noopener nofollow">Haberin tamamını kaynağında okuyun ↗</a></div>`:`<p>${n.p[0]} ${n.p[1]}</p><p>${n.p[2]}</p><h2>Süreç nasıl ilerleyecek?</h2><p>${n.p[3]}</p><blockquote>"${n.p[5]}"</blockquote><p>${n.p[4]} ${n.p[1]}</p><p>${n.p[0]}</p>`}</div>
+    <div class="tags" style="padding:16px 0 0">${n.tags.map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div>
+    <div class="related"><h3>İlgili Haberler</h3><div class="cards three">${rel.map(x=>card(x,{noP:true})).join('')}</div></div>
+    <div class="comments"><h3>Yorumlar (3)</h3>
+      <textarea placeholder="Yorumunuzu yazın… Yorumlar editör onayından sonra yayımlanır."></textarea>
+      <div class="row"><span>Yorum yaparak <a href="#/yayin-ilkeleri" style="color:var(--navy)">yayın ilkelerimizi</a> kabul etmiş olursunuz.</span><button class="btn btn-navy" style="height:36px" onclick="this.textContent='Gönderildi ✓'">Yorumu gönder</button></div>
+      <div style="margin-top:20px">
+        <div class="cmt"><span class="av">MK</span><div><b>Murat K.</b><small>2 saat önce</small><p>Haberin detaylı olması güzel, kaynak belirtilmesi güven veriyor.</p></div></div>
+        <div class="cmt"><span class="av">EY</span><div><b>Elif Y.</b><small>3 saat önce</small><p>Gelişmeleri takip ediyoruz, güncelleme bekliyoruz.</p></div></div>
+        <div class="cmt"><span class="av">AT</span><div><b>Ahmet T.</b><small>5 saat önce</small><p>Konunun uzun vadeli etkileri de ayrıca ele alınmalı.</p></div></div>
+      </div></div>
+  </div><aside class="side sticky">${sideWidgets()}</aside></article>`;
+}
+function authorsPage(){return `<div class="page" style="max-width:var(--w)"><h1>Yazarlar</h1><p class="sub">SKYTÜRK köşe yazarlarının güncel yazıları.</p><div class="authors page-grid">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span><small style="color:var(--ink2)">13 Eylül 2026</small></div></a>`).join('')}</div></div>`}
+function gallery(video){const l=sorted.slice(0,12);return `<div class="cat-head" style="--cc:${video?'#E8262C':'#2E9BF0'}"><div><h1>${video?'Video Galeri':'Foto Galeri'}</h1><p>${video?'Haberin görüntülü hâli: röportajlar, canlı yayın kesitleri ve analizler.':'Günün öne çıkan fotoğraf hikâyeleri.'}</p></div></div><div class="cards" style="margin-top:0">${l.map((n,i)=>card(n,{noP:true,play:video,cnt:video?null:8+i*3})).join('')}</div>`}
+function search(q){q=decodeURIComponent(q||'').toLowerCase();const l=NEWS.filter(n=>(n.t+n.s+n.tags.join(' ')).toLowerCase().includes(q));return `<div class="cat-head"><div><h1>Arama: "${esc(q)}"</h1><p>${l.length} sonuç bulundu.</p></div></div><div class="two-col" style="margin-top:0"><div>${l.length?`<ul class="list-news">${l.map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(440,275)}" alt=""></a><div><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3><p>${esc(n.s)}</p><div class="meta" style="--cc:${CAT[n.cat].c}"><span class="cat">${CAT[n.cat].n}</span><span>${n.d}</span></div></div></li>`).join('')}</ul>`:`<p style="padding:40px 0;color:var(--ink2)">Sonuç yok. Farklı bir anahtar kelime deneyin.</p>`}</div><aside class="side sticky">${sideWidgets()}</aside></div>`}
+function kunye(){return `<div class="page"><h1>Künye</h1><p class="sub">SKYTÜRK Medya Yayıncılık A.Ş. yayın organıdır.</p><div class="kunye">
+  ${[['İmtiyaz Sahibi','SKYTÜRK Medya Yayıncılık A.Ş.'],['Genel Yayın Yönetmeni','—'],['Sorumlu Yazı İşleri Müdürü','—'],['Haber Müdürü','—'],['Ekonomi Editörü','—'],['Spor Editörü','—'],['Görsel Yönetmen','—'],['Dijital Yayın Koordinatörü','—'],['Yayın Türü','Yaygın süreli yayın'],['İletişim','info@skyturk.com.tr']].map(k=>`<div><small>${k[0]}</small><b>${k[1]}</b></div>`).join('')}</div>
+  <h2>Yayın ilkelerimiz</h2><p>SKYTÜRK, Basın Meslek İlkeleri'ne bağlıdır. Haberler doğrulanmış kaynaklara dayanır; tekzip ve düzeltme hakkı saklıdır. Kişisel veriler 6698 sayılı KVKK kapsamında işlenir.</p></div>`}
+function iletisim(){return `<div class="page"><h1>İletişim</h1><p class="sub">Haber ihbarı, reklam ve iş birliği talepleriniz için bize yazın.</p>
+  <div class="kunye"><div><small>Adres</small><b>İstanbul, Türkiye</b></div><div><small>Telefon</small><b>+90 (212) 000 00 00</b></div><div><small>Haber İhbar</small><b>haber@skyturk.com.tr</b></div><div><small>Reklam</small><b>reklam@skyturk.com.tr</b></div></div>
+  <form class="form" onsubmit="event.preventDefault();this.querySelector('button').textContent='Mesajınız alındı ✓'"><div class="g2"><label>Ad Soyad<input required></label><label>E-posta<input type="email" required></label></div><label>Konu<select><option>Haber ihbarı</option><option>Reklam</option><option>Düzeltme / Tekzip</option><option>Diğer</option></select></label><label>Mesaj<textarea rows="5" required></textarea></label><label style="flex-direction:row;display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" required style="width:auto"> KVKK Aydınlatma Metni'ni okudum, kişisel verilerimin işlenmesini kabul ediyorum.</label><button class="btn btn-navy" type="submit" style="justify-self:start">Gönder</button></form></div>`}
+function epaper(){return `<div class="page" style="max-width:var(--w)"><h1>Dijital Gazete</h1><p class="sub">SKYTÜRK'ün günlük baskısını çevrimiçi okuyun.</p><div class="epaper">${Array.from({length:8},(_,i)=>{const d=new Date(2026,8,13-i);return `<a href="#/dijital-gazete"><img src="${ph(CATS[(i+1)%CATS.length].id,300,400,'SKYTÜRK '+d.getDate()+' EYLÜL')}" alt=""><b>${d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</b></a>`}).join('')}</div></div>`}
+function policy(t){return `<div class="page"><h1>${t}</h1><p class="sub">Son güncelleme: 1 Eylül 2026</p><h2>1. Kapsam</h2><p>Bu metin, SKYTÜRK web sitesi ve mobil uygulamaları aracılığıyla toplanan kişisel verilerin 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) uyarınca hangi amaçlarla işlendiğini açıklar.</p><h2>2. İşlenen veriler</h2><p>Ziyaret kayıtları (IP, tarayıcı bilgisi), üyelik verileri (ad, e-posta), yorum içerikleri ve çerez tercihleri.</p><h2>3. Haklarınız</h2><p>KVKK'nın 11. maddesi kapsamında verilerinize erişme, düzeltme, silme ve işlemeye itiraz haklarınızı kvkk@skyturk.com.tr adresine başvurarak kullanabilirsiniz.</p></div>`}
+function peoplePage(kind){const L=kind==='roportaj'?INTERVIEWS:BIOS;return `<div class="page" style="max-width:var(--w)"><h1>${kind==='roportaj'?'Röportaj':'Biyografi'}</h1><p class="sub">${kind==='roportaj'?'Gündemi belirleyen isimlerle derinlikli söyleşiler.':'Haberlerin öznesi olan isimlerin yaşam öyküleri.'}</p><div class="people">${L.map(p=>personCard(p,kind)).join('')}</div></div>`}
+function personPage(kind,id){const p=(kind==='roportaj'?INTERVIEWS:BIOS).find(x=>x.id===id);if(!p)return notFound();return `<article class="article"><div><div class="crumb"><a href="#/">Ana Sayfa</a>›<a href="#/${kind}">${kind==='roportaj'?'Röportaj':'Biyografi'}</a></div><h1>${esc(p.t||p.n)}</h1><p class="lead-p">${esc(p.n)} — ${esc(p.role)}. ${esc(p.s)}</p><div class="abar"><div><b>Skytürk Haber Merkezi</b> · 13.09.2026</div></div><figure><img src="${ph(p.cat,1200,675,p.n)}" alt=""></figure><div class="body"><p>${LOREM[0]} ${LOREM[3]}</p>${kind==='roportaj'?`<h2>${esc(p.t)}</h2><p><b>SKYTÜRK:</b> ${LOREM[1]}</p><p><b>${esc(p.n.split(' ').pop())}:</b> ${LOREM[4]} ${LOREM[2]}</p>`:`<h2>Kariyer</h2><p>${LOREM[2]} ${LOREM[4]}</p>`}<p>${LOREM[5]}</p></div></div><aside class="side sticky">${sideWidgets()}</aside></article>`}
+function pollsPage(){return `<div class="two-col" style="margin-top:0"><div><div class="cat-head" style="--cc:var(--gold)"><div><h1>Anketler</h1><p>Okuyucularımızın gündeme dair nabzı.</p></div></div><div class="cards two">${POLLS.map(p=>`<div class="box">${pollBox(p)}</div>`).join('')}</div></div><aside class="side sticky">${sideWidgets()}</aside></div>`}
+function standingsPage(){return `<div class="two-col" style="margin-top:0"><div><div class="cat-head" style="--cc:#2E7D32"><div><h1>Süper Lig Puan Durumu ve Fikstür</h1><p>2026-27 sezonu · 5. hafta sonrası. Canlı veri servisi bağlandığında otomatik güncellenir.</p></div></div><div class="box"><table class="stand"><thead><tr><th>#</th><th>Takım</th><th>O</th><th>Av</th><th style="text-align:right">P</th></tr></thead><tbody>${STANDINGS.map((t,i)=>`<tr><td>${i+1}</td><td>${t[0]}</td><td>${t[1]}</td><td>${t[3]}</td><td class="pts">${t[2]}</td></tr>`).join('')}</tbody></table></div><h2 class="fh" style="font-size:24px;margin:28px 0 12px">6. Hafta Fikstürü</h2><div class="box">${[['Galatasaray','Kocaelispor','Cmt 20:00'],['Fenerbahçe','Gençlerbirliği','Paz 19:00'],['Beşiktaş','Samsunspor','Paz 21:30'],['Göztepe','Trabzonspor','Cmt 17:00']].map(m=>`<div class="traffic" style="padding:0"><li><b>${m[0]} – ${m[1]}</b><span style="background:var(--ink2)">${m[2]}</span></li></div>`).join('')}</div></div><aside class="side sticky">${sideWidgets()}</aside></div>`}
+function trafficPage(){return `<div class="two-col" style="margin-top:0"><div><div class="cat-head" style="--cc:var(--red)"><div><h1>Trafik Durumu</h1><p>Ankara ana arterlerde anlık yoğunluk · 13 Eylül 15:47</p></div></div><div class="box"><ul class="traffic">${TRAFFIC.map(t=>`<li style="--c:${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></li>`).join('')}</ul></div><div class="ad h-250" style="margin-top:20px"><div style="text-align:center"><span>Harita</span>Canlı trafik haritası burada yer alır</div></div></div><aside class="side sticky">${sideWidgets()}</aside></div>`}
+function directoryPage(){return `<div class="page" style="max-width:var(--w)"><h1>Firma Rehberi</h1><p class="sub">Şehrin güvenilir işletmeleri. Firmanızı eklemek için <a href="#/iletisim" style="color:var(--navy)">iletişime geçin</a>.</p><div class="dir">${DIRECTORY.map(d=>`<a href="#/rehber"><b>${d[0]}</b><small>${d[2]}</small><span class="tag">${d[1]}</span></a>`).join('')}</div></div>`}
+function classifiedsPage(){return `<div class="page" style="max-width:var(--w)"><h1>Seri İlan</h1><p class="sub">Emlak, vasıta, iş ve hizmet ilanları.</p><div class="dir">${CLASSIFIEDS.map(d=>`<a href="#/ilan"><b>${d[0]}</b><small>${d[2]}</small><span class="tag">${d[1]}</span></a>`).join('')}</div></div>`}
+function ozelPage(){return `<div class="cat-head" style="--cc:var(--gold)"><div><h1>Özel Haber</h1><p>SKYTÜRK muhabirlerinin dosya ve araştırma haberleri.</p></div></div><div class="cards" style="margin-top:0">${ozelN.map(n=>card(n)).join('')}</div>`}
+function allHeadlines(){return `<div class="cat-head"><div><h1>Tüm Manşetler</h1><p>Yayın akışındaki tüm haberler, en yeniden eskiye.</p></div></div><ul class="list-news">${sorted.map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(440,275)}" alt=""></a><div><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3><p>${esc(n.s)}</p><div class="meta" style="--cc:${CAT[n.cat].c}"><span class="cat">${CAT[n.cat].n}</span><span>${n.d}</span></div></div></li>`).join('')}</ul>`}
+function notFound(){return `<div class="page" style="text-align:center;padding:60px 0"><h1 style="font-size:80px;color:var(--sky)">404</h1><p class="sub">Aradığınız sayfa bulunamadı.</p><a class="btn btn-navy" href="#/">Ana sayfaya dön</a></div>`}
+
+/* Router */
+function route(){
+  const h=location.hash.replace(/^#/,'')||'/';const p=h.split('/').filter(Boolean);
+  let html='';document.title='SKYTÜRK — Son Dakika Haberler, Gündem, Ekonomi, Spor';
+  switch(p[0]){
+    case undefined:html=home();break;
+    case 'kategori':html=catPage(p[1]);break;
+    case 'haber':html=article(p[1]);break;
+    case 'yazarlar':html=authorsPage();break;
+    case 'roportaj':html=p[1]?personPage('roportaj',p[1]):peoplePage('roportaj');break;
+    case 'biyografi':html=p[1]?personPage('biyografi',p[1]):peoplePage('biyografi');break;
+    case 'anketler':html=pollsPage();break;
+    case 'puan-durumu':html=standingsPage();break;
+    case 'trafik':html=trafficPage();break;
+    case 'rehber':html=directoryPage();break;
+    case 'ilan':html=classifiedsPage();break;
+    case 'ozel-haber':html=ozelPage();break;
+    case 'tum-mansetler':html=allHeadlines();break;
+    case 'foto-galeri':html=gallery(false);break;
+    case 'video':html=gallery(true);break;
+    case 'arama':html=search(p[1]);break;
+    case 'kunye':html=kunye();break;
+    case 'iletisim':html=iletisim();break;
+    case 'dijital-gazete':html=epaper();break;
+    case 'gizlilik':html=policy('Gizlilik ve KVKK Aydınlatma Metni');break;
+    case 'cerez':html=policy('Çerez Politikası');break;
+    case 'yayin-ilkeleri':html=policy('Yayın İlkelerimiz');break;
+    case 'hava-durumu':case 'namaz-vakitleri':case 'piyasalar':case 'arsiv':case 'rss':html=`<div class="two-col" style="margin-top:0"><div class="page" style="margin:0"><h1>${{'hava-durumu':'Hava Durumu','namaz-vakitleri':'Namaz Vakitleri','piyasalar':'Piyasalar','arsiv':'Haber Arşivi','rss':'RSS Bağlantıları'}[p[0]]}</h1><p class="sub">Bu servis sayfası canlı veri kaynağına bağlandığında otomatik güncellenir.</p><div class="cards two">${sorted.slice(0,4).map(n=>card(n)).join('')}</div></div><aside class="side">${sideWidgets()}</aside></div>`;break;
+    default:html=notFound();
+  }
+  $('#app').innerHTML=html;si=0;
+  document.querySelectorAll('.nav a[data-cat]').forEach(a=>a.classList.toggle('on',(p[0]==='kategori'&&a.dataset.cat===p[1])||(p[0]==='yazarlar'&&a.dataset.cat==='yazarlar')||(p[0]==='foto-galeri'&&a.dataset.cat==='foto')||(p[0]==='video'&&a.dataset.cat==='video')));
+  scrollTo(0,0);
+}
+addEventListener('hashchange',route);
+fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d){applySaved(d);sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan').sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));$('#breakItems').innerHTML=sorted.slice(0,6).map((n,i)=>`<a href="#/haber/${n.id}" class="${i?'':'on'}"><time>${n.d.slice(11)}</time>${esc(n.t)}</a>`).join('');bi=0;}}).catch(()=>{}).finally(route);
+addEventListener('scroll',()=>$('#toTop').classList.toggle('show',scrollY>600));
+</script>
+</body>
+</html>
