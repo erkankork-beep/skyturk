@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /
+# Test ortamı — gerçek alan adına geçince kaldırılacak
