@@ -10,7 +10,21 @@ function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): arra
     if(!$q) continue;
     if($done>=$maxItems||time()-$start>$budgetSec) break;
     $n['imgTries']=($n['imgTries']??0)+1; $ok=false;
-    if($pexels){
+    /* 1) Kişi haberi: Wikimedia Commons'ta CC lisanslı fotoğraf */
+    if(!empty($n['person'])){
+      $person=$n['person']; $api='https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=8&gsrsearch='.rawurlencode($person.' filetype:bitmap').'&prop=imageinfo&iiprop=url|extmetadata|mime|size&iiurlwidth=1200';
+      [$c,$r]=$get($api); $j=$c===200?json_decode($r,true):null; $best=null;
+      foreach(($j['query']['pages']??[]) as $pg){ $ii=$pg['imageinfo'][0]??null; if(!$ii) continue; $m=$ii['extmetadata']??[]; $lic=strtolower($m['LicenseShortName']['value']??''); $mime=$ii['mime']??'';
+        if(!preg_match('/^(cc0|cc by|cc by-sa|cc-by|cc-by-sa|public domain|pd)/i',$lic)&&stripos($lic,'cc by')===false&&stripos($lic,'public domain')===false&&stripos($lic,'cc0')===false) continue;
+        if(!in_array($mime,['image/jpeg','image/png'])||($ii['width']??0)<500) continue;
+        $title=mb_strtolower($pg['title']??''); $pl=mb_strtolower($person); $score=0; foreach(preg_split('/\s+/u',$pl) as $w) if($w&&mb_strpos($title,$w)!==false) $score++;
+        if(preg_match('/logo|map|flag|signature|imza|stadium|poster|cover|album|screenshot|coat|arma|book/i',$title)) $score-=3;
+        if($best===null||$score>$best[0]) $best=[$score,$ii,$m,$pg['title']??''];
+      }
+      if($best&&$best[0]>0){ $ii=$best[1]; $m=$best[2]; $author=trim(strip_tags($m['Artist']['value']??'Wikimedia Commons')); $author=mb_substr(preg_replace('/\s+/',' ',$author),0,60); $lic=$m['LicenseShortName']['value']??'CC';
+        $n['imgUrl']=$ii['thumburl']??$ii['url']; $n['imgCredit']='Fotoğraf: '.$author.' / Wikimedia Commons ('.$lic.')'; $n['imgLink']=$ii['descriptionurl']??''; $n['imgSource']='commons'; $ok=true; $src['commons']=($src['commons']??0)+1; }
+    }
+    if(!$ok&&$pexels){
       [$c,$r]=$get('https://api.pexels.com/v1/search?per_page=3&orientation=landscape&locale=en-US&query='.rawurlencode($q),['Authorization: '.$pexels]);
       $j=$c===200?json_decode($r,true):null;
       if(!empty($j['photos'][0])){ $p=$j['photos'][0]; $n['imgUrl']=$p['src']['large']??$p['src']['landscape']; $n['imgCredit']='Fotoğraf: '.($p['photographer']??'Pexels').' / Pexels'; $n['imgLink']=$p['url']??''; $n['imgLicense']='Pexels License'; $ok=true; $src['pexels']++; }
