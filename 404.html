@@ -930,6 +930,10 @@ function personPage(kind,id){const p=(kind==='roportaj'?INTERVIEWS:BIOS).find(x=
 function directoryPage(){return `<div class="page" style="max-width:var(--w)"><h1>Firma Rehberi</h1><p class="sub">Şehrin güvenilir işletmeleri. Firmanızı eklemek için <a href="#/iletisim" style="color:var(--navy)">iletişime geçin</a>.</p>${DIRECTORY.length?`<div class="dir">${DIRECTORY.map(d=>{const x=d[3]||{};return `<a href="${x.web?esc(x.web):'#/rehber'}" ${x.web?'target="_blank" rel="noopener"':''}><b>${esc(d[0])}${x.featured?' ★':''}</b><small>${esc(d[2])}${x.tel?' · '+esc(x.tel):''}</small>${x.desc?`<small>${esc(x.desc)}</small>`:''}<span class="tag">${esc(d[1])}</span></a>`}).join('')}</div>`:`<p style="color:var(--ink2);padding:30px 0">Rehber henüz boş.</p>`}</div>`}
 function classifiedsPage(){return `<div class="page" style="max-width:var(--w)"><h1>Seri İlan</h1><p class="sub">Emlak, vasıta, iş ve hizmet ilanları. İlan vermek için <a href="#/iletisim" style="color:var(--navy)">iletişime geçin</a>.</p>${CLASSIFIEDS.length?`<div class="dir">${CLASSIFIEDS.map(d=>{const x=d[3]||{};return `<a href="#/ilan"><b>${esc(d[0])}</b><small>${esc(d[2])}${x.tel?' · '+esc(x.tel):''}</small>${x.desc?`<small>${esc(x.desc)}</small>`:''}<span class="tag">${esc(d[1])}</span></a>`}).join('')}</div>`:`<p style="color:var(--ink2);padding:30px 0">Henüz ilan yok.</p>`}</div>`}
 </script>
+<script>
+function refreshSite(){fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;applySaved(d);try{applyServer(d)}catch(e){}sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));const h=location.hash||'#/';if(h==='#/'||h==='#'||h.startsWith('#/kategori')||h.startsWith('#/yazar'))route()}).catch(()=>{})}
+setInterval(refreshSite,300000);
+</script>
 
 </body>
 </html>
