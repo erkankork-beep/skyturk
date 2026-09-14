@@ -216,7 +216,7 @@ tr:hover .rowact{opacity:1}
 .kv{display:grid;grid-template-columns:1fr auto;padding:10px 16px;border-bottom:1px solid var(--line);font-size:14px}
 .kv b{font-family:var(--fh);font-weight:400;font-size:18px}
 @media (max-width:1280px){.stats{grid-template-columns:repeat(3,1fr)}.widgets{grid-template-columns:1fr 1fr}.editor{grid-template-columns:1fr}.media{grid-template-columns:repeat(4,1fr)}}
-@media (max-width:900px){.layout{grid-template-columns:1fr}.sb{display:none}.top{grid-template-columns:1fr auto;padding:0 16px}.top .tl .search{display:none}.top .mid{font-size:22px}.top .mid small{display:none}.content{padding:16px}.stats,.widgets,.cards{grid-template-columns:1fr}.settings{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.sb{display:none}.sb.open{display:block;position:fixed;top:0;left:0;bottom:0;width:min(300px,84vw);z-index:95;overflow:auto;box-shadow:0 0 0 100vw rgba(15,23,42,.5)}.hamb{display:inline-grid!important}.top .who small{display:none}.top{grid-template-columns:1fr auto;padding:0 16px}.top .tl .search{display:none}.top .mid{font-size:22px}.top .mid small{display:none}.content{padding:16px}.stats,.widgets,.cards{grid-template-columns:1fr}.settings{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
 
 /* Giriş */
 .login{position:fixed;inset:0;background:linear-gradient(135deg,#0B4F9E,#14213D);display:grid;place-items:center;z-index:100;padding:20px}
@@ -230,6 +230,10 @@ tr:hover .rowact{opacity:1}
 .top .who{display:flex;align-items:center;gap:10px;cursor:pointer}
 .top .who small{font-size:12px;color:var(--ink2);line-height:1.2;text-align:right}
 .hidden{display:none!important}
+
+.hamb{display:none;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:6px;background:#fff;font-size:20px;cursor:pointer;margin-right:8px}
+.login .card{box-sizing:border-box}
+@media (max-width:480px){.login .card{padding:24px 18px}.stat b{font-size:34px}.ph{flex-direction:column;align-items:flex-start;gap:10px}.ph h1{font-size:24px}table{font-size:12.5px}.top .mid{display:none}}
 </style>
 </head>
 <body>
@@ -262,7 +266,7 @@ tr:hover .rowact{opacity:1}
     <header class="top">
       <div class="tl">
         <a class="mail" href="#/iletisim" title="Gelen mesajlar">✉<i></i></a>
-        <div class="search"><span style="color:var(--ink2)">⌕</span><input placeholder="Haber, etiket, üye ara…" onkeydown="if(event.key==='Enter'){location.hash='#/haberler?q='+encodeURIComponent(this.value)}"></div>
+        <button class="hamb" aria-label="Menü" onclick="document.querySelector('.sb').classList.toggle('open')">☰</button><div class="search"><span style="color:var(--ink2)">⌕</span><input placeholder="Haber, etiket, üye ara…" onkeydown="if(event.key==='Enter'){location.hash='#/haberler?q='+encodeURIComponent(this.value)}"></div>
       </div>
       <div class="mid">SKY<b>TÜRK</b><small>CMS</small></div>
       <div class="tr">
@@ -741,7 +745,7 @@ function route(){
   }
   $('#app').innerHTML=html;renderNav(cur);scrollTo(0,0);
 }
-addEventListener('hashchange',()=>{if(ME)route()});authInit();
+addEventListener('hashchange',()=>{if(ME)route();const sb=document.querySelector('.sb');if(sb)sb.classList.remove('open')});authInit();
 </script>
 <script>const _editor=editor,_save=save,_route=route,_newsList=newsList,_showAppOrig=showApp;function _showApp(){$('#login').style.display='none';$('#layout').style.visibility='visible';$('#whoName').innerHTML=esc(ME.name)+'<br><span class="role-badge">'+(ROLE_TR[ME.role]||ME.role)+'</span>';$('#whoAv').textContent=ME.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();loadServer().then(()=>{try{applyCats()}catch(e){}}).finally(route)}</script>
 <script>
