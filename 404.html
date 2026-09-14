@@ -677,11 +677,11 @@ function sideWidgets(){
       <div style="display:flex;gap:10px;margin-top:10px;font-size:12px;color:var(--ink2)">${w.days.map(d=>`<span><b style="color:var(--ink)">${d[0]}</b> ${d[1]}°</span>`).join('')}</div></div>
     <div><div class="cityname">Süper Lig<span><a href="#/puan-durumu">Tümü</a></span></div>${STANDINGS.slice(0,6).map((t,i)=>`<div class="row"><span><b style="font-family:var(--fh);color:${i<4?'#2E7D32':'var(--ink2)'};margin-right:6px">${i+1}</b>${t[0]}</span><b>${t[2]}</b></div>`).join('')}</div>
   </div></div>
+  <div class="box" style="--cc:var(--red)"><div class="box-h"><h3><i></i>İstanbul Trafik</h3><a href="#/trafik">Canlı harita</a></div>
+    <ul class="traffic">${TRAFFIC.map(t=>`<li style="--c:${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></li>`).join('')}</ul></div>
   <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Günün Anketi</h3><a href="#/anketler">Tüm anketler</a></div>${pollBox(POLLS[0])}</div>
   <div class="box" style="--cc:#37474F"><div class="box-h"><h3><i></i>Resmi İlanlar</h3><a href="#/kategori/resmi-ilan">Tümü</a></div><div class="ilan-widget">${NEWS.filter(n=>n.cat==='resmi-ilan').map(n=>`<a href="#/haber/${n.id}">${esc(n.t)}</a>`).join('')}<small style="color:var(--ink2);display:block;margin-top:8px">Basın İlan Kurumu — ilan.gov.tr</small></div></div>
   <div class="ad h-250"><div style="text-align:center"><span>Reklam</span>300×250</div></div>
-  <div class="box" style="--cc:var(--red)"><div class="box-h"><h3><i></i>İstanbul Trafik</h3><a href="#/trafik">Canlı harita</a></div>
-    <ul class="traffic">${TRAFFIC.map(t=>`<li style="--c:${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></li>`).join('')}</ul></div>
   <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Etiketler</h3></div><div class="tags">${[...new Set(NEWS.flatMap(n=>n.tags))].slice(0,14).map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div></div>`;
 }
 
