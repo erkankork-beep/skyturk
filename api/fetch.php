@@ -46,7 +46,7 @@ foreach($feeds as [$url,$cat,$srcName]){
   $items=$doc->channel->item ?? $doc->entry ?? [];
   $i=0; $new=0;
   foreach($items as $it){
-    if(++$i>$PER_FEED) break;
+    if(++$i>200||$new>=$PER_FEED) break; // en fazla 200 öğe taranır, kaynak başına 25 yeni
     $link=clean($it->link['href'] ?? $it->link ?? '');
     $title=clean($it->title ?? ''); if(!$link||!$title) continue;
     if(isset($seen[$link])) continue;
