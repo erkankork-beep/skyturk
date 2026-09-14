@@ -704,10 +704,9 @@ function home(){
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
   <section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span></div></a>`).join('')}</div></section>
   ${tabbed()}
-  </div><section class="gallery-band"><div class="wrap">
-    ${secH('Foto Galeri','#2E9BF0','#/foto-galeri','Tüm Galeriler')}<div class="cards">${galeriN().slice(0,4).map(n=>card(n,{noP:true})).join('')}</div>
-    ${videoN().length?`<div style="height:34px"></div>${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
-  </div></section><div class="wrap">
+  </div>${videoN().length?`<section class="gallery-band"><div class="wrap">
+    ${videoN().length?`${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
+  </div></section>`:''}<div class="wrap">
   <section class="sec"><div class="catblocks">${cb('saglik')}${cb('kultur-sanat')}</div></section>
   <section class="sec">${secH('Röportaj','#00897B','#/roportaj')}<div class="people">${INTERVIEWS.map(p=>personCard(p,'roportaj')).join('')}</div></section>
   <section class="sec"><div class="catblocks">${cb('dunya')}${cb('teknoloji')}</div></section>
