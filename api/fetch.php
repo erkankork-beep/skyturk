@@ -23,6 +23,10 @@ $feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.
 $KEEP_DAYS=7; $MAX_ITEMS=900; $PER_FEED=25;
 $PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=400; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
 $boost=null; $bf=__DIR__.'/boost.json'; if(file_exists($bf)){ $boost=json_decode(file_get_contents($bf),true); @unlink($bf); } // tek seferlik: belirli kategoriden fazla haber çek
+/* Günlük tavan: bugüne özel geçici tavan (override) + saatlik dağıtım (pacing) */
+$ovf=__DIR__.'/budget_override.json'; if(file_exists($ovf)){ $ov=json_decode(file_get_contents($ovf),true); if(($ov['date']??'')===date('Y-m-d')) $DAILY_BUDGET=(int)$ov['cap']; else @unlink($ovf); }
+$hw=[0.4,0.3,0.3,0.3,0.3,0.4,0.7,1.1,1.3,1.4,1.4,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.2,1.1,1.0,0.8,0.6]; // saat ağırlıkları (gece az, gündüz çok)
+$hNow=(int)date('G'); $mNow=(int)date('i'); $cum=array_sum(array_slice($hw,0,$hNow))+$hw[$hNow]*$mNow/60; $allowedSoFar=(int)ceil($DAILY_BUDGET*$cum/array_sum($hw))+10; // +10 esneklik
 $catNew=[]; $dayKey=date('Y-m-d'); $titleKeys=[]; foreach($news as $x0) $titleKeys[mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($x0['t']??'')),0,30)]=1; $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
@@ -61,6 +65,7 @@ foreach($feeds as [$url,$cat,$srcName]){
     if(time()-$pub0>$MAX_AGE_H*3600) continue;                 // eski haber
     $capCat=($boost&&($boost['cat']??'')===$cat)?(int)$boost['n']:$PER_CAT; if(($catNew[$cat]??0)>=$capCat) continue;                  // bu kategori bu turda doldu
     if($usedToday+$added>=$DAILY_BUDGET) break 2;               // günlük tavan
+    if($usedToday+$added>=$allowedSoFar) break 2;                // saatlik dağıtım: bu saate kadar izin verilen pay doldu
     $desc=cut(clean($it->description ?? $it->summary ?? $it->content ?? ''),280);
     $enc=$it->children('http://purl.org/rss/1.0/modules/content/')->encoded ?? null; $full=$enc?clean((string)$enc):'';
     $pub=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
@@ -102,7 +107,7 @@ usort($news,function($a,$b){ return tsOf($b)<=>tsOf($a); });
 function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m)) return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]); return 0; }
 $news=array_slice($news,0,$MAX_ITEMS);
 require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(20,min(60,$added)),100); // yeni gelenler + birikim varsa en az 20
-$budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
+$budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET.' (şu saate kadar pay '.$allowedSoFar.')';
 /* Görsel yeniden değerlendirme (RESIM_TARA): Pexels kaynaklı eski görseller tur başına 25 haber halinde yeni filtreden geçirilir */
 $rif=__DIR__.'/reimage.json'; $reN=0; if(file_exists($rif)){ foreach($news as &$x){ if($reN>=25) break; if(empty($x['reimaged'])&&!empty($x['imgUrl'])&&stripos($x['imgCredit']??'','Pexels')!==false&&!empty($x['rw'])&&empty($x['video'])){ unset($x['imgUrl'],$x['imgCredit'],$x['imgLink'],$x['imgSource']); $x['imgTries']=0; $x['reimaged']=true; $reN++; } } unset($x); if($reN===0) @unlink($rif); $rw['resim_tara']=$reN.' haber yeniden değerlendirildi'.($reN===0?' — tamamlandı':''); }
 require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(60,$added+$reN)),90); $rw['images']=$im;

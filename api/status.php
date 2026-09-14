@@ -14,7 +14,7 @@ $stats=file_exists(__DIR__.'/stats.json')?(json_decode(file_get_contents(__DIR__
 $days=[]; for($i=6;$i>=0;$i--){$k=date('Y-m-d',strtotime("-$i days"));$row=(isset($stats[$k])&&is_array($stats[$k]))?$stats[$k]:null;$days[]=['d'=>$k,'hits'=>$row['hits']??0,'uniq'=>isset($row['u'])?count($row['u']):($row['uniq']??0)];}
 $today=end($days); $anom=$stats['_anom']??null; $anomLog=$stats['_anomLog']??[]; $blocked=count(array_filter($stats['_block']??[],fn($t)=>$t>time()-86400));
 require_once __DIR__.'/config.php'; require_once __DIR__.'/session.php'; require_once __DIR__.'/credit.php';
-$bud=file_exists(__DIR__.'/budget.json')?(json_decode(file_get_contents(__DIR__.'/budget.json'),true)?:[]):[]; $used=(int)($bud[date('Y-m-d')]??0); $cap=400; if(preg_match('/\$DAILY_BUDGET=(\d+);/',(string)@file_get_contents(__DIR__.'/fetch.php'),$mm)) $cap=(int)$mm[1];
+$bud=file_exists(__DIR__.'/budget.json')?(json_decode(file_get_contents(__DIR__.'/budget.json'),true)?:[]):[]; $used=(int)($bud[date('Y-m-d')]??0); $cap=400; if(preg_match('/\$DAILY_BUDGET=(\d+);/',(string)@file_get_contents(__DIR__.'/fetch.php'),$mm)) $cap=(int)$mm[1]; if(file_exists(__DIR__.'/budget_override.json')){ $ov=json_decode(file_get_contents(__DIR__.'/budget_override.json'),true); if(($ov['date']??'')===date('Y-m-d')) $cap=(int)$ov['cap']; }
 echo json_encode([
  'budget'=>['used'=>$used,'cap'=>$cap],
  'credit'=>sky_can('settings')?sky_credit_status():null,
