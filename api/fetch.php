@@ -107,6 +107,6 @@ require_once __DIR__.'/fixtures.php'; $fx=__DIR__.'/fixtures.json'; if(!file_exi
 require_once __DIR__.'/credit.php'; $rw['kredi']=sky_credit_spend((float)($rw['est_cost_usd']??0)+(!empty($rw['astro']['ok'])?0.01:0),$rw['api_error']??null);
 $GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1;
 $news=sky_merge_write($file,$news,$data);
-$msg=date('d.m.Y H:i').' — eklendi: '.$added.', toplam: '.count($news).' | özgünleştirme: '.json_encode($rw,JSON_UNESCAPED_UNICODE).($errors?' | hata: '.implode(' ',$errors):'');
+$msg=date('d.m.Y H:i').' — eklendi: '.$added.', toplam: '.count($news).' | özgünleştirme: '.json_encode($rw,JSON_UNESCAPED_UNICODE).($errors?' | hata: '.implode(' ',$errors):'').' | kaynaklar: '.json_encode(array_filter($perFeed,fn($v)=>!str_starts_with($v,'0 yeni')),JSON_UNESCAPED_UNICODE);
 file_put_contents($log,$msg."\n".substr((string)@file_get_contents($log),0,20000));
 echo $cli?$msg."\n":json_encode(['ok'=>true,'added'=>$added,'total'=>count($news),'errors'=>$errors,'feeds'=>$perFeed,'rewrite'=>$rw],JSON_UNESCAPED_UNICODE);
