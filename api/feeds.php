@@ -13,7 +13,19 @@ return [
   ['https://www.ntv.com.tr/saglik.rss',     'saglik',     'NTV'],
   ['https://www.ntv.com.tr/egitim.rss',     'egitim',     'NTV'],
   // Anadolu Ajansı (açık akış)
-  ['https://www.aa.com.tr/tr/rss/default?cat=guncel', 'gundem', 'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=guncel',          'gundem',       'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=turkiye',         'genel',        'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=politika',        'politika',     'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=dunya',           'dunya',        'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=ekonomi',         'ekonomi',      'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=spor',            'spor',         'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=kultur-sanat',    'kultur-sanat', 'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=bilim-teknoloji', 'teknoloji',    'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=saglik',          'saglik',       'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=egitim',          'egitim',       'AA'],
+  ['https://www.aa.com.tr/tr/rss/default?cat=yasam',           'yasam',        'AA'],
+  // AA Teyit Hattı (doğrulama haberleri)
+  ['https://www.aa.com.tr/tr/teyithatti/rss/news?cat=0',       'gundem',       'AA Teyit Hattı'],
   // TRT Haber
   ['https://www.trthaber.com/sondakika_articles.rss', 'son-dakika', 'TRT Haber'],
   ['https://www.trthaber.com/manset_articles.rss',    'gundem',     'TRT Haber'],
