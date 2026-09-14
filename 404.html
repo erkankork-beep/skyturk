@@ -498,7 +498,7 @@ const CATS = [
   {id:'kultur-sanat',n:'Kültür-Sanat',c:'#8E24AA'},
   {id:'saglik',n:'Sağlık',c:'#D81B60'},
   {id:'yasam',n:'Yaşam',c:'#FB8C00'},
-  {id:'teknoloji',n:'Teknoloji',c:'#2E9BF0'},
+  {id:'teknoloji',n:'Teknoloji',c:'#2E9BF0'},{id:'magazin',n:'Magazin',c:'#E91E63'},
   {id:'egitim',n:'Eğitim',c:'#5C6BC0'},
   {id:'genel',n:'Genel',c:'#546E7A'},
   {id:'ankara',n:'Ankara Haberleri',c:'#7B1FA2'},
@@ -687,7 +687,7 @@ const tk=MARKETS.map(m=>`<li><b>${m.k}</b>${m.v} <span class="${m.up?'up':'dn'}"
 $('#tickerList').innerHTML=tk+tk;
 
 /* Menü */
-const NAVCATS=['son-dakika','genel','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','egitim'];
+const NAVCATS=['son-dakika','genel','politika','dunya','ekonomi','spor','magazin','kultur-sanat','saglik','yasam','teknoloji','egitim'];
 $('#navList').innerHTML=NAVCATS.map(id=>CAT[id]).map(c=>`<li><a href="#/kategori/${c.id}" data-cat="${c.id}" style="--cc:${c.c}" class="${c.id==='son-dakika'?'sd':''}">${c.n}</a></li>`).join('')+`<li><a href="#/yazarlar" data-cat="yazarlar">Yazarlar</a></li><li><a href="#/kategori/resmi-ilan" data-cat="resmi-ilan" style="--cc:#37474F">Resmi İlan</a></li>`;
 $('#footCats').innerHTML=CATS.filter(c=>c.id!=='istanbul'&&c.id!=='ankara').map(c=>`<li><a href="#/kategori/${c.id}">${c.n}</a></li>`).join('');
 

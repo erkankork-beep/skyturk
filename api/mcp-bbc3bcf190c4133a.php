@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD']==='OPTIONS'){http_response_code(204);exit;}
 if($_SERVER['REQUEST_METHOD']==='GET'){http_response_code(405);echo '{"error":"POST JSON-RPC only"}';exit;}
 if($_SERVER['REQUEST_METHOD']==='DELETE'){http_response_code(204);exit;}
 $FILE=__DIR__.'/data.json'; $LOG=__DIR__.'/mcp.log';
-$CATS=['son-dakika','gundem','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','egitim','genel','ankara','istanbul','resmi-ilan'];
+$CATS=['son-dakika','gundem','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','magazin','egitim','genel','ankara','istanbul','resmi-ilan'];
 $STS=['Yayında','Taslak','Planlandı','Arşiv'];
 function load(){global $FILE;$d=file_exists($FILE)?json_decode(file_get_contents($FILE),true):null;if(!is_array($d))$d=['news'=>[],'polls'=>[]];if(!isset($d['news']))$d['news']=[];if(!isset($d['polls'])||!is_array($d['polls']))$d['polls']=[];return $d;}
 function save($d){global $FILE;if(file_exists($FILE))@copy($FILE,__DIR__.'/data.bak.json');$d['updated']=date('c');file_put_contents($FILE,json_encode($d,JSON_UNESCAPED_UNICODE),LOCK_EX);}

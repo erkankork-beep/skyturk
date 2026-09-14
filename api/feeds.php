@@ -37,4 +37,6 @@ return [
   ['https://www.hurriyet.com.tr/rss/dunya',    'dunya',   'Hürriyet'],
   // Cumhuriyet
   ['https://www.cumhuriyet.com.tr/rss/son_dakika.xml', 'son-dakika', 'Cumhuriyet'],
+  // Mynet
+  ['https://www.mynet.com/magazin/rss', 'magazin', 'Mynet'],
 ];
