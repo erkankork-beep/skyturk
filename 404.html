@@ -815,7 +815,6 @@ function home(){if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then
   ${fxStrip()}
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
   ${AUTHORS.length?`<section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazar/${a.id}" style="--cc:${a.c}">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:`<span class="av" style="background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><b>${esc(a.n)}</b><span>${esc(a.t||'')}</span></div></a>`).join('')}</div></section>`:''}
-  ${magSection()}
   </div>${videoN().length?`<section class="gallery-band"><div class="wrap">
     ${videoN().length?`${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
   </div></section>`:''}<div class="wrap">
@@ -825,6 +824,7 @@ function home(){if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then
   <section class="sec"><div class="catblocks">${cb('dunya')}${cb('teknoloji')}</div></section>
   ${BIOS.length?`<section class="sec">${secH('Biyografi','#3F51B5','#/biyografi')}<div class="people">${BIOS.map(p=>personCard(p,'biyografi')).join('')}</div></section>`:''}
   <section class="sec">${secH('Yaşam','#FB8C00','#/kategori/yasam')}<div class="cards">${inCat('yasam').slice(0,4).map(n=>card(n)).join('')}</div></section>
+  ${magSection()}
   <section class="sec">${secH('Dijital Gazete','#14213D','#/dijital-gazete','Tüm Sayılar')}<div class="epaper">${(ISSUES&&ISSUES.length?ISSUES.slice(0,4).map(i=>`<a href="#/dijital-gazete/${i.no}">${i.cover?`<img src="${esc(i.cover)}?v=${encodeURIComponent(i.created||'')}" alt="Sayı ${i.no} kapağı">`:`<div style="aspect-ratio:3/4;background:linear-gradient(160deg,#0B2A6B,#D8232A);color:#fff;padding:18px;display:flex;flex-direction:column;justify-content:space-between"><div><div style="font-family:var(--fh);font-size:28px;font-weight:700;letter-spacing:-.02em">SKYTÜRK</div><div style="font-size:11px;opacity:.8">SAYI ${i.no} · ${esc(i.dateStr).toUpperCase()}</div></div><div style="font-family:var(--fh);font-size:15px;line-height:1.2">${esc(i.lead||'')}</div></div>`}<b>Sayı ${i.no} · ${esc(i.dateStr)}</b></a>`).join(''):`<p style="color:var(--ink2)">İlk sayı 09:00'da yayınlanır.</p>`)}</div></section>`;
 }
 let si=0;function slideTo(i){const s=document.querySelectorAll('.hero .slide'),d=document.querySelectorAll('.hero .dots button');if(!s.length)return;s[si].classList.remove('on');d[si].classList.remove('on');si=(i+s.length)%s.length;s[si].classList.add('on');d[si].classList.add('on')}
