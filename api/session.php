@@ -16,8 +16,15 @@ function sky_user(){
   static $u=null; if($u!==null) return $u?:null;
   $tok=$_SERVER['HTTP_X_SESSION']??($_GET['session']??''); if(!$tok){$u=false;return null;}
   $s=sky_sessions(); if(!isset($s[$tok])){$u=false;return null;}
-  foreach(sky_users() as $x) if($x['username']===$s[$tok]['user']&&!empty($x['active'])){ $u=$x; return $u; }
+  foreach(sky_users() as $x) if($x['username']===$s[$tok]['user']&&!empty($x['active'])){ $u=$x;
+    if(time()-($s[$tok]['last']??0)>60){ $s[$tok]['last']=time(); $s[$tok]['exp']=time()+12*3600; sky_save_sessions($s); } return $u; }
   $u=false; return null;
+}
+function sky_audit($action,$detail='',$who=null){
+  $u=$who??(sky_user()['username']??(sky_master()?'yayın-anahtarı':'anonim'));
+  $line=json_encode(['t'=>date('c'),'u'=>$u,'a'=>$action,'d'=>mb_substr((string)$detail,0,300),'ip'=>$_SERVER['REMOTE_ADDR']??''],JSON_UNESCAPED_UNICODE);
+  $f=__DIR__.'/audit.jsonl'; file_put_contents($f,$line."\n",FILE_APPEND|LOCK_EX);
+  if(filesize($f)>2000000){ $lines=file($f); file_put_contents($f,implode('',array_slice($lines,-5000)),LOCK_EX); }
 }
 function sky_can($perm){ if(sky_master()) return true; $u=sky_user(); if(!$u) return false; $p=SKY_ROLES[$u['role']]??[]; return in_array('*',$p)||in_array($perm,$p); }
 function sky_require($perm){ if(!sky_can($perm)){ http_response_code(403); echo json_encode(['error'=>'forbidden','need'=>$perm,'user'=>sky_user()['username']??null]); exit; } }

@@ -2,7 +2,7 @@
 /* SKYTÜRK MCP sunucusu (Streamable HTTP, JSON-RPC) — Claude bağlayıcısı
    Araçlar: get_stats, list_news, get_news, create_news, update_news, delete_news,
             set_status, fetch_rss, list_polls, toggle_poll, deploy_from_github, get_log */
-require_once __DIR__.'/config.php';
+require_once __DIR__.'/config.php'; require_once __DIR__.'/session.php';
 date_default_timezone_set('Europe/Istanbul');
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -18,7 +18,7 @@ function load(){global $FILE;$d=file_exists($FILE)?json_decode(file_get_contents
 function save($d){global $FILE;if(file_exists($FILE))@copy($FILE,__DIR__.'/data.bak.json');$d['updated']=date('c');file_put_contents($FILE,json_encode($d,JSON_UNESCAPED_UNICODE),LOCK_EX);}
 function tsOf($n){if(isset($n['ts']))return (int)$n['ts'];if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m))return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]);return 0;}
 function slim($n){return ['id'=>$n['id'],'cat'=>$n['cat'],'title'=>$n['t'],'spot'=>$n['s']??'','date'=>$n['d']??'','by'=>$n['by']??'','status'=>$n['st']??'','views'=>$n['v']??0,'tags'=>$n['tags']??[],'ozel'=>!empty($n['ozel']),'auto'=>!empty($n['auto']),'src'=>$n['src']??null];}
-function logm($m){global $LOG;file_put_contents($LOG,date('d.m.Y H:i').' '.$m."\n".substr((string)@file_get_contents($LOG),0,20000));}
+function logm($m){global $LOG;file_put_contents($LOG,date('d.m.Y H:i').' '.$m."\n".substr((string)@file_get_contents($LOG),0,20000));if(function_exists('sky_audit'))sky_audit('bağlayıcı',$m,'Claude (MCP)');}
 function res($id,$r){echo json_encode(['jsonrpc'=>'2.0','id'=>$id,'result'=>$r],JSON_UNESCAPED_UNICODE);exit;}
 function err($id,$c,$m){echo json_encode(['jsonrpc'=>'2.0','id'=>$id,'error'=>['code'=>$c,'message'=>$m]],JSON_UNESCAPED_UNICODE);exit;}
 function text($s,$isErr=false){return ['content'=>[['type'=>'text','text'=>is_string($s)?$s:json_encode($s,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT)]],'isError'=>$isErr];}

@@ -508,10 +508,11 @@ const NAVI=[
   {h:'/ayarlar',t:'Ayarlar',ic:'⚙'},
   {h:'/gorunum',t:'Görünüm',ic:'✐'},
   {h:'/sistem',t:'Sistem',ic:'⛨'},
+  {h:'/gunluk',t:'İşlem Günlüğü',ic:'≡'},
   {h:'/iletisim',t:'İletişim',ic:'✉',badge:()=>msgs.filter(m=>!m[3]).length,bc:'y'}
 ];
 function renderNav(cur){
-  const NEED={'/ayarlar':'settings','/uyeler':'users','/sistem':'settings','/gorunum':'settings','/ilan':'settings','/rehber':'settings','/yorumlar':'comments'};
+  const NEED={'/gunluk':'users','/ayarlar':'settings','/uyeler':'users','/sistem':'settings','/gorunum':'settings','/ilan':'settings','/rehber':'settings','/yorumlar':'comments'};
   $('#sbNav').innerHTML=NAVI.filter(n=>!NEED[n.h]||can(NEED[n.h])).map(n=>{
     const b=typeof n.badge==='function'?n.badge():n.badge;
     const on=cur===n.h||(n.sub&&n.sub.some(s=>s[0]===cur));
@@ -636,6 +637,15 @@ function editUser(u,n,r){$('#uUser').value=u;$('#uName').value=n;$('#uRole').val
 function saveUser(){fetch('../api/auth.php?action=user_save',{method:'POST',headers:hdrs(),body:JSON.stringify({username:$('#uUser').value,name:$('#uName').value,role:$('#uRole').value,password:$('#uPass').value})}).then(async r=>{const j=await r.json();if(!r.ok||!j.ok){toast(j.error||'Kaydedilemedi');return}toast('Kullanıcı kaydedildi');$('#uPass').value='';loadUsers()})}
 function userActive(u,a){fetch('../api/auth.php?action=user_save',{method:'POST',headers:hdrs(),body:JSON.stringify({username:u,active:a})}).then(async r=>{const j=await r.json();toast(j.ok?'Güncellendi':(j.error||'Hata'));loadUsers()})}
 function delUser(u){if(!confirm(u+' silinsin mi?'))return;fetch('../api/auth.php?action=user_delete',{method:'POST',headers:hdrs(),body:JSON.stringify({username:u})}).then(async r=>{const j=await r.json();toast(j.ok?'Silindi':(j.error||'Hata'));loadUsers()})}
+function auditPage(){if(!can('users'))return `<div class="panel" style="padding:40px;text-align:center;color:var(--ink2)">Bu sayfa için yönetici yetkisi gerekir.</div>`;setTimeout(loadAudit,30);return `<div class="ph"><div><h1>İşlem Günlüğü</h1><p>Kim, ne zaman girdi, ne yaptı, ne kadar kaldı.</p></div><div style="display:flex;gap:8px;align-items:center"><select id="auF" onchange="renderAudit()" style="height:36px;border:1px solid var(--line);border-radius:5px;padding:0 10px"><option value="">Tüm kullanıcılar</option></select><button class="btn btn-s" onclick="loadAudit()">⟳ Yenile</button></div></div>
+  <div class="panel" style="margin-bottom:22px"><div class="wh"><div><h3>Açık oturumlar</h3><small>Şu an panelde olanlar</small></div></div><table><thead><tr><th>Kullanıcı</th><th>Giriş</th><th>Son işlem</th><th>Süre</th><th>IP</th></tr></thead><tbody id="auSess"><tr><td colspan="5" style="padding:20px;color:var(--ink2)">Yükleniyor…</td></tr></tbody></table></div>
+  <div class="panel"><div class="wh"><div><h3>Kayıtlar</h3><small>Son 400 işlem</small></div></div><table><thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th><th>Ayrıntı</th><th>IP</th></tr></thead><tbody id="auRows"></tbody></table></div>`}
+let AUDIT={log:[],sessions:[]};
+function loadAudit(){fetch('../api/auth.php?action=audit',{headers:hdrs()}).then(r=>r.json()).then(j=>{AUDIT=j;const sel=$('#auF');if(sel){const cur=sel.value;sel.innerHTML='<option value="">Tüm kullanıcılar</option>'+[...new Set(j.log.map(x=>x.u))].map(u=>`<option ${u===cur?'selected':''}>${esc(u)}</option>`).join('')}renderAudit()}).catch(()=>toast('Günlük alınamadı'))}
+function renderAudit(){const f=$('#auF')?$('#auF').value:'';const dt=s=>{const d=new Date(s);return d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})};
+  const ic={'giriş':'🟢','çıkış':'⚪','başarısız giriş':'🔴','haber güncelleme':'✎','ayar değişikliği':'⚙','kullanıcı kaydı':'👤','kullanıcı silindi':'👤','rss tetikleme':'⟳','bağlayıcı':'🤖'};
+  const se=$('#auSess');if(se)se.innerHTML=AUDIT.sessions.map(s=>`<tr><td><b>${esc(s.user)}</b></td><td>${dt(s.start)}</td><td>${dt(s.last)}</td><td>${s.dk} dk</td><td style="color:var(--ink2)">${esc(s.ip)}</td></tr>`).join('')||'<tr><td colspan="5" style="padding:16px;color:var(--ink2)">Açık oturum yok</td></tr>';
+  const rows=AUDIT.log.filter(x=>!f||x.u===f);$('#auRows').innerHTML=rows.map(x=>`<tr><td style="white-space:nowrap;color:var(--ink2)">${dt(x.t)}</td><td><b>${esc(x.u)}</b></td><td>${ic[x.a]||'•'} ${esc(x.a)}</td><td style="color:var(--ink2);max-width:520px">${esc(x.d||'')}</td><td style="color:var(--ink2)">${esc(x.ip||'')}</td></tr>`).join('')||'<tr><td colspan="5" style="padding:16px;color:var(--ink2)">Kayıt yok</td></tr>'}
 function usersOld(){return `<div class="ph"><div><h1>Üyeler</h1><p>${STATE.users.length} kullanıcı · 4 rol</p></div><button class="btn btn-p" onclick="toast('Davet e-postası gönderildi')">＋ Kullanıcı davet et</button></div><div class="panel"><table><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Rol</th><th>Son giriş</th><th>Durum</th><th></th></tr></thead><tbody>${STATE.users.map(u=>`<tr class="userrow"><td><div style="display:flex;gap:10px;align-items:center"><span class="av">${u[0].split(' ').map(x=>x[0]).join('').slice(0,2)}</span><b>${u[0]}</b></div></td><td style="color:var(--ink2)">${u[2]}@skyturk.com.tr</td><td><span class="role">${u[1]}</span></td><td style="color:var(--ink2)">${u[3]}</td><td><span class="st">Aktif</span></td><td><div class="rowact"><button>✎</button><button class="del">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function settings(sec){sec=sec||'genel';const M=[['genel','Genel'],['seo','SEO'],['sosyal','Sosyal Medya'],['api','Servisler & API'],['kvkk','KVKK / Çerez'],['eposta','E-posta'],['guvenlik','Güvenlik']];
   const forms={genel:`<div class="g2"><div class="field"><label>Site adı</label><input value="SKYTÜRK"></div><div class="field"><label>Slogan</label><input value="Gökyüzü kadar geniş, haber kadar hızlı"></div><div class="field"><label>Alan adı</label><input value="skyturk.com.tr"></div><div class="field"><label>Zaman dilimi</label><select><option>Europe/Istanbul (UTC+3)</option></select></div><div class="field"><label>Varsayılan şehir (hava durumu)</label><input value="İstanbul"></div><div class="field"><label>Anasayfa manşet sayısı</label><input type="number" value="6"></div></div><div class="field"><label>Site açıklaması</label><textarea>SKYTÜRK: Türkiye ve dünyadan son dakika haberleri, ekonomi, spor, kültür-sanat ve yaşam.</textarea></div>`,
@@ -707,6 +717,7 @@ function route(){
     case 'icerik':html=galleryPage(false);break;
     case 'servisler':html=standingsAdmin();break;
     case 'uyeler':html=users();break;
+    case 'gunluk':html=auditPage();break;
     case 'ayarlar':html=settings(p[1]);break;
     case 'iletisim':html=inbox();break;
     case 'reklamlar':html=generic('Reklamlar','9 aktif reklam alanı · banner ve native yerleşimler.');break;

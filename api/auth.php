@@ -16,10 +16,10 @@ switch($act){
  case 'login':
    $un=mb_strtolower(trim($in['username']??'')); $pw=(string)($in['password']??''); usleep(300000);
    $users=sky_users(); $found=null; foreach($users as &$u){ if($u['username']===$un&&!empty($u['active'])&&password_verify($pw,$u['hash'])){$u['last']=date('c');$found=$u;} } unset($u);
-   if(!$found){http_response_code(401);echo '{"error":"Kullanıcı adı veya şifre hatalı"}';break;}
-   sky_save_users($users); $s=sky_sessions(); $tok=bin2hex(random_bytes(24)); $s[$tok]=['user'=>$un,'exp'=>time()+12*3600,'ip'=>$_SERVER['REMOTE_ADDR']??'']; sky_save_sessions($s);
+   if(!$found){sky_audit('başarısız giriş','kullanıcı: '.$un,$un?:'anonim');http_response_code(401);echo '{"error":"Kullanıcı adı veya şifre hatalı"}';break;}
+   sky_save_users($users); $s=sky_sessions(); $tok=bin2hex(random_bytes(24)); $s[$tok]=['user'=>$un,'exp'=>time()+12*3600,'ip'=>$_SERVER['REMOTE_ADDR']??'','start'=>time(),'last'=>time()]; sky_audit('giriş','',$un); sky_save_sessions($s);
    echo json_encode(['ok'=>true,'session'=>$tok,'user'=>$pub($found)]); break;
- case 'logout': $tok=$_SERVER['HTTP_X_SESSION']??''; $s=sky_sessions(); unset($s[$tok]); sky_save_sessions($s); echo '{"ok":true}'; break;
+ case 'logout': $tok=$_SERVER['HTTP_X_SESSION']??''; $s=sky_sessions(); if(isset($s[$tok])){ $dur=round((time()-($s[$tok]['start']??time()))/60); sky_audit('çıkış','oturum süresi: '.$dur.' dk',$s[$tok]['user']); unset($s[$tok]); } sky_save_sessions($s); echo '{"ok":true}'; break;
  case 'users': sky_require('users'); echo json_encode(array_map($pub,sky_users()),JSON_UNESCAPED_UNICODE); break;
  case 'user_save': sky_require('users');
    $users=sky_users(); $un=preg_replace('/[^a-z0-9._-]/','',mb_strtolower(trim($in['username']??''))); $role=in_array($in['role']??'',array_keys(SKY_ROLES))?$in['role']:'izleyici';
@@ -31,13 +31,17 @@ switch($act){
      if(!empty($in['password'])){ if(strlen($in['password'])<8){http_response_code(400);echo '{"error":"şifre en az 8 karakter"}';break;} $users[$idx]['hash']=password_hash($in['password'],PASSWORD_DEFAULT); } }
    // en az bir aktif yönetici kalsın
    if(!count(array_filter($users,fn($u)=>$u['role']==='yonetici'&&!empty($u['active'])))){http_response_code(400);echo '{"error":"en az bir aktif yönetici kalmalı"}';break;}
-   sky_save_users($users); echo json_encode(['ok'=>true,'users'=>array_map($pub,$users)],JSON_UNESCAPED_UNICODE); break;
+   sky_save_users($users); sky_audit('kullanıcı kaydı',$un.' → '.$role.(!empty($in['password'])?' (şifre değişti)':'').(isset($in['active'])?($in['active']?' aktif':' pasif'):'')); echo json_encode(['ok'=>true,'users'=>array_map($pub,$users)],JSON_UNESCAPED_UNICODE); break;
  case 'user_delete': sky_require('users');
    $un=$in['username']??''; $users=array_values(array_filter(sky_users(),fn($u)=>$u['username']!==$un));
    if(!count(array_filter($users,fn($u)=>$u['role']==='yonetici'&&!empty($u['active'])))){http_response_code(400);echo '{"error":"en az bir aktif yönetici kalmalı"}';break;}
-   sky_save_users($users); $s=sky_sessions(); foreach($s as $k=>$v) if($v['user']===$un) unset($s[$k]); sky_save_sessions($s); echo '{"ok":true}'; break;
+   sky_save_users($users); $s=sky_sessions(); foreach($s as $k=>$v) if($v['user']===$un) unset($s[$k]); sky_save_sessions($s); sky_audit('kullanıcı silindi',$un); echo '{"ok":true}'; break;
  case 'password': $me=sky_user(); if(!$me){http_response_code(401);echo '{"error":"giriş gerekli"}';break;}
    if(strlen((string)($in['password']??''))<8){http_response_code(400);echo '{"error":"şifre en az 8 karakter"}';break;}
    $users=sky_users(); foreach($users as &$u) if($u['username']===$me['username']) $u['hash']=password_hash($in['password'],PASSWORD_DEFAULT); unset($u); sky_save_users($users); echo '{"ok":true}'; break;
+ case 'audit': sky_require('users');
+   $f=__DIR__.'/audit.jsonl'; $lines=file_exists($f)?array_slice(file($f,FILE_IGNORE_NEW_LINES),-400):[]; $log=array_reverse(array_values(array_filter(array_map(fn($l)=>json_decode($l,true),$lines))));
+   $sess=[]; foreach(sky_sessions() as $tok=>$v){ $sess[]=['user'=>$v['user'],'start'=>date('c',$v['start']??$v['exp']-12*3600),'last'=>date('c',$v['last']??time()),'dk'=>round((($v['last']??time())-($v['start']??time()))/60),'ip'=>$v['ip']??'']; }
+   echo json_encode(['log'=>$log,'sessions'=>$sess],JSON_UNESCAPED_UNICODE); break;
  default: http_response_code(400); echo '{"error":"bilinmeyen işlem"}';
 }

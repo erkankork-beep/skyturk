@@ -4,7 +4,7 @@
    Elle:  https://alanadi/api/fetch.php?key=TOKEN                      */
 require_once __DIR__.'/config.php';
 $cli = PHP_SAPI==='cli';
-if(!$cli){ header('Content-Type: application/json; charset=utf-8'); require_once __DIR__.'/session.php'; sky_require('rss'); }
+if(!$cli){ header('Content-Type: application/json; charset=utf-8'); require_once __DIR__.'/session.php'; sky_require('rss'); sky_audit('rss tetikleme','elle'); }
 date_default_timezone_set('Europe/Istanbul');
 @ignore_user_abort(true); @set_time_limit(180);
 $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
