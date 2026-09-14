@@ -690,7 +690,7 @@ var bi=0;setInterval(()=>{const a=$('#breakItems').children;a[bi].classList.remo
 
 /* Yardımcı parçalar */
 const catTag=c=>`<span class="cat" style="--cc:${CAT[c].c}">${CAT[c].n}</span>`;
-function card(n,opts={}){n.by=n.by||'Skytürk';n.s=n.s||'';return `<article class="card"><a class="im" href="#/haber/${n.id}"><img src="${n.img(640,384)}" alt="">${catTag(n.cat)}${opts.play?'<span class="play"><i>▶</i></span>':''}${opts.cnt?`<span class="cnt">${opts.cnt} fotoğraf</span>`:''}</a><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3>${opts.noP?'':`<p>${esc(n.s)}</p>`}<div class="meta"><time>${n.d.slice(0,10)}</time><span>${n.d.slice(11)}</span><span>${esc(n.by)}</span></div></article>`}
+function card(n,opts={}){n.by=n.by||'Skytürk';n.s=n.s||'';return `<article class="card"><a class="im" href="#/haber/${n.id}"><img src="${n.img(640,384)}" alt="">${catTag(n.cat)}${opts.play?'<span class="play"><i>▶</i></span>':''}${opts.cnt?`<span class="cnt">${opts.cnt} fotoğraf</span>`:''}</a><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3>${opts.noP?'':`<p>${esc(n.s)}</p>`}<div class="meta"><time>${n.d.slice(0,10)}</time><span>${n.d.slice(11)}</span>${isColumn(n)?`<span>${esc(n.by)}</span>`:``}</div></article>`}
 function secH(t,c,link,label='Tümü'){return `<div class="sec-h" style="--cc:${c}"><h2>${t}</h2><hr>${link?`<a href="${link}">${label} ›</a>`:''}</div>`}
 function sideWidgets(){
   const w=WEATHER;
