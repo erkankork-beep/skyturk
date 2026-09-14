@@ -650,8 +650,8 @@ $('#tickerList').innerHTML=tk+tk;
 
 /* Menü */
 const NAVCATS=['son-dakika','genel','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','egitim'];
-$('#navList').innerHTML=NAVCATS.map(id=>CAT[id]).map(c=>`<li><a href="#/kategori/${c.id}" data-cat="${c.id}" style="--cc:${c.c}" class="${c.id==='son-dakika'?'sd':''}">${c.n}</a></li>`).join('')+`<li><a href="#/yazarlar" data-cat="yazarlar">Yazarlar</a></li><li><a href="#/kategori/resmi-ilan" data-cat="resmi-ilan" style="--cc:#37474F">Resmi İlan</a></li><li><a href="#/dijital-gazete" data-cat="edergi">Dijital Gazete</a></li><li><a href="#/kategori/ankara" data-cat="ankara" style="--cc:#7B1FA2">Ankara Haberleri</a></li>`;
-$('#footCats').innerHTML=CATS.filter(c=>c.id!=='istanbul').map(c=>`<li><a href="#/kategori/${c.id}">${c.n}</a></li>`).join('');
+$('#navList').innerHTML=NAVCATS.map(id=>CAT[id]).map(c=>`<li><a href="#/kategori/${c.id}" data-cat="${c.id}" style="--cc:${c.c}" class="${c.id==='son-dakika'?'sd':''}">${c.n}</a></li>`).join('')+`<li><a href="#/yazarlar" data-cat="yazarlar">Yazarlar</a></li><li><a href="#/kategori/resmi-ilan" data-cat="resmi-ilan" style="--cc:#37474F">Resmi İlan</a></li><li><a href="#/dijital-gazete" data-cat="edergi">Dijital Gazete</a></li>`;
+$('#footCats').innerHTML=CATS.filter(c=>c.id!=='istanbul'&&c.id!=='ankara').map(c=>`<li><a href="#/kategori/${c.id}">${c.n}</a></li>`).join('');
 
 /* Son dakika bandı */
 const brk=sorted.slice(0,6);
