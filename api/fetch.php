@@ -44,9 +44,12 @@ foreach($feeds as [$url,$cat,$srcName]){
   libxml_use_internal_errors(true);
   $doc=simplexml_load_string($xml); if(!$doc){ $errors[]=$url; $perFeed[$url]='XML DEĞİL'; continue; }
   $items=$doc->channel->item ?? $doc->entry ?? [];
+  /* en yeniler önce: bazı akışlar (Hürriyet) yüzlerce eski kaydı karışık sırayla verir */
+  $arr=[]; foreach($items as $it){ $pubx=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: 0; $arr[]=[$pubx,$it]; }
+  usort($arr,fn($a,$b)=>$b[0]<=>$a[0]); $items=array_map(fn($x)=>$x[1],array_slice($arr,0,120));
   $i=0; $new=0;
   foreach($items as $it){
-    if(++$i>200||$new>=$PER_FEED) break; // en fazla 200 öğe taranır, kaynak başına 25 yeni
+    if(++$i>120||$new>=$PER_FEED) break; // en fazla 200 öğe taranır, kaynak başına 25 yeni
     $link=clean($it->link['href'] ?? $it->link ?? '');
     $title=clean($it->title ?? ''); if(!$link||!$title) continue;
     if(isset($seen[$link])) continue;
