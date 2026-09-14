@@ -10,6 +10,8 @@ date_default_timezone_set('Europe/Istanbul');
 $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
 $feeds=require __DIR__.'/feeds.php';
 $KEEP_DAYS=7; $MAX_ITEMS=600; $PER_FEED=25;
+$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=300; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
+$catNew=[]; $dayKey=date('Y-m-d'); $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
 if(!is_array($data)) $data=['news'=>[],'polls'=>null];
@@ -37,6 +39,10 @@ foreach($feeds as [$url,$cat,$srcName]){
     $link=clean($it->link['href'] ?? $it->link ?? '');
     $title=clean($it->title ?? ''); if(!$link||!$title) continue;
     if(isset($seen[$link])) continue;
+    $pub0=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
+    if(time()-$pub0>$MAX_AGE_H*3600) continue;                 // eski haber
+    if(($catNew[$cat]??0)>=$PER_CAT) continue;                  // bu kategori bu turda doldu
+    if($usedToday+$added>=$DAILY_BUDGET) break 2;               // günlük tavan
     $desc=cut(clean($it->description ?? $it->summary ?? $it->content ?? ''),280);
     $enc=$it->children('http://purl.org/rss/1.0/modules/content/')->encoded ?? null; $full=$enc?clean((string)$enc):'';
     $pub=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
@@ -47,7 +53,7 @@ foreach($feeds as [$url,$cat,$srcName]){
       'by'=>$srcName,'v'=>0,'st'=>'Yayında','tags'=>[],
       'auto'=>true,'src'=>$link,'srcName'=>$srcName,'fullLen'=>mb_strlen($full)
     ];
-    $seen[$link]=true; $added++; $new++;
+    $seen[$link]=true; $added++; $new++; $catNew[$cat]=($catNew[$cat]??0)+1;
   }
   $perFeed[$url]=$new.' yeni / '.count($items).' toplam';
 }
@@ -76,8 +82,9 @@ $news=array_values(array_filter($news,fn($n)=>empty($n['auto'])||(($n['ts']??tim
 usort($news,function($a,$b){ return tsOf($b)<=>tsOf($a); });
 function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m)) return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]); return 0; }
 $news=array_slice($news,0,$MAX_ITEMS);
-require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,30,70);
-require_once __DIR__.'/images.php'; $im=skyturk_images($news,30,40); $rw['images']=$im;
+require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(1,min(40,$added)),80);
+$budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
+require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(1,min(40,$added)),40); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
 $data['news']=$news; $data['updated']=date('c');
 if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
