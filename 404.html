@@ -379,7 +379,7 @@ footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
   <div class="wrap">
     <div class="hdr-left">
       <div class="w"><span id="hdrWx">☁</span><b id="hdrTemp">24°</b><span>İstanbul</span></div>
-      <span id="hdrPrayer">Öğle 13:03</span>
+      <a href="#/puan-durumu" id="hdrFix">Derbi · Paz 19:00</a>
     </div>
     <a class="logo" href="#/" aria-label="Skytürk ana sayfa">SKY<span class="sky">TÜRK</span><i class="dot"></i><small>HABER</small></a>
     <div class="hdr-right">
@@ -670,10 +670,9 @@ function sideWidgets(){
   <div class="box"><div class="widget-w">
     <div><div class="cityname">${w.city}<span>${w.day}</span></div><div class="big">${w.temp}<sup>°C</sup></div><div class="sm">${w.desc} · ${w.date}</div>
       <div style="display:flex;gap:10px;margin-top:10px;font-size:12px;color:var(--ink2)">${w.days.map(d=>`<span><b style="color:var(--ink)">${d[0]}</b> ${d[1]}°</span>`).join('')}</div></div>
-    <div><div class="cityname">Namaz Vakitleri<span>İstanbul</span></div>${PRAYER.map(p=>`<div class="row"><span>${p[0]}</span><b>${p[1]}</b></div>`).join('')}</div>
+    <div><div class="cityname">Süper Lig<span><a href="#/puan-durumu">Tümü</a></span></div>${STANDINGS.slice(0,6).map((t,i)=>`<div class="row"><span><b style="font-family:var(--fh);color:${i<4?'#2E7D32':'var(--ink2)'};margin-right:6px">${i+1}</b>${t[0]}</span><b>${t[2]}</b></div>`).join('')}</div>
   </div></div>
   <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Günün Anketi</h3><a href="#/anketler">Tüm anketler</a></div>${pollBox(POLLS[0])}</div>
-  <div class="box" style="--cc:#2E7D32"><div class="box-h"><h3><i></i>Süper Lig Puan Durumu</h3><a href="#/puan-durumu">Fikstür</a></div><table class="stand"><thead><tr><th>#</th><th>Takım</th><th>O</th><th style="text-align:right">P</th></tr></thead><tbody>${STANDINGS.slice(0,6).map((t,i)=>`<tr><td>${i+1}</td><td>${t[0]}</td><td>${t[1]}</td><td class="pts">${t[2]}</td></tr>`).join('')}</tbody></table></div>
   <div class="box" style="--cc:#37474F"><div class="box-h"><h3><i></i>Resmi İlanlar</h3><a href="#/kategori/resmi-ilan">Tümü</a></div><div class="ilan-widget">${NEWS.filter(n=>n.cat==='resmi-ilan').map(n=>`<a href="#/haber/${n.id}">${esc(n.t)}</a>`).join('')}<small style="color:var(--ink2);display:block;margin-top:8px">Basın İlan Kurumu — ilan.gov.tr</small></div></div>
   <div class="ad h-250"><div style="text-align:center"><span>Reklam</span>300×250</div></div>
   <div class="box" style="--cc:var(--sky)"><div class="box-h"><h3><i></i>En Çok Okunanlar</h3></div>
@@ -807,7 +806,7 @@ function routeInner(){
     case 'gizlilik':html=policy('Gizlilik ve KVKK Aydınlatma Metni');break;
     case 'cerez':html=policy('Çerez Politikası');break;
     case 'yayin-ilkeleri':html=policy('Yayın İlkelerimiz');break;
-    case 'hava-durumu':case 'namaz-vakitleri':case 'piyasalar':case 'arsiv':case 'rss':html=`<div class="two-col" style="margin-top:0"><div class="page" style="margin:0"><h1>${{'hava-durumu':'Hava Durumu','namaz-vakitleri':'Namaz Vakitleri','piyasalar':'Piyasalar','arsiv':'Haber Arşivi','rss':'RSS Bağlantıları'}[p[0]]}</h1><p class="sub">Bu servis sayfası canlı veri kaynağına bağlandığında otomatik güncellenir.</p><div class="cards two">${sorted.slice(0,4).map(n=>card(n)).join('')}</div></div><aside class="side">${sideWidgets()}</aside></div>`;break;
+    case 'hava-durumu':case 'piyasalar':case 'arsiv':case 'rss':html=`<div class="two-col" style="margin-top:0"><div class="page" style="margin:0"><h1>${{'hava-durumu':'Hava Durumu','piyasalar':'Piyasalar','arsiv':'Haber Arşivi','rss':'RSS Bağlantıları'}[p[0]]}</h1><p class="sub">Bu servis sayfası canlı veri kaynağına bağlandığında otomatik güncellenir.</p><div class="cards two">${sorted.slice(0,4).map(n=>card(n)).join('')}</div></div><aside class="side">${sideWidgets()}</aside></div>`;break;
     default:html=notFound();
   }
   $('#app').innerHTML=html;si=0;
