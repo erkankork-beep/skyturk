@@ -21,7 +21,7 @@ function sky_merge_write($file,$news,$data){
 
 $feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.'/data.json'),true); if(!empty($dj['settings']['feeds'])&&is_array($dj['settings']['feeds'])) $feeds=array_values(array_filter(array_map(fn($x)=>isset($x['url'],$x['cat'],$x['name'])?[$x['url'],$x['cat'],$x['name']]:null,$dj['settings']['feeds'])));
 $KEEP_DAYS=7; $MAX_ITEMS=900; $PER_FEED=25;
-$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=800; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
+$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=400; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
 $boost=null; $bf=__DIR__.'/boost.json'; if(file_exists($bf)){ $boost=json_decode(file_get_contents($bf),true); @unlink($bf); } // tek seferlik: belirli kategoriden fazla haber çek
 $catNew=[]; $dayKey=date('Y-m-d'); $titleKeys=[]; foreach($news as $x0) $titleKeys[mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($x0['t']??'')),0,30)]=1; $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
