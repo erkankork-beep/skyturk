@@ -100,7 +100,7 @@ function skyturk_gazete_build($force=false){
   $ts=fn($n)=>$n['ts']??0; usort($all,fn($a,$b)=>$ts($b)<=>$ts($a));
   $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-24*3600)); if(count($win)<40) $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-48*3600)); if(count($win)<40) $win=$all;
   if(count($win)<12) return ['error'=>'yeterli haber yok ('.count($win).')'];
-  $no=null; foreach($issues as $k=>$is){ if(($is['date']??'')===$today){ $no=$is['no']; unset($issues[$k]); } } $issues=array_values($issues); if($no===null) $no=count($issues)+1; $months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']; $days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  $no=null; foreach($issues as $k=>$is){ if(($is['date']??'')===$today){ $no=$no===null?$is['no']:min($no,$is['no']); unset($issues[$k]); } } $issues=array_values($issues); if($no===null) $no=count($issues)+1; $months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']; $days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
   $dateStr=date('j').' '.$months[(int)date('n')-1].' '.date('Y').' '.$days[(int)date('w')];
   $pdf=new SkyPDF('P','pt','A4'); $pdf->imgDir=$gdir.'/img'; $pdf->dateStr=$dateStr; $pdf->issueNo=$no; $pdf->SetAutoPageBreak(false); $pdf->SetMargins(0,0,0);
   foreach([['T','DejaVuSansCondensed-Bold.ttf'],['TB','DejaVuSans-Bold.ttf'],['B','DejaVuSans.ttf'],['SC','DejaVuSansCondensed.ttf'],['H','DejaVuSerif-Bold.ttf']] as [$k,$f]) $pdf->AddFont($k,'',$f,true);
@@ -164,7 +164,7 @@ function skyturk_gazete_build($force=false){
       $x=$M+2*($hw3+14); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x,$yb,'KÜNYE'); $pdf->SetFont('B','',8); $pdf->color($pdf->grey); $srcs=implode(', ',array_unique(array_filter(array_map(fn($n)=>$n['srcName']??$n['by']??'',$win)))); foreach(['SKYTÜRK Medya Yayıncılık','Dijital Yayın: SKYTÜRK CMS','İletişim: info@skyturk.com.tr',"Her sabah 09:00'da son 24 saatin",'haberlerinden otomatik derlenir.','Kaynaklar: '.mb_substr($srcs,0,60),'Fotoğraflar temsilidir (Pexels).'] as $j=>$l) $pdf->T($x,$yb+16+$j*11,$l);
     $pdf->footer2();
   }
-  $fn='sayi-'.$no.'-'.$today.'.pdf'; $pdf->Output('F',$gdir.'/'.$fn);
+  $fn='sayi-'.$no.'-'.$today.'.pdf'; $pdf->Output('F',$gdir.'/'.$fn); foreach(glob($gdir.'/sayi-*-'.$today.'.pdf') as $old) if(basename($old)!==$fn) @unlink($old);
   $issue=['no'=>$no,'date'=>$today,'dateStr'=>$dateStr,'file'=>'gazete/'.$fn,'pages'=>10,'lead'=>$lead['t'],'leadImg'=>$lead['imgUrl']??null,'count'=>count($win),'layout'=>$rnd,'templates'=>$usedT,'created'=>date('c')];
   array_unshift($issues,$issue); file_put_contents($issuesF,json_encode($issues,JSON_UNESCAPED_UNICODE),LOCK_EX);
   return ['ok'=>true,'issue'=>$issue];
