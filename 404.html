@@ -391,6 +391,11 @@ main{padding:26px 0 40px}
 .fx-arrow{flex:0 0 36px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:20px;color:var(--ink2);cursor:pointer}
 .fx-arrow:hover{background:var(--soft)}
 @media (max-width:640px){.fx-sel{flex-basis:130px;font-size:12px}.fx-arrow{display:none}}
+/* Gökdelen reklamlar */
+.skyad{position:fixed;top:170px;width:160px;height:600px;z-index:5;display:none}
+.skyad.l{left:calc(50% - var(--w)/2 - 180px)}.skyad.r{right:calc(50% - var(--w)/2 - 180px)}
+.skyad .ad{height:600px;min-height:600px}
+@media (min-width:1560px){.skyad{display:block}}
 /* Footer */
 footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
 .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding:44px 0 36px;border-bottom:1px solid rgba(255,255,255,.1)}
@@ -798,7 +803,8 @@ setInterval(()=>{if(document.querySelector('.mag-slider'))magGo(1)},7000);
 function tabbed(){const ids=['dunya','ekonomi','kultur-sanat','spor','egitim','yasam','saglik','teknoloji'];return `<section class="sec" id="tabsec"><div class="tabs" style="--cc:${CAT.dunya.c}">${ids.map((id,i)=>`<button class="${i?'':'on'}" onclick="tabTo('${id}',this)">${CAT[id].n}</button>`).join('')}</div><div class="cards" id="tabBody">${inCat('dunya').slice(0,4).map(n=>card(n)).join('')}</div></section>`}
 function tabTo(id,btn){btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.parentNode.style.setProperty('--cc',CAT[id].c);$('#tabBody').innerHTML=inCat(id).slice(0,4).map(n=>card(n)).join('')||'<p style="color:var(--ink2)">Bu kategoride henüz haber yok.</p>'}
 /* ---- Sayfalar ---- */
-function home(){if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then(r=>r.ok?r.json():[]).then(j=>{ISSUES=Array.isArray(j)?j:[];if((location.hash||'#/')==='#/')route()}).catch(()=>{ISSUES=[]})}
+function skyAds(){const h=location.hash||'#/';const on=h==='#/'||h==='#';document.querySelectorAll('.skyad').forEach(e=>e.remove());if(!on)return;const mk=(k,cls)=>{const d=document.createElement('div');d.className='skyad '+cls;d.innerHTML=adSlot(k,160,600);document.body.appendChild(d)};mk('skyL','l');mk('skyR','r')}
+function home(){setTimeout(skyAds,0);if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then(r=>r.ok?r.json():[]).then(j=>{ISSUES=Array.isArray(j)?j:[];if((location.hash||'#/')==='#/')route()}).catch(()=>{ISSUES=[]})}
   const heroN=heroList();
   const hero=`<section class="hero" aria-label="Manşetler">
     ${heroN.map((n,i)=>`<div class="slide ${i?'':'on'}"><img src="${n.img(1200,640)}" alt=""><a class="cap" href="#/haber/${n.id}"><span class="cat" style="--cc:${CAT[n.cat].c}">${CAT[n.cat].n}</span><h2>${esc(n.t)}</h2><p>${esc(n.s)}</p></a></div>`).join('')}
@@ -899,7 +905,7 @@ function allHeadlines(){return `<div class="cat-head"><div><h1>Tüm Manşetler</
 function notFound(){return `<div class="page" style="text-align:center;padding:60px 0"><h1 style="font-size:80px;color:var(--sky)">404</h1><p class="sub">Aradığınız sayfa bulunamadı.</p><a class="btn btn-navy" href="#/">Ana sayfaya dön</a></div>`}
 
 /* Router */
-function route(){try{routeInner()}catch(e){$('#app').innerHTML=`<div class="page"><h1>Sayfa yüklenemedi</h1><p class="sub">Teknik ayrıntı: ${esc(e.message)}</p><a class="btn btn-navy" href="#/" onclick="localStorage.clear()">Yeniden dene</a></div>`;console.error(e)}}
+function route(){setTimeout(()=>{if(!(location.hash==='#/'||location.hash===''||location.hash==='#'))document.querySelectorAll('.skyad').forEach(e=>e.remove())},0);try{routeInner()}catch(e){$('#app').innerHTML=`<div class="page"><h1>Sayfa yüklenemedi</h1><p class="sub">Teknik ayrıntı: ${esc(e.message)}</p><a class="btn btn-navy" href="#/" onclick="localStorage.clear()">Yeniden dene</a></div>`;console.error(e)}}
 function routeInner(){
   const h=location.hash.replace(/^#/,'')||'/';const p=h.split('/').filter(Boolean);
   let html='';document.title='SKYTÜRK — Son Dakika Haberler, Gündem, Ekonomi, Spor';
@@ -959,7 +965,7 @@ function applyServer(d){if(!d)return;AUTHORS.length=0;((d.settings||{}).authors|
   if(SETTINGS.gsc&&!document.querySelector('meta[name=google-site-verification]')){const m=document.createElement('meta');m.name='google-site-verification';m.content=SETTINGS.gsc;document.head.appendChild(m)}
 }
 let HUMAN=false;['scroll','mousemove','touchstart','keydown'].forEach(e=>addEventListener(e,()=>{if(HUMAN)return;HUMAN=true;document.querySelectorAll('.adx[data-ad]').forEach(el=>{el.innerHTML=el.dataset.ad;delete el.dataset.ad})},{once:true,passive:true}));
-function adSlot(k,w,h){const a=ADS[k];if(a&&a.on!==false&&(a.html||a.img)){let inner=a.html;if(!inner){const im=`<img src="${esc(a.img)}" alt="Reklam" style="max-width:100%;width:${w}px;height:auto;display:block;margin:0 auto;border-radius:10px">`;inner=a.link?`<a href="${esc(a.link)}" target="_blank" rel="noopener sponsored">${im}</a>`:im}if(HUMAN)return `<div class="adx" style="display:grid;place-items:center;margin:0 auto;max-width:${w}px">${inner}</div>`;return `<div class="adx" data-ad="${esc(inner)}" style="display:grid;place-items:center;margin:0 auto;max-width:${w}px;min-height:${h}px"></div>`}return `<div class="ad h-${h===250?250:100}"><div style="text-align:center"><span>Reklam</span>${w}×${h}</div></div>`}
+function adSlot(k,w,h){const a=ADS[k];if(a&&a.on!==false&&(a.html||a.img)){let inner=a.html;if(!inner){const im=`<img src="${esc(a.img)}" alt="Reklam" style="max-width:100%;width:${w}px;height:auto;display:block;margin:0 auto;border-radius:10px">`;inner=a.link?`<a href="${esc(a.link)}" target="_blank" rel="noopener sponsored">${im}</a>`:im}if(HUMAN)return `<div class="adx" style="display:grid;place-items:center;margin:0 auto;max-width:${w}px">${inner}</div>`;return `<div class="adx" data-ad="${esc(inner)}" style="display:grid;place-items:center;margin:0 auto;max-width:${w}px;min-height:${h}px"></div>`}return `<div class="ad h-${h===250?250:(h===600?600:100)}" style="${h===600?'height:600px;min-height:600px':''}"><div style="text-align:center"><span>Reklam</span>${w}×${h}</div></div>`}
 /* manşet: sabitlenenler önce */
 function heroList(){const ids=SETTINGS.hero||[];const pinned=ids.map(id=>NEWS.find(n=>n.id===id)).filter(Boolean);const rest=sorted.filter(n=>!n.video&&!ids.includes(n.id));return pinned.concat(rest).slice(0,Math.max(3,Math.min(12,SETTINGS.heroCount||6)))}
 /* yorumlar */
