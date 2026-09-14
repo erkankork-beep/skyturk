@@ -12,8 +12,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   $raw=file_get_contents('php://input'); $jin=json_decode($raw,true);
   if(isset($jin['_token'])&&!isset($_SERVER['HTTP_X_TOKEN'])) $_SERVER['HTTP_X_TOKEN']=$jin['_token'];
   if(isset($jin['_session'])&&!isset($_SERVER['HTTP_X_SESSION'])) $_SERVER['HTTP_X_SESSION']=$jin['_session'];
-  $need=(($_GET['action']??'')==='secret')?'settings':'news.edit';
+  $need=in_array($_GET['action']??'',['secret','credit'])?'settings':'news.edit';
   sky_require($need);
+  if(($_GET['action']??'')==='credit'){ require_once __DIR__.'/credit.php'; $c=sky_credit_set((float)($jin['balance']??0),$jin['email']??null); sky_audit('kredi güncellendi','$'.$c['balance'].' · '.$c['email']); echo json_encode(sky_credit_status()); exit; }
   if(($_GET['action']??'')==='secret'){
     $j=$jin; $allowed=['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY'];
     $sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];

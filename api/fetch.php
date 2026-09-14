@@ -86,6 +86,7 @@ require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(1,min(40,$add
 $budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
 require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(1,min(40,$added)),40); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
+require_once __DIR__.'/credit.php'; $rw['kredi']=sky_credit_spend((float)($rw['est_cost_usd']??0)+(!empty($rw['astro']['ok'])?0.01:0),$rw['api_error']??null);
 $data['news']=$news; $data['updated']=date('c');
 if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
 file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX);
