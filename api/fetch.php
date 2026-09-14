@@ -31,8 +31,8 @@ $seen=[]; foreach($news as $n){ if(!empty($n['src'])) $seen[$n['src']]=true; }
 
 function get($url){
   $ch=curl_init($url);
-  curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_TIMEOUT=>6,CURLOPT_CONNECTTIMEOUT=>4,
-    CURLOPT_USERAGENT=>'Mozilla/5.0 (compatible; SKYTURK-RSS/1.0)',CURLOPT_SSL_VERIFYPEER=>true]);
+  curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_TIMEOUT=>10,CURLOPT_CONNECTTIMEOUT=>5,
+    CURLOPT_USERAGENT=>'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 SKYTURK-RSS/1.0',CURLOPT_HTTPHEADER=>['Accept: application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8','Accept-Language: tr-TR,tr;q=0.9'],CURLOPT_ENCODING=>'',CURLOPT_SSL_VERIFYPEER=>true]);
   $r=curl_exec($ch); curl_close($ch); return $r?:false;
 }
 function clean($s){ $s=html_entity_decode(strip_tags((string)$s),ENT_QUOTES|ENT_HTML5,'UTF-8'); return trim(preg_replace('/\s+/u',' ',$s)); }

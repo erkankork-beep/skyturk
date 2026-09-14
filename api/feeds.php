@@ -39,4 +39,5 @@ return [
   ['https://www.cumhuriyet.com.tr/rss/son_dakika.xml', 'son-dakika', 'Cumhuriyet'],
   // Mynet
   ['https://www.mynet.com/magazin/rss', 'magazin', 'Mynet'],
+  ['https://www.mynet.com/haber/rss/kategori/magazin/', 'magazin', 'Mynet'],
 ];
