@@ -10,7 +10,7 @@ date_default_timezone_set('Europe/Istanbul');
 $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
 $feeds=require __DIR__.'/feeds.php';
 $KEEP_DAYS=7; $MAX_ITEMS=600; $PER_FEED=25;
-$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=300; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
+$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=500; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
 $catNew=[]; $dayKey=date('Y-m-d'); $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
