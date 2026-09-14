@@ -68,7 +68,9 @@ switch($name){
   else{$ids=array_map('intval',$a['ids']??[]);$d['news']=array_values(array_filter($d['news'],fn($x)=>!in_array((int)$x['id'],$ids)));}
   save($d);$n=$before-count($d['news']);logm("MCP delete $n haber");res($id,text(['ok'=>true,'deleted'=>$n,'remaining'=>count($d['news'])]));}
  case 'set_status':{$d=load();$ok=false;foreach($d['news'] as &$x)if($x['id']==$a['id']){$x['st']=$a['status'];$ok=true;}unset($x);if(!$ok)res($id,text('Haber bulunamadı',true));save($d);res($id,text(['ok'=>true,'id'=>$a['id'],'status'=>$a['status']]));}
- case 'fetch_rss':{ob_start();$_GET['key']=SKYTURK_TOKEN;$_SERVER['REQUEST_METHOD']='GET';include __DIR__.'/fetch.php';$out=ob_get_clean();res($id,text(json_decode($out,true)?:$out));}
+ case 'fetch_rss':{$self='https://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).'/fetch.php?key='.urlencode(SKYTURK_TOKEN);
+  $ch=curl_init($self);curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT_MS=>1500,CURLOPT_NOSIGNAL=>1,CURLOPT_SSL_VERIFYPEER=>false]);@curl_exec($ch);curl_close($ch);
+  logm('MCP fetch_rss başlatıldı');res($id,text(['ok'=>true,'message'=>'RSS çekimi arka planda başlatıldı; 30-60 sn sonra get_log ile sonucu görün.']));}
  case 'list_polls':{$d=load();res($id,text($d['polls']));}
  case 'create_poll':{$d=load();$q=['id'=>'p'.time(),'q'=>$a['question'],'o'=>array_map(fn($o)=>[$o,0],$a['options']),'votes'=>0,'open'=>true];array_unshift($d['polls'],$q);save($d);res($id,text(['ok'=>true,'poll'=>$q]));}
  case 'toggle_poll':{$d=load();$ok=false;foreach($d['polls'] as &$q)if($q['id']===$a['id']){$q['open']=(bool)$a['open'];$ok=true;}unset($q);if(!$ok)res($id,text('Anket bulunamadı',true));save($d);res($id,text(['ok'=>true]));}

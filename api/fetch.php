@@ -7,6 +7,7 @@ $cli = PHP_SAPI==='cli';
 if(!$cli){ header('Content-Type: application/json; charset=utf-8');
   if(!hash_equals(SKYTURK_TOKEN, $_GET['key']??'')){http_response_code(403);echo '{"error":"forbidden"}';exit;} }
 date_default_timezone_set('Europe/Istanbul');
+@ignore_user_abort(true); @set_time_limit(180);
 $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
 $feeds=require __DIR__.'/feeds.php';
 $KEEP_DAYS=7; $MAX_ITEMS=400; $PER_FEED=25;
