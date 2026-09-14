@@ -82,9 +82,9 @@ $news=array_values(array_filter($news,fn($n)=>empty($n['auto'])||(($n['ts']??tim
 usort($news,function($a,$b){ return tsOf($b)<=>tsOf($a); });
 function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m)) return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]); return 0; }
 $news=array_slice($news,0,$MAX_ITEMS);
-require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(1,min(40,$added)),80);
+require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(20,min(40,$added)),80); // yeni gelenler + birikim varsa en az 20
 $budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
-require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(1,min(40,$added)),40); $rw['images']=$im;
+require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(40,$added)),40); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
 require_once __DIR__.'/credit.php'; $rw['kredi']=sky_credit_spend((float)($rw['est_cost_usd']??0)+(!empty($rw['astro']['ok'])?0.01:0),$rw['api_error']??null);
 $data['news']=$news; $data['updated']=date('c');
