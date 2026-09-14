@@ -2,7 +2,7 @@
 /* SKYTÜRK — RSS otomasyonu.
    Cron:  /usr/local/bin/php /home/KULLANICI/public_html/api/fetch.php
    Elle:  https://alanadi/api/fetch.php?key=TOKEN                      */
-require __DIR__.'/config.php';
+require_once __DIR__.'/config.php';
 $cli = PHP_SAPI==='cli';
 if(!$cli){ header('Content-Type: application/json; charset=utf-8');
   if(!hash_equals(SKYTURK_TOKEN, $_GET['key']??'')){http_response_code(403);echo '{"error":"forbidden"}';exit;} }

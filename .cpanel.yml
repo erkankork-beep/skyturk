@@ -5,4 +5,4 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH/cms $DEPLOYPATH/api
     - /bin/cp index.html 404.html .htaccess $DEPLOYPATH/
     - /bin/cp cms/index.html $DEPLOYPATH/cms/
-    - /bin/cp api/fetch.php api/feeds.php api/data.php api/.htaccess $DEPLOYPATH/api/
+    - /bin/cp api/fetch.php api/feeds.php api/data.php api/.htaccess api/mcp-*.php $DEPLOYPATH/api/
