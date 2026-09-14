@@ -498,13 +498,21 @@ function row(n){return `<tr class="${n.st==='Taslak'?'draft':''}"><td>${n.id}</t
 function toggleSt(id){const n=STATE.news.find(x=>x.id===id);n.st=n.st==='Yayında'?'Taslak':'Yayında';publish();toast(n.st==='Yayında'?'Haber yayınlandı':'Haber taslağa alındı');route()}
 function del(id){if(!confirm('Haber silinsin mi?'))return;STATE.news=STATE.news.filter(x=>x.id!==id);publish();toast('Haber silindi');route()}
 
-function dashboard(){
+function loadStatus(){fetch('../api/status.php?t='+Date.now()).then(r=>r.json()).then(j=>{const el=$('#stats2');if(!el)return;const b=el.querySelectorAll('.stat b'),s=el.querySelectorAll('.stat span');
+  b[0].textContent=j.pending_rewrite;b[1].textContent=j.pending_images;
+  b[2].innerHTML=(j.disk_used_mb>=1024?(j.disk_used_mb/1024).toFixed(2)+' GB':j.disk_used_mb+' MB');s[2].textContent='Toplam Doluluk · '+j.disk_quota_gb+' GB kotanın %'+j.disk_pct;
+  b[3].textContent=j.server.ok?'✓':'!';s[3].textContent='Sunucu '+(j.server.ok?'Sağlıklı':'Yoğun')+' · yük '+j.server.load+' · PHP '+j.server.php;
+  b[4].textContent=j.traffic.today_uniq;s[4].textContent='Ziyaretçi Bugün · '+j.traffic.today_hits+' görüntüleme · 7 gün '+j.traffic.week_hits;
+  const hb=$('#hbar');if(hb){const mx=Math.max(1,...j.traffic.days.map(d=>d.hits));hb.innerHTML=j.traffic.days.map(d=>`<div style="height:${Math.max(4,Math.round(d.hits/mx*100))}%" title="${d.d}: ${d.hits}"><span>${['Paz','Pzt','Sal','Çrş','Prş','Cum','Cmt'][new Date(d.d).getDay()]}</span></div>`).join('');const hs=$('#hbarSub');if(hs)hs.textContent='Son 7 gün · toplam '+j.traffic.week_hits+' görüntüleme';}
+  }).catch(()=>{})}
+function dashboard(){setTimeout(loadStatus,50);
   const w=WEATHER,pub=STATE.news.filter(n=>n.st==='Yayında').length;
   const stats=[['#/reklamlar',9,'Reklam','#E8394A'],['#/haberler',fmt(STATE.news.length),'Haber','#6C5CE7'],['#/yorumlar',120,'Yorum','#F6B93B'],['#/iletisim',msgs.filter(m=>!m[3]).length,'Okunmamış İleti','#2D3436'],['#/uyeler',STATE.users.length,'Üye','#4CB8A4']];
   const wxIco=['⛈','🌧','⛅','☀'];
   return `
   <div class="panel welcome"><a class="btn btn-s" href="../" target="_blank" style="float:right">Siteyi görüntüle ↗</a><h1>SKYTÜRK İçerik Yönetim Sistemine Hoşgeldiniz</h1><p style="color:var(--ink2);margin-top:4px">Kodlayan ve Tasarlayan: <b>E.K.</b></p><p>Bugün ${pub} haber yayında · son giriş: bugün 15:47 · İstanbul</p></div>
   <div class="stats">${stats.map(s=>`<a class="stat" href="${s[0]}" style="background:${s[3]}"><b>${s[1]}</b><span>${s[2]}</span></a>`).join('')}</div>
+  <div class="stats" id="stats2" style="margin-top:18px">${[['#/ajanslar','…','Kuyrukta Bekleyen Haber','#0B4F9E'],['#/medya','…','Kuyrukta Bekleyen Görsel','#2E9BF0'],['#/sistem','…','Toplam Doluluk','#8E24AA'],['#/sistem','…','Sunucu Durumu','#455A64'],['#/sistem','…','Ziyaretçi Trafiği','#00897B']].map(s=>`<a class="stat" href="${s[0]}" style="background:${s[3]}"><b>${s[1]}</b><span>${s[2]}</span></a>`).join('')}</div>
   <div class="widgets">
     <div class="panel"><div class="wh"><div><h3>Hava Durumu</h3><small>${w.city}</small></div><div class="act"><button title="Yenile" onclick="toast('Hava durumu güncellendi')">⟳</button><button title="Kapat">✕</button></div></div>
       <div class="wx-now"><div class="d">${w.day}<small>${w.date} 15:47</small></div><div><div class="t"><span class="ico">⛅</span>${w.temp}<sup>°C</sup></div><small style="display:block;text-align:right;color:var(--ink2);font-size:12px">${w.desc}</small></div></div>
@@ -518,8 +526,8 @@ function dashboard(){
     <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Görsel</th><th>Başlık</th><th>Kategoriler</th><th>Oluşturan</th><th>Tıklanma</th><th>Durum</th><th>Oluşturma</th><th></th></tr></thead><tbody>${STATE.news.slice(0,8).map(row).join('')}</tbody></table></div>
     <div class="tbl-foot"><span>Son 8 haber gösteriliyor</span><a href="#/haberler" style="color:var(--navy);font-weight:700">Tüm haberler ›</a></div></div>
   <div class="widgets" style="grid-template-columns:2fr 1fr">
-    <div class="panel"><div class="wh"><div><h3>Haftalık Ziyaret</h3><small>Son 7 gün · toplam 184.320</small></div></div><div class="hbar">${[42,58,51,66,74,61,88].map((v,i)=>`<div style="height:${v}%"><span>${['Pzt','Sal','Çrş','Prş','Cum','Cmt','Paz'][i]}</span></div>`).join('')}</div><div style="height:30px"></div></div>
-    <div class="panel"><div class="wh"><div><h3>Bugün</h3><small>Gerçek zamanlı</small></div></div>${[['Aktif okuyucu',1284],['Bugün yayınlanan',14],['Bekleyen yorum',STATE.comments.filter(c=>c.st==='pending').length],['Onay bekleyen seri ilan',STATE.cls.filter(c=>!c.ok).length],['Açık anket',STATE.polls.filter(p=>p.open).length],['Resmi ilan (bugün)',STATE.news.filter(n=>n.cat==='resmi-ilan'&&n.d.startsWith('13.09')).length]].map(k=>`<div class="kv"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('')}</div>
+    <div class="panel"><div class="wh"><div><h3>Haftalık Ziyaret</h3><small id="hbarSub">Son 7 gün</small></div></div><div class="hbar" id="hbar"></div><div style="height:30px"></div></div>
+    <div class="panel"><div class="wh"><div><h3>Bugün</h3><small>Gerçek zamanlı</small></div></div>${[['Bugün yayınlanan',STATE.news.filter(n=>(n.d||'').startsWith(new Date().toLocaleDateString('tr-TR'))).length],['Bekleyen yorum',STATE.comments.filter(c=>c.st==='pending').length],['Onay bekleyen seri ilan',STATE.cls.filter(c=>!c.ok).length],['Açık anket',STATE.polls.filter(p=>p.open).length],['Resmi ilan (bugün)',STATE.news.filter(n=>n.cat==='resmi-ilan'&&n.d.startsWith('13.09')).length]].map(k=>`<div class="kv"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('')}</div>
   </div>`;
 }
 function newsList(q){

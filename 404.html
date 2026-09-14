@@ -845,6 +845,7 @@ function routeInner(){
 addEventListener('hashchange',route);
 fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d){applySaved(d);sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan').sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));$('#breakItems').innerHTML=sorted.slice(0,6).map((n,i)=>`<a href="#/haber/${n.id}" class="${i?'':'on'}"><time>${n.d.slice(11)}</time>${esc(n.t)}</a>`).join('');bi=0;}}).catch(()=>{}).finally(route);
 addEventListener('scroll',()=>$('#toTop').classList.toggle('show',scrollY>600));
+try{if(location.protocol.startsWith('http'))fetch('api/hit.php',{keepalive:true}).catch(()=>{})}catch(e){}
 </script>
 </body>
 </html>
