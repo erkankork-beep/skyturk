@@ -37,7 +37,7 @@ return [
   ['https://www.hurriyet.com.tr/rss/dunya',    'dunya',   'Hürriyet'],
   // Cumhuriyet
   ['https://www.cumhuriyet.com.tr/rss/son_dakika.xml', 'son-dakika', 'Cumhuriyet'],
-  // Mynet
-  ['https://www.mynet.com/magazin/rss', 'magazin', 'Mynet'],
-  ['https://www.mynet.com/haber/rss/kategori/magazin/', 'magazin', 'Mynet'],
+  // Magazin
+  ['https://www.hurriyet.com.tr/rss/magazin', 'magazin', 'Hürriyet Kelebek'],
+  ['https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml', 'magazin', 'Milliyet Cadde'],
 ];
