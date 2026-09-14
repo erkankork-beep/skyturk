@@ -50,7 +50,7 @@ foreach($feeds as [$url,$cat,$srcName]){
       'id'=>abs(crc32($link))%900000000+100000000,
       'cat'=>$cat,'t'=>cut($title,160),'s'=>$desc,
       'd'=>date('d.m.Y H:i',$pub),'ts'=>$pub,
-      'by'=>$srcName,'v'=>0,'st'=>'Yayında','tags'=>[],
+      'by'=>'Ali Vurdumduymaz','v'=>0,'st'=>'Yayında','tags'=>[],
       'auto'=>true,'src'=>$link,'srcName'=>$srcName,'fullLen'=>mb_strlen($full)
     ];
     $seen[$link]=true; $added++; $new++; $catNew[$cat]=($catNew[$cat]??0)+1;
@@ -70,12 +70,13 @@ foreach($vfeeds as [$url,$cat,$srcName]){
     $media=$e->children('http://search.yahoo.com/mrss/'); $desc=cut(clean((string)($media->group->description??'')),240);
     $pub=strtotime((string)$e->published)?:time();
     $news[]=['id'=>abs(crc32($link))%900000000+100000000,'cat'=>$cat,'t'=>cut(clean((string)$e->title),160),'s'=>$desc,'d'=>date('d.m.Y H:i',$pub),'ts'=>$pub,
-      'by'=>$srcName,'v'=>0,'st'=>'Yayında','tags'=>['video'],'auto'=>true,'src'=>$link,'srcName'=>$srcName.' / YouTube','video'=>true,'ytId'=>$vid,
+      'by'=>'Ali Vurdumduymaz','v'=>0,'st'=>'Yayında','tags'=>['video'],'auto'=>true,'src'=>$link,'srcName'=>$srcName.' / YouTube','video'=>true,'ytId'=>$vid,
       'imgUrl'=>'https://i.ytimg.com/vi/'.$vid.'/hqdefault.jpg','imgCredit'=>'Görsel: '.$srcName.' / YouTube','imgLink'=>$link,'rw'=>true];
     $seen[$link]=true; $added++; $new++; $vadded++;
   }
   $perFeed[$url]=$new.' yeni video / '.$i.' toplam';
 }
+foreach($news as &$nn){ if(!empty($nn['auto'])&&(($nn['by']??'')===($nn['srcName']??'')||preg_match('/^(NTV|AA|TRT Haber|Hürriyet|Cumhuriyet)/',$nn['by']??''))) $nn['by']='Ali Vurdumduymaz'; if(preg_match('/Erkan Kork|Özsoy/i',$nn['by']??'')) $nn['by']='Ali Vurdumduymaz'; } unset($nn);
 /* Temizlik: otomatik haberlerde eski olanları at, elle girilenleri koru */
 $cut=time()-$KEEP_DAYS*86400;
 $news=array_values(array_filter($news,fn($n)=>empty($n['auto'])||(($n['ts']??time())>=$cut)));
