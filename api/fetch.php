@@ -25,29 +25,31 @@ function get($url){
 function clean($s){ $s=html_entity_decode(strip_tags((string)$s),ENT_QUOTES|ENT_HTML5,'UTF-8'); return trim(preg_replace('/\s+/u',' ',$s)); }
 function cut($s,$n){ return mb_strlen($s)>$n ? mb_substr($s,0,$n-1).'…' : $s; }
 
-$added=0; $errors=[];
+$added=0; $errors=[]; $perFeed=[];
 foreach($feeds as [$url,$cat,$srcName]){
-  $xml=get($url); if(!$xml){ $errors[]=$url; continue; }
+  $xml=get($url); if(!$xml){ $errors[]=$url; $perFeed[$url]='ERİŞİLEMEDİ'; continue; }
   libxml_use_internal_errors(true);
-  $doc=simplexml_load_string($xml); if(!$doc){ $errors[]=$url; continue; }
+  $doc=simplexml_load_string($xml); if(!$doc){ $errors[]=$url; $perFeed[$url]='XML DEĞİL'; continue; }
   $items=$doc->channel->item ?? $doc->entry ?? [];
-  $i=0;
+  $i=0; $new=0;
   foreach($items as $it){
     if(++$i>$PER_FEED) break;
     $link=clean($it->link['href'] ?? $it->link ?? '');
     $title=clean($it->title ?? ''); if(!$link||!$title) continue;
     if(isset($seen[$link])) continue;
     $desc=cut(clean($it->description ?? $it->summary ?? $it->content ?? ''),280);
+    $enc=$it->children('http://purl.org/rss/1.0/modules/content/')->encoded ?? null; $full=$enc?clean((string)$enc):'';
     $pub=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
     $news[]=[
       'id'=>abs(crc32($link))%900000000+100000000,
       'cat'=>$cat,'t'=>cut($title,160),'s'=>$desc,
       'd'=>date('d.m.Y H:i',$pub),'ts'=>$pub,
       'by'=>$srcName,'v'=>0,'st'=>'Yayında','tags'=>[],
-      'auto'=>true,'src'=>$link,'srcName'=>$srcName
+      'auto'=>true,'src'=>$link,'srcName'=>$srcName,'fullLen'=>mb_strlen($full)
     ];
-    $seen[$link]=true; $added++;
+    $seen[$link]=true; $added++; $new++;
   }
+  $perFeed[$url]=$new.' yeni / '.count($items).' toplam';
 }
 /* Temizlik: otomatik haberlerde eski olanları at, elle girilenleri koru */
 $cut=time()-$KEEP_DAYS*86400;
@@ -60,4 +62,4 @@ if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
 file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX);
 $msg=date('d.m.Y H:i').' — eklendi: '.$added.', toplam: '.count($news).($errors?' | hata: '.implode(' ',$errors):'');
 file_put_contents($log,$msg."\n".substr((string)@file_get_contents($log),0,20000));
-echo $cli?$msg."\n":json_encode(['ok'=>true,'added'=>$added,'total'=>count($news),'errors'=>$errors],JSON_UNESCAPED_UNICODE);
+echo $cli?$msg."\n":json_encode(['ok'=>true,'added'=>$added,'total'=>count($news),'errors'=>$errors,'feeds'=>$perFeed],JSON_UNESCAPED_UNICODE);

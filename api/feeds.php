@@ -15,4 +15,8 @@ return [
   ['https://www.ntv.com.tr/sanat.rss',      'kultur-sanat','NTV'],
   ['https://www.ntv.com.tr/egitim.rss',     'egitim',     'NTV'],
   ['https://www.aa.com.tr/tr/rss/default?cat=guncel', 'gundem', 'AA'],
+  // DHA Ajanda — DHA'nın haber siteleri için açtığı ücretsiz besleme (ajanda.dha.com.tr/rss-linkler)
+  ['https://ajanda.dha.com.tr/feed/',            'genel',  'DHA Ajanda'],
+  ['https://ajanda.dha.com.tr/feed/?post_type=post', 'genel', 'DHA Ajanda'],
+  ['https://www.dha.com.tr/rss.asp',              'gundem', 'DHA'],
 ];
