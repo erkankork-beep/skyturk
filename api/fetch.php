@@ -79,6 +79,7 @@ function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(
 $news=array_slice($news,0,$MAX_ITEMS);
 require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,30,70);
 require_once __DIR__.'/images.php'; $im=skyturk_images($news,30,40); $rw['images']=$im;
+$data['news']=$news; $rw['astro']=skyturk_astro($data);
 $data['news']=$news; $data['updated']=date('c');
 if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
 file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX);

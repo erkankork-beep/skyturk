@@ -36,3 +36,20 @@ function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): arr
   } unset($n);
   return ['rewritten'=>$done,'failed'=>$fail,'model'=>$model,'est_cost_usd'=>round($cost,4)];
 }
+
+/* Günlük astroloji — günde bir kez Haiku ile 12 burç */
+function skyturk_astro(array &$data): array {
+  $today=date('Y-m-d'); if(($data['astro']['date']??'')===$today) return ['skipped'=>'bugün üretildi'];
+  $secrets=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];
+  $key=$secrets['ANTHROPIC_KEY']??''; if(!$key) return ['skipped'=>'anahtar yok'];
+  $signs=['koc'=>'Koç','boga'=>'Boğa','ikizler'=>'İkizler','yengec'=>'Yengeç','aslan'=>'Aslan','basak'=>'Başak','terazi'=>'Terazi','akrep'=>'Akrep','yay'=>'Yay','oglak'=>'Oğlak','kova'=>'Kova','balik'=>'Balık'];
+  $prompt="Bugün ".date('d.m.Y').". SKYTÜRK haber sitesi için 12 burcun günlük yorumunu yaz. Her burç için: 'genel' (3-4 cümle, sıcak ve olumlu ama gerçekçi, tıbbi/finansal kesin iddia yok), 'ask' (1 cümle), 'kariyer' (1 cümle), 'saglik' (1 cümle), 'sansli_sayi' (1-99), 'renk' (bir renk). Yalnızca JSON döndür: {\"koc\":{\"genel\":\"\",\"ask\":\"\",\"kariyer\":\"\",\"saglik\":\"\",\"sansli_sayi\":0,\"renk\":\"\"}, ...} Anahtarlar: ".implode(', ',array_keys($signs));
+  $body=['model'=>$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001','max_tokens'=>3000,'messages'=>[['role'=>'user','content'=>$prompt]]];
+  $ch=curl_init('https://api.anthropic.com/v1/messages');
+  curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>60,CURLOPT_POST=>1,CURLOPT_POSTFIELDS=>json_encode($body,JSON_UNESCAPED_UNICODE),CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$key,'anthropic-version: 2023-06-01']]);
+  $resp=curl_exec($ch); $code=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch);
+  $j=json_decode((string)$resp,true); if($code!==200||!isset($j['content'][0]['text'])) return ['error'=>substr((string)$resp,0,160)];
+  $txt=preg_replace('/^```(json)?|```$/m','',trim($j['content'][0]['text'])); $o=json_decode(trim($txt),true);
+  if(!is_array($o)||count($o)<12) return ['error'=>'json'];
+  $data['astro']=['date'=>$today,'items'=>$o]; return ['ok'=>true,'date'=>$today];
+}

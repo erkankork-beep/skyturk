@@ -311,6 +311,25 @@ main{padding:26px 0 40px}
 .ilan-widget a:last-child{border:0}
 @media (max-width:1024px){.ozel{grid-template-columns:1fr}.people{grid-template-columns:repeat(2,1fr)}.dir{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.people,.dir{grid-template-columns:1fr}}
+/* Astroloji */
+.astro{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.astro a{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 10px;text-align:center;display:grid;gap:8px;transition:transform .15s,box-shadow .15s}
+.astro a:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(11,79,158,.12)}
+.astro a i{font-style:normal;font-size:38px;line-height:1;color:var(--navy)}
+.astro a b{font-family:var(--fh);font-weight:500;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.astro-page{max-width:820px;margin:20px auto 0}
+.astro-page .hd{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+.astro-page .hd i{font-style:normal;font-size:64px;color:var(--navy);line-height:1}
+.astro-page .hd h1{font-size:40px;font-weight:600}
+.astro-page .hd small{display:block;color:var(--ink2);font-size:14px}
+.astro-page .row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.astro-page .row div{background:var(--soft);border-radius:10px;padding:14px}
+.astro-page .row b{display:block;font-size:12px;letter-spacing:.08em;color:var(--ink2);margin-bottom:6px}
+.astro-page p{font-size:17px;line-height:1.65}
+.astro-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.astro-nav a{padding:6px 12px;border-radius:999px;background:var(--soft);font-size:13px;font-weight:600}
+.astro-nav a.on,.astro-nav a:hover{background:var(--navy);color:#fff}
+@media (max-width:640px){.astro{grid-template-columns:repeat(2,1fr)}.astro-page .row{grid-template-columns:1fr}}
 /* Footer */
 footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
 .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding:44px 0 36px;border-bottom:1px solid rgba(255,255,255,.1)}
@@ -626,7 +645,7 @@ const STANDINGS=[['Galatasaray',5,13,'+9'],['Fenerbahçe',5,11,'+7'],['Beşikta�
 const TRAFFIC=[['Kızılay - Sıhhiye','Yoğun','#E8262C'],['Eskişehir Yolu','Orta','#F9A825'],['Konya Yolu','Akıcı','#22A06B'],['Anadolu Bulvarı','Yoğun','#E8262C'],['Çevre Yolu (Batı)','Akıcı','#22A06B'],['İstanbul Yolu','Orta','#F9A825']];
 
 /* Sunucu köprüsü: CMS'in yayınladığı veriyi api/data.php'den al (yoksa tarayıcı depolaması) */
-function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!n||!n.t)return;if(!CAT[n.cat])n.cat='genel';if(!n.p||!n.p.length)n.p=body(i);if(!n.tags)n.tags=[];if(!n.d)n.d='13.09.2026 00:00';if(typeof n.v!=='number')n.v=0;n.by=n.by||'Skytürk';n.s=n.s||'';n.img=n.imgUrl?((w,h)=>n.imgUrl):((w,h)=>ph(n.cat,w,h,CAT[n.cat].n));NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}}
+function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!n||!n.t)return;if(!CAT[n.cat])n.cat='genel';if(!n.p||!n.p.length)n.p=body(i);if(!n.tags)n.tags=[];if(!n.d)n.d='13.09.2026 00:00';if(typeof n.v!=='number')n.v=0;n.by=n.by||'Skytürk';n.s=n.s||'';n.img=n.imgUrl?((w,h)=>n.imgUrl):((w,h)=>ph(n.cat,w,h,CAT[n.cat].n));NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}if(saved&&saved.astro)ASTRO=saved.astro;}
 try{const raw=localStorage.getItem('skyturk_news');if(raw)applySaved({news:JSON.parse(raw),polls:JSON.parse(localStorage.getItem('skyturk_polls')||'null')});}catch(e){}
 
 </script>
@@ -680,6 +699,15 @@ function sideWidgets(){
   <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Etiketler</h3></div><div class="tags">${[...new Set(NEWS.flatMap(n=>n.tags))].slice(0,14).map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div></div>`;
 }
 
+const SIGNS=[['koc','Koç','♈'],['boga','Boğa','♉'],['ikizler','İkizler','♊'],['yengec','Yengeç','♋'],['aslan','Aslan','♌'],['basak','Başak','♍'],['terazi','Terazi','♎'],['akrep','Akrep','♏'],['yay','Yay','♐'],['oglak','Oğlak','♑'],['kova','Kova','♒'],['balik','Balık','♓']];
+let ASTRO=null;
+function astroSection(){return `<section class="sec">${secH('Astroloji','#3F51B5','#/astroloji','Günlük Burç Yorumları')}<div class="astro">${SIGNS.map(s=>`<a href="#/astroloji/${s[0]}"><i>${s[2]}</i><b>${s[1]}</b></a>`).join('')}</div></section>`}
+function astroPage(id){const s=SIGNS.find(x=>x[0]===id);if(!s)return `<div class="page" style="max-width:var(--w)"><h1>Günlük Burç Yorumları</h1><p class="sub">${ASTRO?new Date(ASTRO.date).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'Bugün'}</p><div class="astro" style="margin-top:20px">${SIGNS.map(x=>`<a href="#/astroloji/${x[0]}"><i>${x[2]}</i><b>${x[1]}</b></a>`).join('')}</div></div>`;
+  const it=ASTRO&&ASTRO.items&&ASTRO.items[id];const d=ASTRO?new Date(ASTRO.date).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'';
+  return `<div class="astro-page"><div class="crumb"><a href="#/">Ana Sayfa</a>›<a href="#/astroloji">Astroloji</a>›<span>${s[1]}</span></div><div class="hd"><i>${s[2]}</i><div><h1>${s[1]} Burcu</h1><small>Günlük yorum${d?' · '+d:''}</small></div></div>
+  ${it?`<p>${esc(it.genel)}</p><div class="row"><div><b>AŞK</b>${esc(it.ask)}</div><div><b>KARİYER</b>${esc(it.kariyer)}</div><div><b>SAĞLIK</b>${esc(it.saglik)}</div></div><p style="color:var(--ink2);font-size:14px">Şanslı sayı: <b>${esc(String(it.sansli_sayi))}</b> · Renk: <b>${esc(it.renk)}</b></p>`:`<p style="color:var(--ink2)">Bugünün yorumu hazırlanıyor; kısa süre sonra burada olacak.</p>`}
+  <div class="astro-nav">${SIGNS.map(x=>`<a href="#/astroloji/${x[0]}" class="${x[0]===id?'on':''}">${x[2]} ${x[1]}</a>`).join('')}</div>
+  <p style="font-size:12px;color:var(--ink2);margin-top:20px">Burç yorumları eğlence amaçlıdır.</p></div>`}
 function pollBox(p){return `<div class="poll" data-id="${p.id}"><p>${esc(p.q)}</p>${p.o.map((o,i)=>`<div class="opt" onclick="vote('${p.id}',${i},this)"><div class="lbl"><span>${o[0]}</span><b>${o[1]}%</b></div><div class="bar"><i style="--w:${o[1]}%"></i></div></div>`).join('')}<small>${p.votes.toLocaleString('tr-TR')} oy · ${p.open?'Anket açık':'Sonuçlandı'}</small></div>`}
 function vote(id,i,el){const p=POLLS.find(x=>x.id===id);if(!p.open||p.voted)return;p.voted=true;p.votes++;el.closest('.poll').querySelector('small').textContent=`${p.votes.toLocaleString('tr-TR')} oy · Oyunuz alındı ✓`;el.querySelector('b').textContent=(p.o[i][1]+1)+'%'}
 function personCard(p,kind){return `<a class="person" href="#/${kind}/${p.id}" style="--cc:${CAT[p.cat].c}"><div class="top"><span class="av">${p.n.replace(/^(Prof\. |Dr\. )+/,'').split(' ').map(x=>x[0]).join('').slice(0,2)}</span></div><div class="bd"><b>${esc(p.n)}</b><small>${esc(p.role)}</small>${p.t?`<h3>${esc(p.t)}</h3>`:''}<p>${esc(p.s)}</p></div></a>`}
@@ -707,6 +735,7 @@ function home(){
   </div>${videoN().length?`<section class="gallery-band"><div class="wrap">
     ${videoN().length?`${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
   </div></section>`:''}<div class="wrap">
+  ${astroSection()}
   <section class="sec"><div class="catblocks">${cb('saglik')}${cb('kultur-sanat')}</div></section>
   <section class="sec">${secH('Röportaj','#00897B','#/roportaj')}<div class="people">${INTERVIEWS.map(p=>personCard(p,'roportaj')).join('')}</div></section>
   <section class="sec"><div class="catblocks">${cb('dunya')}${cb('teknoloji')}</div></section>
@@ -787,6 +816,7 @@ function routeInner(){
     case 'kategori':html=catPage(p[1]);break;
     case 'haber':html=article(p[1]);break;
     case 'yazarlar':html=authorsPage();break;
+    case 'astroloji':html=astroPage(p[1]);break;
     case 'roportaj':html=p[1]?personPage('roportaj',p[1]):peoplePage('roportaj');break;
     case 'biyografi':html=p[1]?personPage('biyografi',p[1]):peoplePage('biyografi');break;
     case 'anketler':html=pollsPage();break;
