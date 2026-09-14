@@ -414,7 +414,7 @@ footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
     <span class="date" id="topDate"></span>
     <div class="ticker"><ul id="tickerList"></ul></div>
     <div class="links">
-      <a href="#/kunye">Künye</a><a href="#/iletisim">İletişim</a><a href="#/dijital-gazete">Dijital Gazete</a>
+      <span id="lastUpd" style="opacity:.75;font-size:12px;margin-right:12px" title="Sistemin son haber çekimi">Son güncelleme: —</span><a href="#/kunye">Künye</a><a href="#/iletisim">İletişim</a><a href="#/dijital-gazete">Dijital Gazete</a>
     </div>
   </div>
 </div>
@@ -878,7 +878,7 @@ try{if(location.protocol.startsWith('http'))fetch('api/hit.php',{keepalive:true}
 <script>
 /* ================= SKYTÜRK SİTE — İŞLEVSEL KATMAN ================= */
 let COMMENTS=[],ADS={},PAGES={},SOCIAL={};
-function applyServer(d){if(!d)return;SETTINGS=d.settings||{};COMMENTS=d.comments||[];ADS=SETTINGS.ads||{};PAGES=SETTINGS.pages||{};SOCIAL=SETTINGS.social||{};
+function applyServer(d){if(!d)return;const lu=$('#lastUpd');if(lu&&d.updated){const u=new Date(d.updated);lu.textContent='Son güncelleme: '+u.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+' · '+d.news.length+' haber';lu.title='Sistem son çekim: '+u.toLocaleString('tr-TR')}SETTINGS=d.settings||{};COMMENTS=d.comments||[];ADS=SETTINGS.ads||{};PAGES=SETTINGS.pages||{};SOCIAL=SETTINGS.social||{};
   const rep=(arr,src)=>{arr.length=0;(src||[]).forEach(x=>arr.push(x))};
   rep(INTERVIEWS,(d.interviews||[]).map(p=>Object.assign({},p)));rep(BIOS,(d.bios||[]).map(p=>Object.assign({},p)));
   rep(DIRECTORY,(d.dir||[]).filter(x=>x.ok!==false).map(x=>[x.n,x.c,x.l,x]));rep(CLASSIFIEDS,(d.cls||[]).filter(x=>x.ok).map(x=>[x.t,x.c,x.p,x]));
