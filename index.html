@@ -82,8 +82,8 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 main{padding:26px 0 40px}
 .grid-hero{display:grid;grid-template-columns:1fr 340px;gap:26px;align-items:start}
 .hero{position:relative;border-radius:14px;overflow:hidden;background:var(--ink);height:560px}
-.hero .slide{position:absolute;inset:0;opacity:0;transition:opacity .5s}
-.hero .slide.on{opacity:1}
+.hero .slide{position:absolute;inset:0;opacity:0;transition:opacity .5s,visibility .5s;visibility:hidden;pointer-events:none}
+.hero .slide.on{opacity:1;visibility:visible;pointer-events:auto}
 .hero .slide img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .hero .slide .cap{position:absolute;left:0;right:0;bottom:0;padding:110px 34px 34px;background:linear-gradient(180deg,transparent,rgba(10,20,45,.92) 60%);color:#fff}
 .hero .slide .cap .cat{display:inline-block;background:var(--cc,var(--navy));font-family:var(--fh);font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px;margin-bottom:12px}
