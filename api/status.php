@@ -6,7 +6,7 @@ $n=$data['news']??[];
 $pendRw=count(array_filter($n,fn($x)=>!empty($x['auto'])&&empty($x['rw'])&&($x['rwTries']??0)<2));
 $pendImg=count(array_filter($n,fn($x)=>empty($x['imgUrl'])&&!empty($x['rw'])&&($x['imgTries']??0)<2));
 function dirsize($d){$s=0;foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($d,FilesystemIterator::SKIP_DOTS)) as $f){$s+=$f->getSize();}return $s;}
-$root=dirname(__DIR__); $used=0; try{$used=dirsize($root);}catch(Throwable $e){}
+$root=dirname(__DIR__); $used=0; try{$used=dirsize($root);}catch(Throwable $e){} if($used<1000000&&function_exists('shell_exec')){ $du=@shell_exec('du -sk '.escapeshellarg($root).' 2>/dev/null'); if($du&&preg_match('/^(\d+)/',$du,$dm)) $used=(int)$dm[1]*1024; }
 $quotaGb=50; $load=function_exists('sys_getloadavg')?sys_getloadavg():[0,0,0]; $t0=microtime(true); $cores=1; if(is_readable('/proc/cpuinfo')){ $cores=max(1,preg_match_all('/^processor\s*:/m',(string)@file_get_contents('/proc/cpuinfo'))); } $cpuPct=min(100,round($load[0]/$cores*100));
 $lastFetch=isset($data['updated'])?strtotime($data['updated']):0; $fetchAgeMin=$lastFetch?round((time()-$lastFetch)/60):null;
 $dataMb=file_exists(__DIR__.'/data.json')?round(filesize(__DIR__.'/data.json')/1048576,2):0;
