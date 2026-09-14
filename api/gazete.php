@@ -100,7 +100,7 @@ function skyturk_gazete_build($force=false){
   $ts=fn($n)=>$n['ts']??0; usort($all,fn($a,$b)=>$ts($b)<=>$ts($a));
   $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-24*3600)); if(count($win)<40) $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-48*3600)); if(count($win)<40) $win=$all;
   if(count($win)<12) return ['error'=>'yeterli haber yok ('.count($win).')'];
-  $no=count($issues)+1; $months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']; $days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  $no=null; foreach($issues as $k=>$is){ if(($is['date']??'')===$today){ $no=$is['no']; unset($issues[$k]); } } $issues=array_values($issues); if($no===null) $no=count($issues)+1; $months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']; $days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
   $dateStr=date('j').' '.$months[(int)date('n')-1].' '.date('Y').' '.$days[(int)date('w')];
   $pdf=new SkyPDF('P','pt','A4'); $pdf->imgDir=$gdir.'/img'; $pdf->dateStr=$dateStr; $pdf->issueNo=$no; $pdf->SetAutoPageBreak(false); $pdf->SetMargins(0,0,0);
   foreach([['T','DejaVuSansCondensed-Bold.ttf'],['TB','DejaVuSans-Bold.ttf'],['B','DejaVuSans.ttf'],['SC','DejaVuSansCondensed.ttf'],['H','DejaVuSerif-Bold.ttf']] as [$k,$f]) $pdf->AddFont($k,'',$f,true);
