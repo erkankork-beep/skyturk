@@ -11,9 +11,9 @@ $quotaGb=50; $load=function_exists('sys_getloadavg')?sys_getloadavg():[0,0,0];
 $stats=file_exists(__DIR__.'/stats.json')?(json_decode(file_get_contents(__DIR__.'/stats.json'),true)?:[]):[];
 $days=[]; for($i=6;$i>=0;$i--){$k=date('Y-m-d',strtotime("-$i days"));$row=$stats[$k]??null;$days[]=['d'=>$k,'hits'=>$row['hits']??0,'uniq'=>isset($row['u'])?count($row['u']):($row['uniq']??0)];}
 $today=end($days);
-require_once __DIR__.'/credit.php';
+require_once __DIR__.'/config.php'; require_once __DIR__.'/session.php'; require_once __DIR__.'/credit.php';
 echo json_encode([
- 'credit'=>sky_credit_status(),
+ 'credit'=>sky_can('settings')?sky_credit_status():null,
  'pending_rewrite'=>$pendRw,'pending_images'=>$pendImg,'total_news'=>count($n),
  'rewritten'=>count(array_filter($n,fn($x)=>!empty($x['rw'])&&empty($x['video']))),'with_image'=>count(array_filter($n,fn($x)=>!empty($x['imgUrl']))),
  'disk_used_mb'=>round($used/1048576,1),'disk_quota_gb'=>$quotaGb,'disk_pct'=>round($used/($quotaGb*1073741824)*100,2),
