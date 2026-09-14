@@ -41,4 +41,5 @@ return [
   ['https://www.hurriyet.com.tr/rss/magazin', 'magazin', 'Hürriyet Kelebek'],
   ['https://www.milliyet.com.tr/rss/rssnew/magazinrss.xml', 'magazin', 'Milliyet Cadde'],
   ['https://www.sozcu.com.tr/feeds-rss-category-magazin', 'magazin', 'Sözcü'],
+  ['https://www.magazinhaberleri.com/feed/', 'magazin', 'Magazin Haberleri'],
 ];
