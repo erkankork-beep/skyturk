@@ -58,9 +58,10 @@ $news=array_values(array_filter($news,fn($n)=>empty($n['auto'])||(($n['ts']??tim
 usort($news,function($a,$b){ return tsOf($b)<=>tsOf($a); });
 function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m)) return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]); return 0; }
 $news=array_slice($news,0,$MAX_ITEMS);
+require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,30,70);
 $data['news']=$news; $data['updated']=date('c');
 if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
 file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX);
-$msg=date('d.m.Y H:i').' — eklendi: '.$added.', toplam: '.count($news).($errors?' | hata: '.implode(' ',$errors):'');
+$msg=date('d.m.Y H:i').' — eklendi: '.$added.', toplam: '.count($news).' | özgünleştirme: '.json_encode($rw,JSON_UNESCAPED_UNICODE).($errors?' | hata: '.implode(' ',$errors):'');
 file_put_contents($log,$msg."\n".substr((string)@file_get_contents($log),0,20000));
-echo $cli?$msg."\n":json_encode(['ok'=>true,'added'=>$added,'total'=>count($news),'errors'=>$errors,'feeds'=>$perFeed],JSON_UNESCAPED_UNICODE);
+echo $cli?$msg."\n":json_encode(['ok'=>true,'added'=>$added,'total'=>count($news),'errors'=>$errors,'feeds'=>$perFeed,'rewrite'=>$rw],JSON_UNESCAPED_UNICODE);
