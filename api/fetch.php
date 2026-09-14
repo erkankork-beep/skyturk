@@ -8,6 +8,17 @@ if(!$cli){ header('Content-Type: application/json; charset=utf-8'); require_once
 date_default_timezone_set('Europe/Istanbul');
 @ignore_user_abort(true); @set_time_limit(180);
 $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
+/* Yazma anında diskteki güncel veriyle birleştir: tur sırasında CMS/MCP ile eklenen-değişen elle haberler, ayarlar, yorumlar vb. korunur */
+function sky_merge_write($file,$news,$data){
+  $fresh=file_exists($file)?(json_decode(file_get_contents($file),true)?:[]):[]; $base=is_array($fresh)&&isset($fresh['news'])?$fresh:$data;
+  $map=[]; foreach($news as $x) $map[(int)$x['id']]=$x;
+  foreach(($base['news']??[]) as $x){ $id=(int)$x['id']; if(empty($x['auto'])){ $map[$id]=$x; } } // elle haberler: diskteki sürüm esas
+  $startIds=$GLOBALS['sky_start_ids']??null; if($startIds!==null){ foreach(array_keys($map) as $id){ if(!empty($map[$id]['auto'])&&isset($startIds[$id])&&!isset($GLOBALS['sky_disk_ids'][$id])) unset($map[$id]); } } // tur sırasında CMS'ten silinen RSS haberi geri gelmesin
+  $list=array_values($map); usort($list,fn($a,$b)=>(($b['ts']??0)<=>($a['ts']??0))?:strcmp($b['d']??'',$a['d']??''));
+  $out=$base; $out['news']=$list; $out['astro']=$data['astro']??($base['astro']??null); $out['updated']=date('c');
+  if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json'); file_put_contents($file,json_encode($out,JSON_UNESCAPED_UNICODE),LOCK_EX); return $list;
+}
+
 $feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.'/data.json'),true); if(!empty($dj['settings']['feeds'])&&is_array($dj['settings']['feeds'])) $feeds=array_values(array_filter(array_map(fn($x)=>isset($x['url'],$x['cat'],$x['name'])?[$x['url'],$x['cat'],$x['name']]:null,$dj['settings']['feeds'])));
 $KEEP_DAYS=7; $MAX_ITEMS=600; $PER_FEED=25;
 $PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=500; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
@@ -15,7 +26,7 @@ $catNew=[]; $dayKey=date('Y-m-d'); $titleKeys=[]; foreach($news as $x0) $titleKe
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
 if(!is_array($data)) $data=['news'=>[],'polls'=>null];
-$news=$data['news']??[];
+$news=$data['news']??[]; $GLOBALS['sky_start_ids']=[]; foreach($news as $x0) if(!empty($x0['auto'])) $GLOBALS['sky_start_ids'][(int)$x0['id']]=1;
 $seen=[]; foreach($news as $n){ if(!empty($n['src'])) $seen[$n['src']]=true; }
 
 function get($url){
@@ -91,12 +102,11 @@ $budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFi
 require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(40,$added)),40); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
 if((int)date('G')>=9){ $iss=__DIR__.'/../gazete/issues.json'; $have=false; if(file_exists($iss)) foreach(json_decode(file_get_contents($iss),true)?:[] as $is) if(($is['date']??'')===date('Y-m-d')) $have=true;
-  if(!$have){ file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX); require_once __DIR__.'/gazete.php'; $rw['gazete']=skyturk_gazete_build(); } }
+  if(!$have){ $GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1; sky_merge_write($file,$news,$data); require_once __DIR__.'/gazete.php'; $rw['gazete']=skyturk_gazete_build(); } }
 require_once __DIR__.'/fixtures.php'; $fx=__DIR__.'/fixtures.json'; if(!file_exists($fx)||time()-filemtime($fx)>1800) $rw['fikstur']=skyturk_fixtures();
 require_once __DIR__.'/credit.php'; $rw['kredi']=sky_credit_spend((float)($rw['est_cost_usd']??0)+(!empty($rw['astro']['ok'])?0.01:0),$rw['api_error']??null);
-$data['news']=$news; $data['updated']=date('c');
-if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
-file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX);
+$GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1;
+$news=sky_merge_write($file,$news,$data);
 $msg=date('d.m.Y H:i').' — eklendi: '.$added.', toplam: '.count($news).' | özgünleştirme: '.json_encode($rw,JSON_UNESCAPED_UNICODE).($errors?' | hata: '.implode(' ',$errors):'');
 file_put_contents($log,$msg."\n".substr((string)@file_get_contents($log),0,20000));
 echo $cli?$msg."\n":json_encode(['ok'=>true,'added'=>$added,'total'=>count($news),'errors'=>$errors,'feeds'=>$perFeed,'rewrite'=>$rw],JSON_UNESCAPED_UNICODE);
