@@ -312,6 +312,33 @@ main{padding:26px 0 40px}
 .ilan-widget a:last-child{border:0}
 @media (max-width:1024px){.ozel{grid-template-columns:1fr}.people{grid-template-columns:repeat(2,1fr)}.dir{grid-template-columns:1fr 1fr}}
 @media (max-width:640px){.people,.dir{grid-template-columns:1fr}}
+/* Magazin bloğu */
+.mag{margin-top:30px}
+.mag .mag-h{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.mag .mag-h b{font-family:var(--fh);font-size:26px;letter-spacing:-.01em;color:#E91E63;text-transform:uppercase}
+.mag .mag-h i{flex:1;height:4px;background:linear-gradient(90deg,#E91E63,transparent);border-radius:2px}
+.mag .mag-h a{font-size:13px;font-weight:700;color:var(--ink2)}
+.mag-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:16px}
+.mag-grid>div:first-child{display:flex;flex-direction:column}
+.mag-slider{position:relative;border-radius:14px 14px 0 0;overflow:hidden;background:#1B1240;min-height:460px;flex:1}
+.mag-slider .ms{position:absolute;inset:0;display:none}.mag-slider .ms.on{display:block}
+.mag-slider .ms img{width:100%;height:58%;object-fit:cover;display:block}
+.mag-slider .ms .cap{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(180deg,#2A1B6E,#150C3A);padding:22px 28px;display:flex;flex-direction:column;justify-content:center;text-align:center;gap:8px}
+.mag-slider .ms .kick{color:#FFD54F;font-family:var(--fh);font-size:16px;letter-spacing:.06em;text-transform:uppercase}
+.mag-slider .ms h3{color:#fff;font-family:var(--fh);font-weight:700;font-size:clamp(26px,3.2vw,44px);line-height:1.02;text-transform:uppercase;letter-spacing:-.01em;margin:0}
+.mag-slider .ms .cap small{color:#FFD54F;font-size:15px;font-weight:700;font-style:italic;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.mag-slider .arr{position:absolute;top:30%;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:26px;display:grid;place-items:center;cursor:pointer;z-index:2;border:0}
+.mag-slider .arr.l{left:12px}.mag-slider .arr.r{right:12px}
+.mag-dots{display:flex;justify-content:center;gap:8px;padding:12px;background:#fff;border-radius:0 0 14px 14px}
+.mag-dots button{width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:#fff;font-weight:700;font-size:14px;cursor:pointer;color:var(--ink)}
+.mag-dots button.on{border-color:#2F3BA2;color:#2F3BA2}.mag-dots button:last-child.on{background:#5C6BC0;color:#fff;border-color:#5C6BC0}
+.mag-col{display:grid;grid-template-rows:repeat(3,1fr);gap:12px}
+.mag-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;display:grid;grid-template-rows:auto 1fr}
+.mag-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.mag-card .ply{position:relative}.mag-card .ply:after{content:'▶';position:absolute;left:12px;bottom:12px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;font-size:13px}
+.mag-card h4{margin:0;padding:10px 14px;font-family:var(--fh);font-weight:700;font-size:17px;line-height:1.2;color:#1B1240;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-width:1000px){.mag-grid{grid-template-columns:1fr 1fr}.mag-slider{grid-column:1/-1;min-height:420px}}
+@media (max-width:640px){.mag-grid{grid-template-columns:1fr}.mag-col{grid-template-rows:none}.mag-slider{min-height:380px}}
 /* Astroloji bandı */
 .astro-band{background:linear-gradient(180deg,#3B2F7A,#2A2260);border-radius:14px;padding:0 18px 20px;margin-top:30px;position:relative;overflow:hidden}
 .astro-band:before{content:'';position:absolute;inset:0;background-image:radial-gradient(#fff3 1px,transparent 1px),radial-gradient(#fff2 1px,transparent 1px);background-size:38px 38px,61px 61px;background-position:0 0,19px 23px;opacity:.5;pointer-events:none}
@@ -758,6 +785,15 @@ function renderBody(P){return (P||[]).filter(x=>x&&String(x).trim()).map(x=>{x=S
 function pollBox(p){return `<div class="poll" data-id="${p.id}"><p>${esc(p.q)}</p>${p.o.map((o,i)=>`<div class="opt" onclick="vote('${p.id}',${i},this)"><div class="lbl"><span>${o[0]}</span><b>${o[1]}%</b></div><div class="bar"><i style="--w:${o[1]}%"></i></div></div>`).join('')}<small>${p.votes.toLocaleString('tr-TR')} oy · ${p.open?'Anket açık':'Sonuçlandı'}</small></div>`}
 function vote(id,i,el){const p=POLLS.find(x=>x.id===id);if(!p.open||p.voted)return;p.voted=true;p.votes++;el.closest('.poll').querySelector('small').textContent=`${p.votes.toLocaleString('tr-TR')} oy · Oyunuz alındı ✓`;el.querySelector('b').textContent=(p.o[i][1]+1)+'%'}
 function personCard(p,kind){return `<a class="person" href="#/${kind}/${p.id}" style="--cc:${CAT[p.cat].c}"><div class="top"><span class="av">${p.n.replace(/^(Prof\. |Dr\. )+/,'').split(' ').map(x=>x[0]).join('').slice(0,2)}</span></div><div class="bd"><b>${esc(p.n)}</b><small>${esc(p.role)}</small>${p.t?`<h3>${esc(p.t)}</h3>`:''}<p>${esc(p.s)}</p></div></a>`}
+let MAGI=0;
+function magSection(){const L=[...NEWS].filter(n=>n.cat==='magazin'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d));if(!L.length)return '';const S=L.slice(0,10);const R=L.slice(10,16);
+  return `<section class="mag"><div class="mag-h"><b>Magazin</b><i></i><a href="#/kategori/magazin">Tüm magazin haberleri ›</a></div><div class="mag-grid">
+  <div><div class="mag-slider">${S.map((n,i)=>`<a class="ms ${i===MAGI?'on':''}" href="#/haber/${n.id}"><img src="${n.img(900,500)}" alt="" loading="${i?'lazy':'eager'}"><div class="cap"><span class="kick">${esc((n.tags||[]).find(x=>x!=='video'&&x!=='magazin')||'Magazin')}</span><h3>${esc(n.t)}</h3><small>${esc((n.s||'').split(/[.!?]/)[0]).slice(0,90)}</small></div></a>`).join('')}<button class="arr l" onclick="magGo(-1)">‹</button><button class="arr r" onclick="magGo(1)">›</button></div><div class="mag-dots">${S.map((n,i)=>`<button class="${i===MAGI?'on':''}" onclick="magTo(${i})">${i+1}</button>`).join('')}</div></div>
+  ${[R.slice(0,3),R.slice(3,6)].map(col=>`<div class="mag-col">${col.map(n=>`<a class="mag-card" href="#/haber/${n.id}"><div class="${n.video?'ply':''}"><img src="${n.img(600,338)}" alt="" loading="lazy"></div><h4>${esc(n.t)}</h4></a>`).join('')}</div>`).join('')}
+  </div></section>`}
+function magTo(i){const sl=document.querySelectorAll('.mag-slider .ms');if(!sl.length)return;MAGI=(i+sl.length)%sl.length;sl.forEach((s,k)=>s.classList.toggle('on',k===MAGI));document.querySelectorAll('.mag-dots button').forEach((b,k)=>b.classList.toggle('on',k===MAGI))}
+function magGo(d){magTo(MAGI+d)}
+setInterval(()=>{if(document.querySelector('.mag-slider'))magGo(1)},7000);
 function tabbed(){const ids=['dunya','ekonomi','kultur-sanat','spor','egitim','yasam','saglik','teknoloji'];return `<section class="sec" id="tabsec"><div class="tabs" style="--cc:${CAT.dunya.c}">${ids.map((id,i)=>`<button class="${i?'':'on'}" onclick="tabTo('${id}',this)">${CAT[id].n}</button>`).join('')}</div><div class="cards" id="tabBody">${inCat('dunya').slice(0,4).map(n=>card(n)).join('')}</div></section>`}
 function tabTo(id,btn){btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.parentNode.style.setProperty('--cc',CAT[id].c);$('#tabBody').innerHTML=inCat(id).slice(0,4).map(n=>card(n)).join('')||'<p style="color:var(--ink2)">Bu kategoride henüz haber yok.</p>'}
 /* ---- Sayfalar ---- */
@@ -779,7 +815,7 @@ function home(){if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then
   ${fxStrip()}
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
   ${AUTHORS.length?`<section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazar/${a.id}" style="--cc:${a.c}">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:`<span class="av" style="background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><b>${esc(a.n)}</b><span>${esc(a.t||'')}</span></div></a>`).join('')}</div></section>`:''}
-  ${tabbed()}
+  ${magSection()}
   </div>${videoN().length?`<section class="gallery-band"><div class="wrap">
     ${videoN().length?`${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
   </div></section>`:''}<div class="wrap">
