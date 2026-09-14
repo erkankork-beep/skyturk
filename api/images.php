@@ -28,7 +28,7 @@ function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): arra
     if(!$ok&&$pexels){
       [$c,$r]=$get('https://api.pexels.com/v1/search?per_page=6&orientation=landscape&locale=en-US&query='.rawurlencode($q),['Authorization: '.$pexels]);
       $j=$c===200?json_decode($r,true):null;
-      if($j&&!empty($j['photos'])){ $qw=array_filter(preg_split('/\W+/',strtolower($q)),fn($w)=>strlen($w)>2); $best=null; foreach($j['photos'] as $ph){ $alt=strtolower($ph['alt']??''); $sc=0; foreach($qw as $w) if(strpos($alt,$w)!==false) $sc++; if($best===null||$sc>$best[0]) $best=[$sc,$ph]; } if($best){ $j['photos']=[$best[1]]; } }
+      if($j&&!empty($j['photos'])){ $qw=array_filter(preg_split('/\W+/',strtolower($q)),fn($w)=>strlen($w)>2); $foreign=($n['cat']??'')!=='dunya'; $best=null; foreach($j['photos'] as $ph){ $alt=strtolower($ph['alt']??''); if($foreign&&preg_match('/american|usa|u\.s\.|united states|us flag|capitol|white house|washington|new york|dollar|statue of liberty|congress|nyc|london|big ben|eiffel|paris/i',$alt)) continue; $sc=0; foreach($qw as $w) if(strpos($alt,$w)!==false) $sc++; if($best===null||$sc>$best[0]) $best=[$sc,$ph]; } if($best){ $j['photos']=[$best[1]]; } else { $j['photos']=[]; } }
       if(!empty($j['photos'][0])){ $p=$j['photos'][0]; $n['imgUrl']=$p['src']['large']??$p['src']['landscape']; $n['imgCredit']='Fotoğraf: '.($p['photographer']??'Pexels').' / Pexels'; $n['imgLink']=$p['url']??''; $n['imgLicense']='Pexels License'; $ok=true; $src['pexels']++; }
     }
     if(!$ok){
