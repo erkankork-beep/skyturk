@@ -18,7 +18,7 @@ $seen=[]; foreach($news as $n){ if(!empty($n['src'])) $seen[$n['src']]=true; }
 
 function get($url){
   $ch=curl_init($url);
-  curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_TIMEOUT=>15,
+  curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_TIMEOUT=>6,CURLOPT_CONNECTTIMEOUT=>4,
     CURLOPT_USERAGENT=>'Mozilla/5.0 (compatible; SKYTURK-RSS/1.0)',CURLOPT_SSL_VERIFYPEER=>true]);
   $r=curl_exec($ch); curl_close($ch); return $r?:false;
 }
