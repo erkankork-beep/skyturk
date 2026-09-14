@@ -620,7 +620,10 @@ function ajanslar(){const auto=STATE.news.filter(n=>n.auto);const bySrc={};auto.
 function runFetch(btn){if(!API_TOKEN){API_TOKEN=prompt('Yayın anahtarı (config.php içindeki token):')||'';if(!API_TOKEN)return;sessionStorage.setItem('skyturk_token',API_TOKEN);}btn.disabled=true;btn.textContent='Çekiliyor…';fetch('../api/fetch.php?key='+encodeURIComponent(API_TOKEN)).then(r=>r.json()).then(j=>{toast(j.ok?`${j.added} yeni haber eklendi (toplam ${j.total})`:'Hata: '+(j.error||''));return loadServer()}).catch(()=>toast('Sunucuya ulaşılamadı')).finally(()=>{btn.disabled=false;btn.textContent='⟳ Şimdi çek';route()})}
 function saveSecret(){if(!API_TOKEN){API_TOKEN=prompt('Yayın anahtarı (config.php içindeki token):')||'';if(!API_TOKEN)return;sessionStorage.setItem('skyturk_token',API_TOKEN);}
   const k=$('#akey').value.trim(),m=$('#amodel').value;const body={REWRITE_MODEL:m};if(k)body.ANTHROPIC_KEY=k;
-  fetch('../api/data.php?action=secret',{method:'POST',headers:{'Content-Type':'application/json','X-Token':API_TOKEN},body:JSON.stringify(body)}).then(r=>r.json()).then(j=>{$('#akeyst').textContent=j.ok?('Kaydedildi · anahtar: '+(j.has_key?'var':'yok')+' · model: '+j.model):'Hata';toast(j.ok?'Kaydedildi':'Kaydedilemedi')}).catch(()=>toast('Sunucuya ulaşılamadı'))}
+  fetch('../api/data.php?action=secret',{method:'POST',headers:{'Content-Type':'application/json','X-Token':API_TOKEN},body:JSON.stringify(body)}).then(async r=>{const t=await r.text();let j={};try{j=JSON.parse(t)}catch(e){}
+    if(r.status===403){sessionStorage.removeItem('skyturk_token');API_TOKEN='';$('#akeyst').textContent='Yayın anahtarı hatalı (403) — tekrar deneyin, yeniden sorulacak';toast('Yayın anahtarı hatalı');return}
+    if(!r.ok||!j.ok){$('#akeyst').textContent='Hata '+r.status+': '+(j.error||t.slice(0,120));toast('Kaydedilemedi');return}
+    $('#akeyst').textContent='Kaydedildi · anahtar: '+(j.has_key?'var':'yok')+' · model: '+j.model;toast('Kaydedildi')}).catch(e=>{$('#akeyst').textContent='Sunucuya ulaşılamadı: '+e.message;toast('Sunucuya ulaşılamadı')})}
 function generic(t,d){return `<div class="ph"><div><h1>${t}</h1><p>${d}</p></div></div><div class="panel" style="padding:40px;text-align:center;color:var(--ink2)">Bu modül yapılandırma aşamasında. <a href="#/" style="color:var(--navy);font-weight:700">Kontrol paneline dön</a></div>`}
 
 /* Router */
