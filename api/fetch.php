@@ -11,7 +11,7 @@ $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
 $feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.'/data.json'),true); if(!empty($dj['settings']['feeds'])&&is_array($dj['settings']['feeds'])) $feeds=array_values(array_filter(array_map(fn($x)=>isset($x['url'],$x['cat'],$x['name'])?[$x['url'],$x['cat'],$x['name']]:null,$dj['settings']['feeds'])));
 $KEEP_DAYS=7; $MAX_ITEMS=600; $PER_FEED=25;
 $PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=500; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
-$catNew=[]; $dayKey=date('Y-m-d'); $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
+$catNew=[]; $dayKey=date('Y-m-d'); $titleKeys=[]; foreach($news as $x0) $titleKeys[mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($x0['t']??'')),0,30)]=1; $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
 if(!is_array($data)) $data=['news'=>[],'polls'=>null];
@@ -39,6 +39,9 @@ foreach($feeds as [$url,$cat,$srcName]){
     $link=clean($it->link['href'] ?? $it->link ?? '');
     $title=clean($it->title ?? ''); if(!$link||!$title) continue;
     if(isset($seen[$link])) continue;
+    $title0=clean((string)$it->title); if(preg_match('/İğneli Fırça|Karikatür|Günün Karikatürü|Bulmaca|Günün Fotoğrafı|Çizgi Roman|Kim Kime Dum Duma|Köşe Yazısı|Yazarlar:/iu',$title0)) continue; // haber değil
+    /* benzer başlık tekilleştirme: aynı olay farklı kaynaktan geldiyse atla */
+    $tk=mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($title0)),0,30); if(isset($titleKeys[$tk])) continue;
     $pub0=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
     if(time()-$pub0>$MAX_AGE_H*3600) continue;                 // eski haber
     if(($catNew[$cat]??0)>=$PER_CAT) continue;                  // bu kategori bu turda doldu
@@ -53,7 +56,7 @@ foreach($feeds as [$url,$cat,$srcName]){
       'by'=>'Ali Vurdumduymaz','v'=>0,'st'=>'Yayında','tags'=>[],
       'auto'=>true,'src'=>$link,'srcName'=>$srcName,'fullLen'=>mb_strlen($full)
     ];
-    $seen[$link]=true; $added++; $new++; $catNew[$cat]=($catNew[$cat]??0)+1;
+    $seen[$link]=true; $added++; $new++; $catNew[$cat]=($catNew[$cat]??0)+1; $titleKeys[$tk]=1;
   }
   $perFeed[$url]=$new.' yeni / '.count($items).' toplam';
 }
