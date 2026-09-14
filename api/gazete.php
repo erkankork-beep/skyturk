@@ -119,6 +119,8 @@ function skyturk_gazete_build($force=false,$forDate=null){
   $all=array_values(array_filter($data['news'],fn($n)=>!empty($n['rw'])&&empty($n['video'])&&($n['st']??'')==='Yayında'));
   $ts=fn($n)=>$n['ts']??0; usort($all,fn($a,$b)=>$ts($b)<=>$ts($a));
   $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-24*3600)); if(count($win)<40) $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-48*3600)); if(count($win)<40) $win=$all;
+  /* benzer başlıkları tekilleştir */
+  $seenT=[]; $win=array_values(array_filter($win,function($n)use(&$seenT){ $k=mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($n['t'])),0,28); if(isset($seenT[$k])) return false; $seenT[$k]=1; return true; }));
   if(count($win)<12) return ['error'=>'yeterli haber yok ('.count($win).')'];
   $no=null; foreach($issues as $k=>$is){ if(($is['date']??'')===$today){ $no=$no===null?$is['no']:min($no,$is['no']); unset($issues[$k]); } } $issues=array_values($issues); if($no===null) $no=count($issues)+1; $months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']; $days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
   $dateStr=date('j',$tsDay).' '.$months[(int)date('n',$tsDay)-1].' '.date('Y',$tsDay).' '.$days[(int)date('w',$tsDay)];
