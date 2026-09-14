@@ -330,6 +330,30 @@ main{padding:26px 0 40px}
 .astro-nav a{padding:6px 12px;border-radius:999px;background:var(--soft);font-size:13px;font-weight:600}
 .astro-nav a.on,.astro-nav a:hover{background:var(--navy);color:#fff}
 @media (max-width:640px){.astro{grid-template-columns:repeat(2,1fr)}.astro-page .row{grid-template-columns:1fr}}
+
+/* Fikstür şeridi */
+.fx{margin-top:22px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 14px}
+.fx-h{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.fx-h b{font-family:var(--fh);font-weight:700;font-size:22px;letter-spacing:-.01em}
+.fx-h i{flex:1;height:8px;background:var(--gold);border-radius:4px}
+.fx-h small{font-size:12px;color:var(--ink2)}
+.fx-row{display:flex;gap:10px;align-items:stretch}
+.fx-sel{flex:0 0 190px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit;font-weight:700;font-size:14px;padding:0 12px;height:auto;cursor:pointer}
+.fx-scroll{flex:1;display:flex;gap:10px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;padding:2px}
+.fx-scroll::-webkit-scrollbar{display:none}
+.fx-card{flex:0 0 196px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;display:grid;gap:6px}
+.fx-card .m{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2)}
+.fx-card .m b{color:var(--ink);font-weight:700}
+.fx-card .t{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px}
+.fx-card .team{display:grid;justify-items:center;gap:3px;font-weight:700;font-size:13px}
+.fx-card .badge{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:800;letter-spacing:.02em}
+.fx-card .time{font-family:var(--fh);font-size:16px;color:#22A06B;border:1px solid #DDEFE5;background:#F3FBF7;border-radius:6px;padding:2px 8px;min-width:58px;text-align:center}
+.fx-card .time.ft{color:var(--ink);background:var(--soft);border-color:var(--line)}
+.fx-card .time.live{color:#fff;background:var(--red);border-color:var(--red)}
+.fx-card .lbl{text-align:center;font-size:11px;color:#22A06B}
+.fx-arrow{flex:0 0 36px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:20px;color:var(--ink2);cursor:pointer}
+.fx-arrow:hover{background:var(--soft)}
+@media (max-width:640px){.fx-sel{flex-basis:130px;font-size:12px}.fx-arrow{display:none}}
 /* Footer */
 footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
 .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;padding:44px 0 36px;border-bottom:1px solid rgba(255,255,255,.1)}
@@ -694,6 +718,16 @@ function astroPage(id){const s=SIGNS.find(x=>x[0]===id);if(!s)return `<div class
   ${it?`<p>${esc(it.genel)}</p><div class="row"><div><b>AŞK</b>${esc(it.ask)}</div><div><b>KARİYER</b>${esc(it.kariyer)}</div><div><b>SAĞLIK</b>${esc(it.saglik)}</div></div><p style="color:var(--ink2);font-size:14px">Şanslı sayı: <b>${esc(String(it.sansli_sayi))}</b> · Renk: <b>${esc(it.renk)}</b></p>`:`<p style="color:var(--ink2)">Bugünün yorumu hazırlanıyor; kısa süre sonra burada olacak.</p>`}
   <div class="astro-nav">${SIGNS.map(x=>`<a href="#/astroloji/${x[0]}" class="${x[0]===id?'on':''}">${x[2]} ${x[1]}</a>`).join('')}</div>
   <p style="font-size:12px;color:var(--ink2);margin-top:20px">Burç yorumları eğlence amaçlıdır.</p></div>`}
+
+let FX=null;
+function fxLoad(){if(FX!==null)return;FX=false;fetch('api/fixtures.json?t='+Math.floor(Date.now()/600000)).then(r=>r.ok?r.json():null).then(j=>{FX=j||{matches:[],leagues:[]};fxRender()}).catch(()=>{FX={matches:[],leagues:[]}})}
+function fxBadgeColor(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return `hsl(${h} 55% 38%)`}
+function fxRender(){const el=$('#fxStrip');if(!el||!FX)return;const sel=el.querySelector('select');const lg=sel?sel.value:'';const now=Date.now()/1000;
+  let ms=(FX.matches||[]).filter(m=>!lg||m.league===lg);const up=ms.filter(m=>m.ts>=now-2*3600);const past=ms.filter(m=>m.ts<now-2*3600).slice(-6);ms=[...past,...up].slice(0,60);
+  const dayLbl=ts=>{const d=new Date(ts*1000),t=new Date();const dd=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(t.getFullYear(),t.getMonth(),t.getDate()))/86400000);return dd===0?'Bugün':dd===1?'Yarın':dd===-1?'Dün':['Paz','Pzt','Sal','Çrş','Prş','Cum','Cmt'][d.getDay()]};
+  el.querySelector('.fx-scroll').innerHTML=ms.length?ms.map(m=>{const ft=m.hs!==null&&m.hs!==undefined&&m.hs!=='';const live=/live|1h|2h|ht/i.test(m.status||'')&&!ft;return `<div class="fx-card"><div class="m"><span>${m.date}</span><b>${m.league}</b></div><div class="t"><div class="team"><span class="badge" style="background:${fxBadgeColor(m.home)}" title="${esc(m.home)}">${esc(m.h)}</span></div><div><div class="lbl">${ft?'Bitti':(live?'Canlı':dayLbl(m.ts))}</div><div class="time ${ft?'ft':(live?'live':'')}">${ft?esc(m.hs+' - '+m.as):esc(m.time)}</div></div><div class="team"><span class="badge" style="background:${fxBadgeColor(m.away)}" title="${esc(m.away)}">${esc(m.a)}</span></div></div><div class="m" style="font-size:10px"><span>${esc(m.home)}</span><span>${esc(m.away)}</span></div></div>`}).join(''):'<div style="padding:18px;color:var(--ink2);font-size:14px">Bu lig için yaklaşan maç bulunamadı.</div>';
+  if(sel&&sel.options.length<=1)(FX.leagues||[]).forEach(l=>{const o=document.createElement('option');o.value=l.code;o.textContent=l.name;sel.appendChild(o)})}
+function fxStrip(){setTimeout(fxLoad,0);setTimeout(fxRender,0);return `<div class="fx" id="fxStrip"><div class="fx-h"><b>Spor Arena</b><i></i><small>Fikstür &amp; sonuçlar · <a href="#/puan-durumu">puan durumu</a></small></div><div class="fx-row"><select class="fx-sel" onchange="fxRender()"><option value="">TÜM LİGLER</option></select><button class="fx-arrow" onclick="$('#fxStrip .fx-scroll').scrollBy({left:-420})">‹</button><div class="fx-scroll"></div><button class="fx-arrow" onclick="$('#fxStrip .fx-scroll').scrollBy({left:420})">›</button></div></div>`}
 function pollBox(p){return `<div class="poll" data-id="${p.id}"><p>${esc(p.q)}</p>${p.o.map((o,i)=>`<div class="opt" onclick="vote('${p.id}',${i},this)"><div class="lbl"><span>${o[0]}</span><b>${o[1]}%</b></div><div class="bar"><i style="--w:${o[1]}%"></i></div></div>`).join('')}<small>${p.votes.toLocaleString('tr-TR')} oy · ${p.open?'Anket açık':'Sonuçlandı'}</small></div>`}
 function vote(id,i,el){const p=POLLS.find(x=>x.id===id);if(!p.open||p.voted)return;p.voted=true;p.votes++;el.closest('.poll').querySelector('small').textContent=`${p.votes.toLocaleString('tr-TR')} oy · Oyunuz alındı ✓`;el.querySelector('b').textContent=(p.o[i][1]+1)+'%'}
 function personCard(p,kind){return `<a class="person" href="#/${kind}/${p.id}" style="--cc:${CAT[p.cat].c}"><div class="top"><span class="av">${p.n.replace(/^(Prof\. |Dr\. )+/,'').split(' ').map(x=>x[0]).join('').slice(0,2)}</span></div><div class="bd"><b>${esc(p.n)}</b><small>${esc(p.role)}</small>${p.t?`<h3>${esc(p.t)}</h3>`:''}<p>${esc(p.s)}</p></div></a>`}
@@ -715,6 +749,7 @@ function home(){if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then
   ${ozelN.length?`<section class="sec" style="margin-top:30px">${secH('Özel Haber','#F9A825','#/ozel-haber')}<div class="ozel"><a class="big" href="#/haber/${ozelN[0].id}"><img src="${ozelN[0].img(900,520)}" alt=""><div class="cap"><span>ÖZEL HABER</span><h3>${esc(ozelN[0].t)}</h3></div></a><ul>${ozelN.slice(1,5).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(240,156)}" alt=""><div><b>${esc(n.t)}</b><small>${CAT[n.cat].n} · ${n.d.slice(0,10)}</small></div></a></li>`).join('')}</ul></div></section>`:''}
   </div><aside class="side">${sideWidgets()}</aside></div>
   <div class="ad h-100" style="margin-top:26px"><div style="text-align:center"><span>Reklam</span>970×90</div></div>
+  ${fxStrip()}
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
   <section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span></div></a>`).join('')}</div></section>
   ${tabbed()}
