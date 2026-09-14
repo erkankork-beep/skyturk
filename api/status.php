@@ -11,8 +11,8 @@ $quotaGb=50; $load=function_exists('sys_getloadavg')?sys_getloadavg():[0,0,0]; $
 $lastFetch=isset($data['updated'])?strtotime($data['updated']):0; $fetchAgeMin=$lastFetch?round((time()-$lastFetch)/60):null;
 $dataMb=file_exists(__DIR__.'/data.json')?round(filesize(__DIR__.'/data.json')/1048576,2):0;
 $stats=file_exists(__DIR__.'/stats.json')?(json_decode(file_get_contents(__DIR__.'/stats.json'),true)?:[]):[];
-$days=[]; for($i=6;$i>=0;$i--){$k=date('Y-m-d',strtotime("-$i days"));$row=$stats[$k]??null;$days[]=['d'=>$k,'hits'=>$row['hits']??0,'uniq'=>isset($row['u'])?count($row['u']):($row['uniq']??0)];}
-$today=end($days);
+$days=[]; for($i=6;$i>=0;$i--){$k=date('Y-m-d',strtotime("-$i days"));$row=(isset($stats[$k])&&is_array($stats[$k]))?$stats[$k]:null;$days[]=['d'=>$k,'hits'=>$row['hits']??0,'uniq'=>isset($row['u'])?count($row['u']):($row['uniq']??0)];}
+$today=end($days); $anom=$stats['_anom']??null; $anomLog=$stats['_anomLog']??[]; $blocked=count(array_filter($stats['_block']??[],fn($t)=>$t>time()-86400));
 require_once __DIR__.'/config.php'; require_once __DIR__.'/session.php'; require_once __DIR__.'/credit.php';
 echo json_encode([
  'credit'=>sky_can('settings')?sky_credit_status():null,
@@ -22,5 +22,5 @@ echo json_encode([
  'server'=>(function()use($load,$t0,$fetchAgeMin,$dataMb,$data){ $resp=round((microtime(true)-$t0)*1000); $cronOk=$fetchAgeMin!==null&&$fetchAgeMin<=20; $ok=$resp<1500&&$cronOk&&$dataMb<8;
    return ['php'=>PHP_VERSION,'host_load'=>round($load[0],2),'resp_ms'=>$resp,'data_mb'=>$dataMb,'cron_age_min'=>$fetchAgeMin,'cron_ok'=>$cronOk,'mem_mb'=>round(memory_get_usage(true)/1048576,1),'time'=>date('H:i'),'ok'=>$ok,'last_fetch'=>$data['updated']??null,
      'note'=>$ok?'Sağlıklı':(!$cronOk?'Cron gecikti ('.$fetchAgeMin.' dk)':($resp>=1500?'Yavaş yanıt':'Veri dosyası büyük'))]; })(),
- 'traffic'=>['today_hits'=>$today['hits'],'today_uniq'=>$today['uniq'],'days'=>$days,'week_hits'=>array_sum(array_column($days,'hits'))]
+ 'traffic'=>['today_hits'=>$today['hits'],'today_uniq'=>$today['uniq'],'days'=>$days,'week_hits'=>array_sum(array_column($days,'hits')),'anomaly'=>$anom,'anomaly_log'=>array_slice($anomLog,0,10),'blocked_ips'=>$blocked]
 ],JSON_UNESCAPED_UNICODE);
