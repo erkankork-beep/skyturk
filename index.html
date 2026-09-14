@@ -161,6 +161,8 @@ main{padding:26px 0 40px}
 
 /* Yazarlar */
 .authors{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.authors.slide{grid-template-columns:none;grid-auto-flow:column;grid-template-rows:auto auto;grid-auto-columns:calc((100% - 48px)/4);overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px}.authors.slide::-webkit-scrollbar{display:none}.authors.slide .author{scroll-snap-align:start}
+.auth-wrap{position:relative}.auth-arr{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:20px;color:var(--ink);cursor:pointer;z-index:2;display:grid;place-items:center}.auth-arr.l{left:-19px}.auth-arr.r{right:-19px}
 .author{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
 .author .av{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--fh);font-size:24px;flex:none;border:3px solid #fff;box-shadow:0 0 0 2px var(--cc)}
 .author b{display:block;font-size:14px;color:var(--ink2);font-weight:600}
@@ -421,7 +423,7 @@ footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
 @media (max-width:1024px){
   .grid-hero,.two-col,.article{grid-template-columns:1fr}
   .cards{grid-template-columns:repeat(2,1fr)}
-  .authors{grid-template-columns:repeat(2,1fr)}
+  .authors{grid-template-columns:repeat(2,1fr)}.authors.slide{grid-auto-columns:calc((100% - 16px)/2)}.auth-arr{display:none}
   .catblocks{grid-template-columns:1fr}
   .foot-top{grid-template-columns:1fr 1fr}
   .hdr-left{display:none}
@@ -825,7 +827,7 @@ function home(){setTimeout(skyAds,0);if(ISSUES===null){fetch('gazete/issues.json
   <div class="ad h-100" style="margin-top:26px"><div style="text-align:center"><span>Reklam</span>970×90</div></div>
   ${fxStrip()}
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
-  ${AUTHORS.length?`<section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazar/${a.id}" style="--cc:${a.c}">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:`<span class="av" style="background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><b>${esc(a.n)}</b><span>${esc(a.t||'')}</span></div></a>`).join('')}</div></section>`:''}
+  ${AUTHORS.length?`<section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="auth-wrap">${AUTHORS.length>8?`<button class="auth-arr l" onclick="this.parentNode.querySelector('.authors').scrollBy({left:-this.parentNode.clientWidth})">‹</button><button class="auth-arr r" onclick="this.parentNode.querySelector('.authors').scrollBy({left:this.parentNode.clientWidth})">›</button>`:''}<div class="authors slide">${[...AUTHORS].sort((x,y)=>{const lx=COLUMNS.find(n=>n.by===x.n),ly=COLUMNS.find(n=>n.by===y.n);return (ly?pd(ly.d):0)-(lx?pd(lx.d):0)}).map(a=>`<a class="author" href="#/yazar/${a.id}" style="--cc:${a.c}">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:`<span class="av" style="background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><b>${esc(a.n)}</b><span>${esc(a.t||'')}</span></div></a>`).join('')}</div></div></section>`:''}
   </div>${videoN().length?`<section class="gallery-band"><div class="wrap">
     ${videoN().length?`${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
   </div></section>`:''}<div class="wrap">
