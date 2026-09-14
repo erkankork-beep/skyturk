@@ -13,7 +13,7 @@ function skyturk_fixtures(){
         $ts=!empty($e['strTimestamp'])?strtotime($e['strTimestamp'].' UTC'):(!empty($e['dateEvent'])?strtotime($e['dateEvent'].' '.($e['strTime']??'00:00:00').' UTC'):0); if(!$ts) continue;
         if($ts<time()-3*86400||$ts>time()+10*86400) continue;
         $d=(new DateTime('@'.$ts))->setTimezone($tz);
-        $out[$e['idEvent']]=['id'=>$e['idEvent'],'league'=>$code,'leagueName'=>$name,'ts'=>$ts,'date'=>$d->format('d.m.Y'),'time'=>$d->format('H:i'),'home'=>$e['strHomeTeam']??'','away'=>$e['strAwayTeam']??'','h'=>$ab($e['strHomeTeam']??''),'a'=>$ab($e['strAwayTeam']??''),'hs'=>$e['intHomeScore'],'as'=>$e['intAwayScore'],'status'=>$e['strStatus']??'','round'=>$e['intRound']??null];
+        $out[$e['idEvent']]=['id'=>$e['idEvent'],'league'=>$code,'leagueName'=>$name,'ts'=>$ts,'date'=>$d->format('d.m.Y'),'time'=>$d->format('H:i'),'home'=>$e['strHomeTeam']??'','away'=>$e['strAwayTeam']??'','h'=>$ab($e['strHomeTeam']??''),'a'=>$ab($e['strAwayTeam']??''),'hs'=>$e['intHomeScore'],'as'=>$e['intAwayScore'],'status'=>$e['strStatus']??'','round'=>$e['intRound']??null,'hb'=>!empty($e['strHomeTeamBadge'])?$e['strHomeTeamBadge'].'/small':null,'ab'=>!empty($e['strAwayTeamBadge'])?$e['strAwayTeamBadge'].'/small':null];
       }
     }
   }
