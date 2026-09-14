@@ -34,8 +34,14 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     echo json_encode(['ok'=>true,'has_key'=>!empty($sec['ANTHROPIC_KEY']),'model'=>$sec['REWRITE_MODEL']??'claude-haiku-4-5-20251001']);exit;
   }
   $j=$jin;
-  if(!is_array($j)||!isset($j['news'])){http_response_code(400);echo '{"error":"bad json"}';exit;}
-  $old=file_exists($file)?(json_decode(file_get_contents($file),true)?:[]):[]; foreach(['settings','astro','updated'] as $keep) if(isset($old[$keep])&&!isset($j[$keep])) $j[$keep]=$old[$keep]; $on=[]; foreach($old['news']??[] as $x) $on[$x['id']]=$x['st']??''; $nn=[]; foreach($j['news'] as $x) $nn[$x['id']]=$x['st']??'';
+  if(!is_array($j)){http_response_code(400);echo '{"error":"bad json"}';exit;}
+  $old=file_exists($file)?(json_decode(file_get_contents($file),true)?:[]):[]; foreach(['settings','astro','updated','comments','messages','dir','cls','interviews','bios','polls'] as $keep) if(isset($old[$keep])&&!isset($j[$keep])) $j[$keep]=$old[$keep];
+  /* birleştirmeli haber kaydı: news_upsert / news_delete → sunucudaki liste temel alınır (eşzamanlı cron eklemeleri korunur) */
+  if(isset($j['news_upsert'])||isset($j['news_delete'])){ $cur=$old['news']??[]; $map=[]; foreach($cur as $x) $map[(int)$x['id']]=$x;
+    foreach(($j['news_upsert']??[]) as $x){ if(!isset($x['id'])) continue; $map[(int)$x['id']]=$x; }
+    foreach(($j['news_delete']??[]) as $id) unset($map[(int)$id]);
+    $list=array_values($map); usort($list,fn($a,$b)=>(($b['ts']??0)<=>($a['ts']??0))?:strcmp($b['d']??'',$a['d']??'')); $j['news']=$list; unset($j['news_upsert'],$j['news_delete']); }
+  if(!isset($j['news'])){http_response_code(400);echo '{"error":"news yok"}';exit;} $on=[]; foreach($old['news']??[] as $x) $on[$x['id']]=$x['st']??''; $nn=[]; foreach($j['news'] as $x) $nn[$x['id']]=$x['st']??'';
   $add=array_diff_key($nn,$on); $del=array_diff_key($on,$nn); $chg=0; foreach($nn as $k=>$v) if(isset($on[$k])&&$on[$k]!==$v) $chg++;
   $titles=[]; foreach($j['news'] as $x) if(isset($add[$x['id']])) $titles[]=mb_substr($x['t']??'',0,60);
   if($add||$del||$chg) sky_audit('haber güncelleme','eklendi '.count($add).', silindi '.count($del).', durum değişti '.$chg.($titles?' · '.implode(' | ',array_slice($titles,0,3)):''));
