@@ -103,7 +103,9 @@ function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(
 $news=array_slice($news,0,$MAX_ITEMS);
 require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(20,min(60,$added)),100); // yeni gelenler + birikim varsa en az 20
 $budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
-require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(60,$added)),60); $rw['images']=$im;
+/* Görsel yeniden değerlendirme (RESIM_TARA): Pexels kaynaklı eski görseller tur başına 25 haber halinde yeni filtreden geçirilir */
+$rif=__DIR__.'/reimage.json'; $reN=0; if(file_exists($rif)){ foreach($news as &$x){ if($reN>=25) break; if(empty($x['reimaged'])&&!empty($x['imgUrl'])&&stripos($x['imgCredit']??'','Pexels')!==false&&!empty($x['rw'])&&empty($x['video'])){ unset($x['imgUrl'],$x['imgCredit'],$x['imgLink'],$x['imgSource']); $x['imgTries']=0; $x['reimaged']=true; $reN++; } } unset($x); if($reN===0) @unlink($rif); $rw['resim_tara']=$reN.' haber yeniden değerlendirildi'.($reN===0?' — tamamlandı':''); }
+require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(60,$added+$reN)),90); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
 if((int)date('G')>=9){ $iss=__DIR__.'/../gazete/issues.json'; $have=false; if(file_exists($iss)) foreach(json_decode(file_get_contents($iss),true)?:[] as $is) if(($is['date']??'')===date('Y-m-d')) $have=true;
   if(!$have){ $GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1; sky_merge_write($file,$news,$data); require_once __DIR__.'/gazete.php'; $rw['gazete']=skyturk_gazete_build(); } }
