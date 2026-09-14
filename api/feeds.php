@@ -14,12 +14,10 @@ return [
   ['https://www.ntv.com.tr/egitim.rss',     'egitim',     'NTV'],
   // Anadolu Ajansı (açık akış)
   ['https://www.aa.com.tr/tr/rss/default?cat=guncel',          'gundem',       'AA'],
-  ['https://www.aa.com.tr/tr/rss/default?cat=turkiye',         'genel',        'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=politika',        'politika',     'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=dunya',           'dunya',        'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=ekonomi',         'ekonomi',      'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=spor',            'spor',         'AA'],
-  ['https://www.aa.com.tr/tr/rss/default?cat=kultur-sanat',    'kultur-sanat', 'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=bilim-teknoloji', 'teknoloji',    'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=saglik',          'saglik',       'AA'],
   ['https://www.aa.com.tr/tr/rss/default?cat=egitim',          'egitim',       'AA'],
@@ -37,9 +35,6 @@ return [
   ['https://www.hurriyet.com.tr/rss/spor',     'spor',    'Hürriyet'],
   ['https://www.hurriyet.com.tr/rss/ekonomi',  'ekonomi', 'Hürriyet'],
   ['https://www.hurriyet.com.tr/rss/dunya',    'dunya',   'Hürriyet'],
-  // Sözcü
-  ['https://www.sozcu.com.tr/feed/',           'gundem',  'Sözcü'],
-  ['https://www.sozcu.com.tr/spor/feed/',      'spor',    'Sözcü'],
   // Cumhuriyet
   ['https://www.cumhuriyet.com.tr/rss/son_dakika.xml', 'son-dakika', 'Cumhuriyet'],
 ];
