@@ -37,14 +37,58 @@ class SkyPDF extends tFPDF {
   function SetAlpha($a){ /* tFPDF'te alpha yok — yaklaşık: atla */ }
   /* üst/alt bilgi */
   function mastheadInner(){ $this->fill($this->ink); $this->Rect(0,0,$this->w,22,'F'); $this->SetFont('H','',12); $this->color([255,255,255]); $this->T(36,15,'SKYTÜRK'); $this->SetFont('SC','',8); $this->color([201,211,227]); $s=mb_strtoupper($this->dateStr).'  ·  SAYI '.$this->issueNo.'  ·  testhabersitesimiz.site'; $this->T($this->w-36-$this->GetStringWidth($s),15,$s); return 40; }
-  function footer2(){ $this->rule(36,$this->w-36,$this->h-28); $this->SetFont('SC','',7.5); $this->color($this->grey); $this->T(36,$this->h-16,'SKYTÜRK Dijital Gazete · Haberler açık RSS akışlarından SKYTÜRK editörlüğüyle özetlenmiştir; kaynaklar her haberde belirtilir. Fotoğraflar temsilidir (Pexels).'); $s='Sayfa '.$this->pageNo.' / '.$this->totalPages; $this->T($this->w-36-$this->GetStringWidth($s),$this->h-16,$s); }
+  function footer2(){ $this->rule(36,$this->w-36,$this->h-28); $this->SetFont('SC','',7.5); $this->color($this->grey); $this->T(36,$this->h-16,'SKYTÜRK Dijital Gazete · Fotoğraflar temsilidir · Kaynaklar künyede.'); $s='Sayfa '.$this->pageNo.' / '.$this->totalPages; $this->T($this->w-36-$this->GetStringWidth($s),$this->h-16,$s); }
   function section($y,$cat,$x=36,$w=null){ $w=$w??($this->w-72); $this->fill($this->catCol($cat)); $this->Rect($x,$y-14,4,18,'F'); $this->SetFont('H','',15); $this->color($this->ink); $this->T($x+10,$y,$this->catName($cat)); $this->rule($x,$x+$w,$y+8); return $y+26; }
-  function story($x,$y,$w,$n,$imgH=0,$size=11.5,$spot=true,$maxl=0,$src=true){ if($imgH){ $this->img($x,$y,$w,$imgH,$n); $y+=$imgH+10; }
+  function story($x,$y,$w,$n,$imgH=0,$size=11.5,$spot=true,$maxl=0,$src=false){ if($imgH){ $this->img($x,$y,$w,$imgH,$n); $y+=$imgH+10; }
     $y=$this->block($x,$y,$w,$n['t'],'H',$size,$this->ink,1.2,$maxl); if($spot){ $y+=3; $y=$this->block($x,$y,$w,$n['s']??'','B',8.6,$this->grey,1.3,5); }
     if($src){ $this->SetFont('SC','',7.2); $this->color($this->sky); $this->T($x,$y+9,'Kaynak: '.($n['srcName']??$n['by']??'').' · '.substr($n['d']??'',11)); $y+=12; } return $y+8; }
   function cols($ytop,$ybot,$ncol,$items,$gap=14,$imgFirst=110){ $x0=36; $cw=($this->w-72-$gap*($ncol-1))/$ncol; $xs=[]; $ys=[]; for($i=0;$i<$ncol;$i++){ $xs[]=$x0+$i*($cw+$gap); $ys[]=$ytop; } $used=0;
     foreach($items as $k=>$n){ $ci=0; foreach($ys as $j=>$v) if($v<$ys[$ci]) $ci=$j; $y=$ys[$ci]; if($y>$ybot-90) break; $yy=$this->story($xs[$ci],$y,$cw,$n,$k<$ncol?$imgFirst:0,11); $this->rule($xs[$ci],$xs[$ci]+$cw,$yy-2,null,.4); $ys[$ci]=$yy+8; $used++; }
     for($j=1;$j<$ncol;$j++){ $this->draw($this->line); $this->SetLineWidth(.4); $this->Line($xs[$j]-$gap/2,$ytop-8,$xs[$j]-$gap/2,$ybot); } return $used; }
+}
+
+
+/* ===== İÇ SAYFA ŞABLON MOTORU (12 kolon × 24 satır ızgara) =====
+   slot: [col,row,cw,rh,type]  type: hero(fotoğraf+üstüne başlık) | photo(fotoğraf+başlık+spot) | box(renkli blok) | text | strip(yatay küçük foto+başlık) | yellow(sarı blok) */
+function sky_templates(){ return [
+ [[0,0,12,9,'hero'],[0,9,4,7,'photo'],[4,9,4,7,'photo'],[8,9,4,7,'photo'],[0,16,6,4,'box'],[6,16,6,4,'strip'],[0,20,12,4,'text']],
+ [[0,0,7,12,'hero'],[7,0,5,6,'box'],[7,6,5,6,'photo'],[0,12,4,6,'photo'],[4,12,4,6,'text'],[8,12,4,6,'photo'],[0,18,12,3,'strip'],[0,21,6,3,'text'],[6,21,6,3,'text']],
+ [[0,0,6,10,'photo'],[6,0,6,10,'photo'],[0,10,12,4,'yellow'],[0,14,4,6,'strip'],[4,14,4,6,'strip'],[8,14,4,6,'strip'],[0,20,12,4,'box']],
+ [[0,0,12,5,'box'],[0,5,3,8,'photo'],[3,5,3,8,'photo'],[6,5,3,8,'photo'],[9,5,3,8,'photo'],[0,13,8,7,'hero'],[8,13,4,7,'text'],[0,20,12,4,'strip']],
+ [[0,0,5,14,'hero'],[5,0,7,7,'photo'],[5,7,7,7,'box'],[0,14,4,5,'text'],[4,14,4,5,'text'],[8,14,4,5,'text'],[0,19,12,5,'yellow']],
+ [[0,0,8,8,'hero'],[8,0,4,8,'text'],[0,8,4,8,'photo'],[4,8,8,8,'box'],[0,16,6,4,'strip'],[6,16,6,4,'strip'],[0,20,12,4,'text']],
+ [[0,0,4,12,'box'],[4,0,8,12,'hero'],[0,12,6,6,'photo'],[6,12,6,6,'photo'],[0,18,12,3,'yellow'],[0,21,4,3,'text'],[4,21,4,3,'text'],[8,21,4,3,'text']],
+ [[0,0,12,4,'yellow'],[0,4,6,9,'hero'],[6,4,6,9,'hero'],[0,13,3,6,'text'],[3,13,3,6,'text'],[6,13,6,6,'photo'],[0,19,12,5,'box']],
+ [[0,0,9,10,'hero'],[9,0,3,5,'box'],[9,5,3,5,'text'],[0,10,4,7,'photo'],[4,10,4,7,'photo'],[8,10,4,7,'photo'],[0,17,12,4,'strip'],[0,21,12,3,'text']],
+ [[0,0,6,7,'box'],[6,0,6,7,'photo'],[0,7,12,8,'hero'],[0,15,4,5,'strip'],[4,15,4,5,'strip'],[8,15,4,5,'strip'],[0,20,6,4,'text'],[6,20,6,4,'yellow']],
+ [[0,0,3,9,'photo'],[3,0,6,9,'hero'],[9,0,3,9,'photo'],[0,9,12,5,'box'],[0,14,6,5,'text'],[6,14,6,5,'text'],[0,19,12,5,'strip']],
+ [[0,0,12,10,'hero'],[0,10,6,5,'yellow'],[6,10,6,5,'box'],[0,15,4,9,'photo'],[4,15,4,9,'photo'],[8,15,4,9,'photo']],
+ [[0,0,8,6,'box'],[8,0,4,6,'text'],[0,6,4,10,'photo'],[4,6,8,10,'hero'],[0,16,12,4,'strip'],[0,20,12,4,'text']],
+ [[0,0,6,12,'hero'],[6,0,6,4,'yellow'],[6,4,6,8,'photo'],[0,12,3,7,'text'],[3,12,3,7,'text'],[6,12,3,7,'text'],[9,12,3,7,'text'],[0,19,12,5,'box']],
+ [[0,0,12,3,'strip'],[0,3,7,10,'hero'],[7,3,5,5,'box'],[7,8,5,5,'photo'],[0,13,4,6,'photo'],[4,13,4,6,'text'],[8,13,4,6,'photo'],[0,19,12,5,'yellow']],
+ [[0,0,4,8,'photo'],[4,0,4,8,'photo'],[8,0,4,8,'photo'],[0,8,12,6,'box'],[0,14,8,10,'hero'],[8,14,4,5,'text'],[8,19,4,5,'text']],
+ [[0,0,12,6,'yellow'],[0,6,5,9,'hero'],[5,6,7,9,'photo'],[0,15,12,4,'box'],[0,19,4,5,'strip'],[4,19,4,5,'strip'],[8,19,4,5,'strip']],
+ [[0,0,7,8,'photo'],[7,0,5,8,'box'],[0,8,5,8,'box'],[5,8,7,8,'hero'],[0,16,12,4,'text'],[0,20,6,4,'strip'],[6,20,6,4,'strip']],
+ [[0,0,12,8,'hero'],[0,8,4,6,'box'],[4,8,4,6,'yellow'],[8,8,4,6,'box'],[0,14,6,10,'photo'],[6,14,6,5,'text'],[6,19,6,5,'text']],
+ [[0,0,5,7,'box'],[5,0,7,7,'hero'],[0,7,4,9,'photo'],[4,7,4,9,'photo'],[8,7,4,9,'photo'],[0,16,12,3,'yellow'],[0,19,6,5,'text'],[6,19,6,5,'text']],
+];}
+function sky_render_page($pdf,$cats,$items,$tpl,$W,$H,$M){
+  $y0=$pdf->mastheadInner(); $cols=12; $rows=24; $gx=8; $gy=8; $gw=$W-2*$M; $gh=$H-40-$y0-40; $cw=($gw-$gx*($cols-1))/$cols; $rh=($gh-$gy*($rows-1))/$rows;
+  /* kategori bandı */
+  $y0+=6; $c=$pdf->catCol($cats[0]); $pdf->fill($c); $pdf->Rect($M,$y0,$gw,22,'F'); $pdf->SetFont('T','',14); $pdf->color([255,255,255]); $pdf->T($M+8,$y0+16,implode('  ·  ',array_map(fn($k)=>$pdf->catName($k),$cats))); $y0+=30;
+  $gh=$H-40-$y0; $rh=($gh-$gy*($rows-1))/$rows; $pal=[$pdf->navy,$pdf->red,$pdf->ink,[0,120,110],[63,81,181]]; $k=0; $i=0;
+  foreach($tpl as $slot){ [$c0,$r0,$cs,$rs,$type]=$slot; $n=$items[$i]??null; if(!$n) break; $i++;
+    $x=$M+$c0*($cw+$gx); $y=$y0+$r0*($rh+$gy); $w=$cs*$cw+($cs-1)*$gx; $h=$rs*$rh+($rs-1)*$gy; $col=$pal[$k++%count($pal)];
+    switch($type){
+      case 'hero': $pdf->img($x,$y,$w,$h,$n); $bh=min($h*.55,max(70,$h*.45)); $pdf->fill([0,0,0]); $pdf->Rect($x,$y+$h-$bh,$w,$bh,'F'); $pdf->kicker($x+10,$y+$h-$bh+8,$pdf->catName($n['cat']),$pdf->yel,$pdf->ink,8); $pdf->head($x+10,$y+$h-$bh+26,$w-20,$bh-40,$n['t'],[255,255,255],$w>300?30:20,true,.98); if($bh>90){ $pdf->SetFont('B','',8); $pdf->color([230,230,230]); $pdf->T($x+10,$y+$h-8,mb_substr($n['s']??'',0,(int)($w/4.2)).'…'); } break;
+      case 'photo': $ih=min($h*.55,$w*.7); $pdf->img($x,$y,$w,$ih,$n); $pdf->fill($col); $pdf->Rect($x,$y+$ih,$w,4,'F'); $yy=$pdf->head($x,$y+$ih+8,$w,min(60,($h-$ih)*.55),$n['t'],$pdf->ink,$w>200?18:14,true,1.0); if($h-($yy-$y)>30) $pdf->block($x,$yy+4,$w,$n['s']??'','B',8.2,$pdf->grey,1.28,max(1,(int)(($y+$h-$yy-6)/10.5))); break;
+      case 'box': $pdf->fill($col); $pdf->Rect($x,$y,$w,$h,'F'); $pdf->kicker($x+10,$y+8,$pdf->catName($n['cat']),$pdf->yel,$pdf->ink,7.5); $yy=$pdf->head($x+10,$y+28,$w-20,min($h-40,$h*.6),$n['t'],[255,255,255],$w>300?26:18,true,.98); if($h>110) $pdf->block($x+10,$yy+6,$w-20,$n['s']??'','B',8.4,[225,232,245],1.28,max(1,(int)(($y+$h-$yy-14)/10.8))); break;
+      case 'yellow': $pdf->fill($pdf->yel); $pdf->Rect($x,$y,$w,$h,'F'); $pdf->fill($pdf->red); $pdf->Rect($x,$y,6,$h,'F'); if($h<60){ $pdf->head($x+14,$y+6,$w-24,$h-12,$n['t'],$pdf->ink,20,true,1.0); } else { $yy=$pdf->head($x+14,$y+8,$w-24,min($h-20,$h*.6),$n['t'],$pdf->ink,$w>300?24:17,true,.98); $pdf->block($x+14,$yy+4,$w-24,$n['s']??'','B',8.4,[60,50,0],1.28,max(1,(int)(($y+$h-$yy-10)/10.8))); } break;
+      case 'strip': $pdf->fill([241,241,241]); $pdf->Rect($x,$y,$w,$h,'F'); $iw=min($w*.32,$h*1.5); $pdf->img($x+6,$y+6,$iw,$h-12,$n); $yy=$pdf->head($x+$iw+16,$y+8,$w-$iw-24,min($h-16,$h*.6),$n['t'],$pdf->ink,$w>300?18:14,true,1.0); if($h>60) $pdf->block($x+$iw+16,$yy+3,$w-$iw-24,$n['s']??'','B',8,$pdf->grey,1.28,max(1,(int)(($y+$h-$yy-8)/10.2))); break;
+      default: $pdf->fill($col); $pdf->Rect($x,$y,4,$h,'F'); $yy=$pdf->head($x+12,$y+2,$w-12,min($h*.5,70),$n['t'],$pdf->ink,$w>300?20:15,true,1.0); $pdf->block($x+12,$yy+4,$w-12,$n['s']??'','B',8.4,$pdf->grey,1.3,max(1,(int)(($y+$h-$yy-6)/10.9)));
+    }
+  }
+  return $i;
 }
 
 function skyturk_gazete_build($force=false){
@@ -78,47 +122,38 @@ function skyturk_gazete_build($force=false){
   $CN=fn($k)=>$pdf->catName($k); $PG=fn($k)=>['gundem'=>2,'genel'=>3,'politika'=>4,'dunya'=>5,'ekonomi'=>6,'spor'=>7,'saglik'=>8,'teknoloji'=>8,'egitim'=>9,'kultur-sanat'=>9][$k]??2;
   $bottom3=function($y,$start)use($pdf,$pool,$W,$M,$CN,$PG){ $cw=($W-2*$M-20)/3; for($i=0;$i<3;$i++){ $n=$pool[$start+$i]??null; if(!$n) continue; $x=$M+$i*($cw+10); $pdf->fill([241,241,241]); $pdf->Rect($x,$y,$cw,70,'F'); $pdf->img($x+6,$y+6,64,58,$n); $pdf->head($x+78,$y+10,$cw-84,50,$n['t'],$pdf->ink,13,true,1.0); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x+78,$y+66,$CN($n['cat']).' · sayfa '.$PG($n['cat'])); } };
   if($rnd==0){ $y=$mast(0); $ph=300; $pdf->img($M,$y,$W-2*$M,$ph,$lead); $pdf->fill([0,0,0]); $pdf->Rect($M,$y+$ph-150,$W-2*$M,150,'F'); $pdf->kicker($M+12,$y+$ph-146,$CN($lead['cat']),$pdf->yel,$pdf->ink);
-    $pdf->head($M+12,$y+$ph-124,$W-2*$M-24,100,$lead['t'],[255,255,255],44); $pdf->SetFont('B','',8.5); $pdf->color([255,255,255]); $pdf->T($M+12,$y+$ph-8,mb_substr($lead['s']??'',0,115).'…  Kaynak: '.($lead['srcName']??$lead['by']??''));
-    $y+=$ph+14; $cw=($W-2*$M-20)/3; for($i=0;$i<3;$i++){ $n=$pool[$i]; $x=$M+$i*($cw+10); $pdf->img($x,$y,$cw,88,$n); $pdf->kicker($x,$y+92,$CN($n['cat']),[$pdf->red,$pdf->navy,$pdf->sky][$i],[255,255,255]); $yy=$pdf->head($x,$y+112,$cw,52,$n['t'],$pdf->ink,17,true,1.0); $yy=$pdf->block($x,$yy+4,$cw,$n['s']??'','B',8.2,$pdf->grey,1.28,3); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x,$y+218,'Kaynak: '.($n['srcName']??$n['by']??'').' · sayfa '.$PG($n['cat'])); }
+    $pdf->head($M+12,$y+$ph-124,$W-2*$M-24,100,$lead['t'],[255,255,255],44); $pdf->SetFont('B','',8.5); $pdf->color([255,255,255]); $pdf->T($M+12,$y+$ph-8,mb_substr($lead['s']??'',0,130).'…');
+    $y+=$ph+14; $cw=($W-2*$M-20)/3; for($i=0;$i<3;$i++){ $n=$pool[$i]; $x=$M+$i*($cw+10); $pdf->img($x,$y,$cw,88,$n); $pdf->kicker($x,$y+92,$CN($n['cat']),[$pdf->red,$pdf->navy,$pdf->sky][$i],[255,255,255]); $yy=$pdf->head($x,$y+112,$cw,52,$n['t'],$pdf->ink,17,true,1.0); $yy=$pdf->block($x,$yy+4,$cw,$n['s']??'','B',8.2,$pdf->grey,1.28,3); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x,$y+218,$CN($n['cat']).' · sayfa '.$PG($n['cat'])); }
     $y+=232; $pdf->fill($pdf->navy); $pdf->Rect($M,$y,$W-2*$M,96,'F'); $n=$pool[3]; $pdf->img($M+8,$y+8,150,80,$n); $pdf->kicker($M+170,$y+10,$CN($n['cat']),$pdf->yel,$pdf->ink); $pdf->head($M+170,$y+30,$W-2*$M-190,44,$n['t'],[255,255,255],22); $pdf->SetFont('B','',8.3); $pdf->color([221,230,245]); $pdf->T($M+170,$y+88,mb_substr($n['s']??'',0,100).'…');
     $y+=110; $cw2=($W-2*$M-10)/2; for($i=0;$i<2;$i++){ $n=$pool[4+$i]; $x=$M+$i*($cw2+10); $pdf->fill([241,241,241]); $pdf->Rect($x,$y,$cw2,58,'F'); $pdf->img($x+6,$y+6,70,46,$n); $pdf->head($x+84,$y+8,$cw2-92,40,$n['t'],$pdf->ink,15,true,1.0); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x+84,$y+54,'sayfa '.$PG($n['cat'])); }
     $y+=72; $bottom3($y,6); }
   elseif($rnd==1){ $y=$mast(1); $lw=($W-2*$M)*.5; $pdf->fill($pdf->red); $pdf->Rect($M,$y,$lw,250,'F'); $pdf->kicker($M+12,$y+10,'MANŞET',$pdf->ink,$pdf->yel); $pdf->head($M+12,$y+34,$lw-24,150,$lead['t'],[255,255,255],50,true,.95); $pdf->block($M+12,$y+196,$lw-24,$lead['s']??'','B',9,[255,255,255],1.3,3);
-    $pdf->img($M+$lw,$y,$W-$M-($M+$lw),250,$lead); $pdf->fill($pdf->red); $pdf->Rect($M+$lw,$y+234,$W-$M-($M+$lw),16,'F'); $pdf->SetFont('SC','',7.5); $pdf->color([255,255,255]); $pdf->T($M+$lw+6,$y+245,'FOTOĞRAF: PEXELS (TEMSİLİ) · KAYNAK: '.mb_strtoupper($lead['srcName']??$lead['by']??''));
+    $pdf->img($M+$lw,$y,$W-$M-($M+$lw),250,$lead); $pdf->fill($pdf->red); $pdf->Rect($M+$lw,$y+234,$W-$M-($M+$lw),16,'F'); $pdf->SetFont('SC','',7.5); $pdf->color([255,255,255]); $pdf->T($M+$lw+6,$y+245,'FOTOĞRAF: TEMSİLİ · '.$CN($lead['cat']));
     $y+=262; $cw=($W-2*$M-24)/4; for($i=0;$i<4;$i++){ $n=$pool[$i]; $x=$M+$i*($cw+8); $pdf->img($x,$y,$cw,100,$n); $pdf->fill([$pdf->navy,$pdf->red,$pdf->ink,$pdf->sky][$i]); $pdf->Rect($x,$y+100,$cw,50,'F'); $pdf->head($x+5,$y+104,$cw-10,42,$n['t'],[255,255,255],14,true,1.0); }
     $y+=164; $pdf->fill($pdf->ink); $pdf->Rect($M,$y,$W-2*$M,2,'F'); $y+=14; $cw2=($W-2*$M-10)/2; $n=$pool[4]; $pdf->kicker($M,$y,$CN($n['cat']),$pdf->navy,[255,255,255]); $yy=$pdf->head($M,$y+20,$cw2,52,$n['t'],$pdf->ink,22); $pdf->block($M,$yy+4,$cw2,$n['s']??'','B',8.4,$pdf->grey,1.28,4);
     $n=$pool[5]; $x=$M+$cw2+10; $pdf->img($x,$y,$cw2,100,$n); $pdf->fill([0,0,0]); $pdf->Rect($x,$y+56,$cw2,44,'F'); $pdf->head($x+6,$y+60,$cw2-12,36,$n['t'],[255,255,255],15);
     $y+=126; $bottom3($y,6); $y+=84; $n=$pool[9]??$pool[0]; $pdf->fill($pdf->navy); $pdf->Rect($M,$y,$W-2*$M,56,'F'); $pdf->kicker($M+10,$y+6,$CN($n['cat']),$pdf->yel,$pdf->ink); $pdf->head($M+10,$y+22,$W-2*$M-20,32,$n['t'],[255,255,255],20); }
   else { $y=$mast(0); $g=10; $cw=($W-2*$M-$g)/2; $pdf->img($M,$y,$cw,230,$lead); $pdf->fill($pdf->yel); $pdf->Rect($M,$y+160,$cw,70,'F'); $pdf->head($M+8,$y+164,$cw-16,62,$lead['t'],$pdf->ink,24,true,.98); $pdf->kicker($M+8,$y+8,'GÜNÜN HABERİ',$pdf->red,[255,255,255]);
     $n=$pool[0]; $x=$M+$cw+$g; $pdf->fill($pdf->navy); $pdf->Rect($x,$y,$cw,230,'F'); $pdf->img($x+8,$y+14,$cw-16,104,$n); $pdf->kicker($x+8,$y+122,$CN($n['cat']),$pdf->yel,$pdf->ink); $pdf->head($x+8,$y+140,$cw-16,60,$n['t'],[255,255,255],22); $pdf->block($x+8,$y+204,$cw-16,$n['s']??'','B',8.2,[221,230,245],1.28,1);
-    $y+=244; $cw4=($W-2*$M-3*$g)/4; for($i=0;$i<4;$i++){ $n=$pool[1+$i]; $x=$M+$i*($cw4+$g); $pdf->img($x,$y,$cw4,84,$n); $pdf->fill([$pdf->red,$pdf->ink,$pdf->sky,$pdf->navy][$i]); $pdf->Rect($x,$y+70,$cw4,14,'F'); $pdf->SetFont('TB','',7); $pdf->color([255,255,255]); $pdf->T($x+4,$y+80,$CN($n['cat'])); $yy=$pdf->head($x,$y+92,$cw4,46,$n['t'],$pdf->ink,13,true,1.0); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x,$yy+10,'Kaynak: '.($n['srcName']??$n['by']??'')); }
+    $y+=244; $cw4=($W-2*$M-3*$g)/4; for($i=0;$i<4;$i++){ $n=$pool[1+$i]; $x=$M+$i*($cw4+$g); $pdf->img($x,$y,$cw4,84,$n); $pdf->fill([$pdf->red,$pdf->ink,$pdf->sky,$pdf->navy][$i]); $pdf->Rect($x,$y+70,$cw4,14,'F'); $pdf->SetFont('TB','',7); $pdf->color([255,255,255]); $pdf->T($x+4,$y+80,$CN($n['cat'])); $yy=$pdf->head($x,$y+92,$cw4,46,$n['t'],$pdf->ink,13,true,1.0); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x,$yy+10,'sayfa '.$PG($n['cat'])); }
     $y+=160; $pdf->fill($pdf->red); $pdf->Rect($M,$y,$W-2*$M,64,'F'); $n=$pool[5]; $pdf->kicker($M+10,$y+6,$CN($n['cat']),$pdf->yel,$pdf->ink); $pdf->head($M+10,$y+24,$W-2*$M-20,36,$n['t'],[255,255,255],22);
     $y+=78; $n=$pool[6]; $pdf->fill([238,238,238]); $pdf->Rect($M,$y,$W-2*$M,52,'F'); $pdf->img($M+6,$y+6,60,40,$n); $pdf->head($M+74,$y+6,$W-2*$M-90,40,$n['t'],$pdf->ink,16,true,1.0);
     $y+=66; $bottom3($y,7); $y+=84; $n=$pool[10]??$pool[1]; $pdf->kicker($M,$y,$CN($n['cat']),$pdf->red,[255,255,255]); $yy=$pdf->head($M,$y+20,$W-2*$M,40,$n['t'],$pdf->ink,20); $pdf->block($M,$yy+4,$W-2*$M,$n['s']??'','B',8.4,$pdf->grey,1.28,2); }
   /* son dakika şeridi */
   $pdf->fill($pdf->red); $pdf->Rect(0,$H-20,$W,20,'F'); $pdf->SetFont('TB','',8); $pdf->color([255,255,255]); $pdf->T($M,$H-7,'SON DAKİKA'); $pdf->SetFont('B','',8); $sd=array_slice($win,0,3); $pdf->T($M+66,$H-7,implode('   ',array_map(fn($n)=>'▸ '.mb_substr($n['t'],0,52),$sd)));
-  $pdf->SetFont('SC','',6.5); $pdf->color($pdf->grey); $s='Haberler açık RSS akışlarından SKYTÜRK editörlüğüyle özetlenmiştir · Fotoğraflar temsilidir (Pexels) · Sayfa 1/10'; $pdf->T($W-$M-$pdf->GetStringWidth($s),$H-24,$s);
+  $pdf->SetFont('SC','',6.5); $pdf->color($pdf->grey); $s='Fotoğraflar temsilidir · Kaynaklar künyede · Sayfa 1/10'; $pdf->T($W-$M-$pdf->GetStringWidth($s),$H-24,$s);
   /* ---------- İÇ SAYFALAR ---------- */
   $used=[$lead['id']]; // kapaktakiler iç sayfada tekrar kullanılabilir (gazete mantığı: kapak = özet)
-  $pageCats=[[2,['gundem','son-dakika'],3],[3,['gundem','son-dakika','genel','istanbul','ankara'],3],[4,['politika'],'pol'],[5,['dunya'],3],[6,['ekonomi'],'eko'],[7,['spor'],'spor'],[8,['saglik','teknoloji'],'dual'],[9,['egitim','kultur-sanat','yasam'],'dual'],[10,[],'back']];
+  $pageCats=[[2,['gundem','son-dakika']],[3,['gundem','son-dakika','genel','istanbul','ankara']],[4,['politika']],[5,['dunya']],[6,['ekonomi']],[7,['spor']],[8,['saglik','teknoloji']],[9,['egitim','kultur-sanat','yasam']]];
+  $tpls=sky_templates(); $order=range(0,count($tpls)-1); shuffle($order); $usedT=[];
   $stand=[['Galatasaray',5,13],['Fenerbahçe',5,11],['Beşiktaş',5,10],['Trabzonspor',5,9],['Konyaspor',5,8],['Göztepe',5,8],['Kocaelispor',5,7],['Gençlerbirliği',5,6]];
-  foreach($pageCats as [$pn,$cats,$mode]){
-    $pdf->AddPage(); $pdf->pageNo=$pn; $y=$pdf->mastheadInner();
-    if($mode===3){ $items=$take($cats,9); $fillTo($items,8); $y=$pdf->section($y+14,$cats[0]); $pdf->cols($y,$H-40,3,$items); }
-    elseif($mode==='pol'){ $p=$take($cats,6); $fillTo($p,5); $y=$pdf->section($y+14,'politika'); $lw=($W-2*$M)*.58; $pdf->story($M,$y,$lw,$p[0],150,15); $rx=$M+$lw+16; $rw=$W-$M-$rx; $yy=$y; foreach(array_slice($p,1,5) as $n){ $yy=$pdf->story($rx,$yy,$rw,$n,0,10.5,true,3); $pdf->rule($rx,$rx+$rw,$yy-2,null,.4); $yy+=6; if($yy>$H-120) break; } $pdf->draw($pdf->line); $pdf->Line($rx-8,$y-8,$rx-8,$H-60); }
-    elseif($mode==='eko'){ $e=$take($cats,6); $fillTo($e,4); $y=$pdf->section($y+14,'ekonomi'); $lw=($W-2*$M)*.6; $yy=$pdf->story($M,$y,$lw,$e[0],170,15); foreach(array_slice($e,1) as $n){ if($yy>$H-150) break; $yy=$pdf->story($M,$yy,$lw,$n,0,12); $pdf->rule($M,$M+$lw,$yy-2,null,.4); $yy+=6; }
-      $rx=$M+$lw+16; $rw=$W-$M-$rx; $pdf->fill($pdf->soft); $pdf->Rect($rx,$y,$rw,300,'F'); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($rx+12,$y+20,'PİYASALAR'); $pdf->rule($rx+12,$rx+$rw-12,$y+26,$pdf->navy,1.2); $yy=$y+46;
-      foreach([['DOLAR','48,65','+0,12%',1],['EURO','56,49','-0,08%',0],['STERLİN','65,91','+0,04%',1],['ALTIN (gr)','6.784,88','-0,31%',0],['BİST 100','14.467','+0,82%',1],['BİTCOİN','3.754.831','-0,80%',0]] as [$k,$v,$d,$up]){ $pdf->SetFont('TB','',9); $pdf->color($pdf->ink); $pdf->T($rx+12,$yy,$k); $pdf->SetFont('H','',13); $pdf->T($rx+$rw-12-$pdf->GetStringWidth($v),$yy+2,$v); $pdf->SetFont('SC','',8); $pdf->color($up?[34,160,107]:$pdf->red); $pdf->T($rx+$rw-12-$pdf->GetStringWidth($d),$yy+13,$d); $pdf->rule($rx+12,$rx+$rw-12,$yy+18,null,.4); $yy+=36; }
-      $pdf->SetFont('SC','',7); $pdf->color($pdf->grey); $pdf->T($rx+12,$y+290,'Kapanış verileri · bilgi amaçlıdır'); }
-    elseif($mode==='spor'){ $s=$take($cats,9); $fillTo($s,6); $y=$pdf->section($y+14,'spor'); $lw=($W-2*$M)*.55; $yy=$pdf->story($M,$y,$lw,$s[0],160,15); $yy=$pdf->story($M,$yy,$lw,$s[1]??$s[0],0,12);
-      $rx=$M+$lw+16; $rw=$W-$M-$rx; $yy2=$y; foreach(array_slice($s,2,4) as $n){ $yy2=$pdf->story($rx,$yy2,$rw,$n,0,10.5,false,3); $pdf->rule($rx,$rx+$rw,$yy2-4,null,.4); $yy2+=4; }
-      $bh=$H-70-$yy2-10; $pdf->fill($pdf->soft); $pdf->Rect($rx,$yy2+10,$rw,$bh,'F'); $pdf->SetFont('H','',10.5); $pdf->color($pdf->ink); $pdf->T($rx+10,$yy2+28,'SÜPER LİG PUAN DURUMU'); $pdf->rule($rx+10,$rx+$rw-10,$yy2+34,[46,125,50],1.2); $ty=$yy2+50;
-      foreach($stand as $i=>[$t,$o,$p]){ if($ty>$yy2+$bh) break; $pdf->SetFont($i<4?'TB':'B','',8.5); $pdf->color($i<4?[46,125,50]:$pdf->grey); $pdf->T($rx+10,$ty,(string)($i+1)); $pdf->color($pdf->ink); $pdf->T($rx+26,$ty,$t); $pdf->T($rx+$rw-40-$pdf->GetStringWidth((string)$o),$ty,(string)$o); $pdf->SetFont('TB','',8.5); $pdf->T($rx+$rw-10-$pdf->GetStringWidth((string)$p),$ty,(string)$p); $ty+=15; }
-      foreach(array_slice($s,6) as $n){ if($yy>$H-100) break; $yy=$pdf->story($M,$yy,$lw,$n,0,11,true,2); $pdf->rule($M,$M+$lw,$yy-2,null,.4); $yy+=4; } }
-    elseif($mode==='dual'){ $hw=($W-2*$M-16)/2; $c1=$cats[0]; $c2=$cats[1]; $a=$take([$c1],5); $fillTo($a,3); $b=$take(array_slice($cats,1),5); $fillTo($b,3);
-      foreach([[$M,$c1,$a],[$M+$hw+16,$c2,$b]] as [$x,$c,$L]){ $yy=$pdf->section($y+14,$c,$x,$hw); $yy=$pdf->story($x,$yy,$hw,$L[0],120,13); foreach(array_slice($L,1) as $n){ if($yy>$H-120) break; $yy=$pdf->story($x,$yy,$hw,$n,0,11); $pdf->rule($x,$x+$hw,$yy-2,null,.4); $yy+=6; } }
-      $pdf->draw($pdf->line); $pdf->Line($M+$hw+8,$y+6,$M+$hw+8,$H-60); }
-    else { /* arka sayfa */ $astro=$data['astro']['items']??[]; $signs=[['koc','♈','Koç'],['boga','♉','Boğa'],['ikizler','♊','İkizler'],['yengec','♋','Yengeç'],['aslan','♌','Aslan'],['basak','♍','Başak'],['terazi','♎','Terazi'],['akrep','♏','Akrep'],['yay','♐','Yay'],['oglak','♑','Oğlak'],['kova','♒','Kova'],['balik','♓','Balık']];
+  foreach($pageCats as $pi=>[$pn,$cats]){
+    $pdf->AddPage(); $pdf->pageNo=$pn; $ti=$order[$pi]; $usedT[]=$ti; $tpl=$tpls[$ti]; $need=count($tpl);
+    $items=$take($cats,$need); $fillTo($items,$need); if(count($items)<$need){ foreach($win as $n){ if(count($items)>=$need) break; if(!in_array($n['id'],array_column($items,'id'))) $items[]=$n; } } sky_render_page($pdf,$cats,$items,$tpl,$W,$H,$M); $pdf->footer2();
+  }
+  /* 10. sayfa: arka */
+  { $pdf->AddPage(); $pdf->pageNo=10; $y=$pdf->mastheadInner();
+    $astro=$data['astro']['items']??[]; $signs=[['koc','♈','Koç'],['boga','♉','Boğa'],['ikizler','♊','İkizler'],['yengec','♋','Yengeç'],['aslan','♌','Aslan'],['basak','♍','Başak'],['terazi','♎','Terazi'],['akrep','♏','Akrep'],['yay','♐','Yay'],['oglak','♑','Oğlak'],['kova','♒','Kova'],['balik','♓','Balık']];
       $pdf->fill([63,81,181]); $pdf->Rect($M,$y,4,18,'F'); $pdf->SetFont('H','',15); $pdf->color($pdf->ink); $pdf->T($M+10,$y+14,'GÜNLÜK BURÇ YORUMLARI'); $pdf->rule($M,$W-$M,$y+22); $y+=36; $cw=($W-2*$M-24)/3; $ch=92;
       foreach($signs as $i=>[$id,$sym,$name]){ $x=$M+($i%3)*($cw+12); $yy=$y+intdiv($i,3)*($ch+10); $pdf->fill($pdf->soft); $pdf->Rect($x,$yy,$cw,$ch,'F'); $pdf->SetFont('B','',20); $pdf->color($pdf->navy); $pdf->T($x+10,$yy+26,$sym); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x+36,$yy+22,mb_strtoupper($name));
         $it=$astro[$id]??null; $txt=$it['genel']??'Bugünün yorumu sitede: testhabersitesimiz.site/#/astroloji'; $pdf->block($x+10,$yy+32,$cw-20,$txt,'B',7.6,$pdf->grey,1.32,4); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x+10,$yy+$ch-8,$it?('Şanslı sayı '.($it['sansli_sayi']??'').' · Renk: '.($it['renk']??'')):''); }
@@ -126,11 +161,11 @@ function skyturk_gazete_build($force=false){
       $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($M,$yb,'HAVA DURUMU · İSTANBUL'); $pdf->SetFont('H','',30); $pdf->T($M,$yb+36,'24°'); $pdf->SetFont('B','',8.5); $pdf->color($pdf->grey); $pdf->T($M+50,$yb+24,'Parçalı bulutlu'); $pdf->T($M+50,$yb+36,'Pzt 23° · Sal 22° · Çrş 25° · Prş 26°');
       $x=$M+$hw3+14; $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x,$yb,'GÜNÜN ANKETİ'); $poll=$data['polls'][0]??null; if($poll){ $pdf->block($x,$yb+8,$hw3,$poll['q'],'TB',8.5,$pdf->ink,1.28,2); $tot=max(1,$poll['votes']??0); foreach(array_slice($poll['o'],0,4) as $j=>$o){ $yy=$yb+44+$j*14; $pct=is_numeric($o[1]??null)?(int)$o[1]:0; $pdf->fill([227,232,239]); $pdf->Rect($x,$yy,$hw3,7,'F'); $pdf->fill($pdf->sky); $pdf->Rect($x,$yy,$hw3*max(0,min(100,$pct))/100,7,'F'); $pdf->SetFont('SC','',7.5); $pdf->color($pdf->grey); $pdf->T($x,$yy-2,$o[0]); $s=$pct.'%'; $pdf->T($x+$hw3-$pdf->GetStringWidth($s),$yy-2,$s); } }
       $pdf->SetFont('SC','',7); $pdf->color($pdf->grey); $pdf->T($x,$yb+100,'Oy vermek için: testhabersitesimiz.site/#/anketler');
-      $x=$M+2*($hw3+14); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x,$yb,'KÜNYE'); $pdf->SetFont('B','',8); $pdf->color($pdf->grey); foreach(['SKYTÜRK Medya Yayıncılık','İmtiyaz Sahibi: —','Genel Yayın Yönetmeni: —','Sorumlu Yazı İşleri Müdürü: —','Dijital Yayın: SKYTÜRK CMS','İletişim: info@skyturk.com.tr',"Bu gazete her sabah 09:00'da son 24 saatin",'haberlerinden otomatik derlenir.'] as $j=>$l) $pdf->T($x,$yb+16+$j*11,$l); }
+      $x=$M+2*($hw3+14); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x,$yb,'KÜNYE'); $pdf->SetFont('B','',8); $pdf->color($pdf->grey); $srcs=implode(', ',array_unique(array_filter(array_map(fn($n)=>$n['srcName']??$n['by']??'',$win)))); foreach(['SKYTÜRK Medya Yayıncılık','Dijital Yayın: SKYTÜRK CMS','İletişim: info@skyturk.com.tr',"Her sabah 09:00'da son 24 saatin",'haberlerinden otomatik derlenir.','Kaynaklar: '.mb_substr($srcs,0,60),'Fotoğraflar temsilidir (Pexels).'] as $j=>$l) $pdf->T($x,$yb+16+$j*11,$l);
     $pdf->footer2();
   }
   $fn='sayi-'.$no.'-'.$today.'.pdf'; $pdf->Output('F',$gdir.'/'.$fn);
-  $issue=['no'=>$no,'date'=>$today,'dateStr'=>$dateStr,'file'=>'gazete/'.$fn,'pages'=>10,'lead'=>$lead['t'],'leadImg'=>$lead['imgUrl']??null,'count'=>count($win),'layout'=>$rnd,'created'=>date('c')];
+  $issue=['no'=>$no,'date'=>$today,'dateStr'=>$dateStr,'file'=>'gazete/'.$fn,'pages'=>10,'lead'=>$lead['t'],'leadImg'=>$lead['imgUrl']??null,'count'=>count($win),'layout'=>$rnd,'templates'=>$usedT,'created'=>date('c')];
   array_unshift($issues,$issue); file_put_contents($issuesF,json_encode($issues,JSON_UNESCAPED_UNICODE),LOCK_EX);
   return ['ok'=>true,'issue'=>$issue];
 }
