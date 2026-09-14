@@ -27,7 +27,7 @@ function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): arr
     if(!is_array($o)||empty($o['title'])){ $fail++; $n['rwErr']='json'; continue; }
     $n['srcTitle']=$n['t']; $n['srcSpot']=$n['s']??'';
     $n['t']=mb_substr(trim($o['title']),0,140); $n['s']=mb_substr(trim($o['spot']??''),0,300);
-    if(!empty($o['cat'])&&in_array($o['cat'],$cats)&&$n['cat']!=='son-dakika') $n['cat']=$o['cat'];
+    if(!empty($o['cat'])&&in_array($o['cat'],$cats)&&($n['cat']!=='son-dakika'||(time()-($n['ts']??time()))>6*3600)) $n['cat']=$o['cat'];
     if(!empty($o['tags'])&&is_array($o['tags'])) $n['tags']=array_slice(array_map(fn($t)=>mb_strtolower(trim((string)$t)),$o['tags']),0,4);
     if(!empty($o['imgPrompt'])) $n['imgPrompt']=trim($o['imgPrompt']);
     if(!empty($o['imgQuery'])) $n['imgQuery']=trim($o['imgQuery']);
@@ -43,8 +43,8 @@ function skyturk_astro(array &$data): array {
   $secrets=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];
   $key=$secrets['ANTHROPIC_KEY']??''; if(!$key) return ['skipped'=>'anahtar yok'];
   $signs=['koc'=>'Koç','boga'=>'Boğa','ikizler'=>'İkizler','yengec'=>'Yengeç','aslan'=>'Aslan','basak'=>'Başak','terazi'=>'Terazi','akrep'=>'Akrep','yay'=>'Yay','oglak'=>'Oğlak','kova'=>'Kova','balik'=>'Balık'];
-  $prompt="Bugün ".date('d.m.Y').". SKYTÜRK haber sitesi için 12 burcun günlük yorumunu yaz. Her burç için: 'genel' (3-4 cümle, sıcak ve olumlu ama gerçekçi, tıbbi/finansal kesin iddia yok), 'ask' (1 cümle), 'kariyer' (1 cümle), 'saglik' (1 cümle), 'sansli_sayi' (1-99), 'renk' (bir renk). Yalnızca JSON döndür: {\"koc\":{\"genel\":\"\",\"ask\":\"\",\"kariyer\":\"\",\"saglik\":\"\",\"sansli_sayi\":0,\"renk\":\"\"}, ...} Anahtarlar: ".implode(', ',array_keys($signs));
-  $body=['model'=>$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001','max_tokens'=>3000,'messages'=>[['role'=>'user','content'=>$prompt]]];
+  $prompt="Bugün ".date('d.m.Y').". SKYTÜRK haber sitesi için 12 burcun günlük yorumunu yaz. Her burç için: 'genel' (2-3 kısa cümle, sıcak ve olumlu ama gerçekçi, tıbbi/finansal kesin iddia yok), 'ask' (1 cümle), 'kariyer' (1 cümle), 'saglik' (1 cümle), 'sansli_sayi' (1-99), 'renk' (bir renk). Yalnızca JSON döndür: {\"koc\":{\"genel\":\"\",\"ask\":\"\",\"kariyer\":\"\",\"saglik\":\"\",\"sansli_sayi\":0,\"renk\":\"\"}, ...} Anahtarlar: ".implode(', ',array_keys($signs));
+  $body=['model'=>$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001','max_tokens'=>6000,'messages'=>[['role'=>'user','content'=>$prompt]]];
   $ch=curl_init('https://api.anthropic.com/v1/messages');
   curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>60,CURLOPT_POST=>1,CURLOPT_POSTFIELDS=>json_encode($body,JSON_UNESCAPED_UNICODE),CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$key,'anthropic-version: 2023-06-01']]);
   $resp=curl_exec($ch); $code=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch);
