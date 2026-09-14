@@ -12,7 +12,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   $tok=$_SERVER['HTTP_X_TOKEN']??($jin['_token']??($_GET['key']??''));
   if(!hash_equals(SKYTURK_TOKEN,(string)$tok)){http_response_code(403);echo json_encode(['error'=>'forbidden','hdr'=>isset($_SERVER['HTTP_X_TOKEN'])?strlen($_SERVER['HTTP_X_TOKEN']):-1,'body_tok'=>isset($jin['_token'])?strlen($jin['_token']):-1,'exp'=>strlen(SKYTURK_TOKEN)]);exit;}
   if(($_GET['action']??'')==='secret'){
-    $j=$jin; $allowed=['ANTHROPIC_KEY','REWRITE_MODEL'];
+    $j=$jin; $allowed=['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY'];
     $sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];
     foreach($allowed as $k) if(isset($j[$k])) $sec[$k]=trim((string)$j[$k]);
     file_put_contents(__DIR__.'/secrets.php',"<?php return ".var_export($sec,true).";\n",LOCK_EX);

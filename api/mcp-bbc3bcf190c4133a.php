@@ -36,8 +36,9 @@ $TOOLS=[
  ['name'=>'create_poll','description'=>'Yeni anket oluştur; ilk anket anasayfada gösterilir.','inputSchema'=>['type'=>'object','properties'=>['question'=>['type'=>'string'],'options'=>['type'=>'array','items'=>['type'=>'string']]],'required'=>['question','options']]],
  ['name'=>'toggle_poll','description'=>'Anketi aç/kapat.','inputSchema'=>['type'=>'object','properties'=>['id'=>['type'=>'string'],'open'=>['type'=>'boolean']],'required'=>['id','open']]],
  ['name'=>'deploy_from_github','description'=>'GitHub deposundaki (erkankork-beep/skyturk) main dalını indirip site dosyalarını public_html üzerine kurar. data.json ve config.php korunur.','inputSchema'=>['type'=>'object','properties'=>['ref'=>['type'=>'string','default'=>'main']]]],
- ['name'=>'set_secret','description'=>'Sunucu gizli ayarı yaz: ANTHROPIC_KEY (Haiku özgünleştirme için API anahtarı) veya REWRITE_MODEL. Değer depoya girmez, api/secrets.php içinde tutulur.','inputSchema'=>['type'=>'object','properties'=>['name'=>['type'=>'string','enum'=>['ANTHROPIC_KEY','REWRITE_MODEL']],'value'=>['type'=>'string']],'required'=>['name','value']]],
+ ['name'=>'set_secret','description'=>'Sunucu gizli ayarı yaz: ANTHROPIC_KEY (Haiku özgünleştirme için API anahtarı) veya REWRITE_MODEL. Değer depoya girmez, api/secrets.php içinde tutulur.','inputSchema'=>['type'=>'object','properties'=>['name'=>['type'=>'string','enum'=>['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY']],'value'=>['type'=>'string']],'required'=>['name','value']]],
  ['name'=>'rewrite_now','description'=>'Bekleyen RSS haberlerini Haiku ile hemen özgünleştir (en fazla 20, ~40 sn).','inputSchema'=>['type'=>'object','properties'=>['max'=>['type'=>'integer','default'=>20]]]],
+ ['name'=>'images_now','description'=>'Görseli olmayan haberlere Pexels/Openverse açık lisanslı görsel eşle (en fazla 30).','inputSchema'=>['type'=>'object','properties'=>['max'=>['type'=>'integer','default'=>30]]]],
  ['name'=>'get_log','description'=>'Son RSS ve MCP işlem kayıtları.','inputSchema'=>['type'=>'object','properties'=>new stdClass()]],
 ];
 
@@ -53,12 +54,12 @@ $name=$p['name']??''; $a=$p['arguments']??[];
 try{
 switch($name){
  case 'get_stats':{$d=load();$n=$d['news'];$pub=count(array_filter($n,fn($x)=>($x['st']??'')==='Yayında'));$auto=count(array_filter($n,fn($x)=>!empty($x['auto'])));$dr=count(array_filter($n,fn($x)=>($x['st']??'')==='Taslak'));usort($n,fn($a,$b)=>tsOf($b)<=>tsOf($a));
-  res($id,text(['toplam'=>count($d['news']),'yayinda'=>$pub,'taslak'=>$dr,'rss_otomatik'=>$auto,'ozgunlestirilmis'=>count(array_filter($n,fn($x)=>!empty($x['rw']))),'bekleyen'=>count(array_filter($n,fn($x)=>!empty($x['auto'])&&empty($x['rw'])&&($x['rwTries']??0)<2)),'elle'=>count($d['news'])-$auto,'acik_anket'=>count(array_filter($d['polls'],fn($q)=>!empty($q['open']))),'son_guncelleme'=>$d['updated']??null,'son_haber'=>$n?slim($n[0]):null]));}
+  res($id,text(['toplam'=>count($d['news']),'yayinda'=>$pub,'taslak'=>$dr,'rss_otomatik'=>$auto,'ozgunlestirilmis'=>count(array_filter($n,fn($x)=>!empty($x['rw']))),'gorselli'=>count(array_filter($n,fn($x)=>!empty($x['imgUrl']))),'bekleyen'=>count(array_filter($n,fn($x)=>!empty($x['auto'])&&empty($x['rw'])&&($x['rwTries']??0)<2)),'elle'=>count($d['news'])-$auto,'acik_anket'=>count(array_filter($d['polls'],fn($q)=>!empty($q['open']))),'son_guncelleme'=>$d['updated']??null,'son_haber'=>$n?slim($n[0]):null]));}
  case 'list_news':{$d=load();$n=$d['news'];$q=mb_strtolower($a['query']??'');
   $n=array_filter($n,function($x)use($a,$q){if(!empty($a['cat'])&&$x['cat']!==$a['cat'])return false;if(!empty($a['status'])&&($x['st']??'')!==$a['status'])return false;if(!empty($a['manual_only'])&&!empty($x['auto']))return false;if(!empty($a['ozel_only'])&&empty($x['ozel']))return false;if($q&&mb_strpos(mb_strtolower(($x['t']??'').' '.($x['s']??'').' '.implode(' ',$x['tags']??[])),$q)===false)return false;return true;});
   usort($n,fn($a,$b)=>tsOf($b)<=>tsOf($a));$lim=max(1,min(200,(int)($a['limit']??30)));
   res($id,text(['count'=>count($n),'items'=>array_map('slim',array_slice(array_values($n),0,$lim))]));}
- case 'get_news':{$d=load();foreach($d['news'] as $x)if($x['id']==$a['id']){$o=slim($x);$o['body']=$x['p']??[];$o['imgPrompt']=$x['imgPrompt']??null;$o['srcTitle']=$x['srcTitle']??null;$o['rewritten']=!empty($x['rw']);res($id,text($o));}res($id,text('Haber bulunamadı: '.$a['id'],true));}
+ case 'get_news':{$d=load();foreach($d['news'] as $x)if($x['id']==$a['id']){$o=slim($x);$o['body']=$x['p']??[];$o['imgPrompt']=$x['imgPrompt']??null;$o['srcTitle']=$x['srcTitle']??null;$o['imgUrl']=$x['imgUrl']??null;$o['imgCredit']=$x['imgCredit']??null;$o['rwErr']=$x['rwErr']??null;$o['rewritten']=!empty($x['rw']);res($id,text($o));}res($id,text('Haber bulunamadı: '.$a['id'],true));}
  case 'create_news':{$d=load();if(!in_array($a['cat'],$CATS))res($id,text('Geçersiz kategori',true));$nid=max(array_merge([5000],array_map(fn($x)=>(int)$x['id'],array_filter($d['news'],fn($x)=>empty($x['auto'])))))+1;
   $date=$a['date']??date('d.m.Y H:i');$paras=array_values(array_filter(array_map('trim',preg_split('/\n\s*\n/',(string)($a['body']??'')))));if(!$paras)$paras=[$a['spot']??''];
   $n=['id'=>$nid,'cat'=>$a['cat'],'t'=>trim($a['title']),'s'=>trim($a['spot']??''),'d'=>$date,'by'=>$a['by']??'Skytürk Haber Merkezi','v'=>0,'st'=>$a['status']??'Yayında','tags'=>$a['tags']??[],'ozel'=>!empty($a['ozel']),'p'=>$paras];
@@ -81,12 +82,13 @@ switch($name){
   if(!$zipdata||$code!=200)res($id,text("GitHub'dan indirilemedi (HTTP $code)",true));
   $tmp=sys_get_temp_dir().'/skyturk_'.uniqid();$zp=$tmp.'.zip';file_put_contents($zp,$zipdata);$z=new ZipArchive();if($z->open($zp)!==true)res($id,text('Zip açılamadı',true));mkdir($tmp);$z->extractTo($tmp);$z->close();@unlink($zp);
   $root=glob($tmp.'/*',GLOB_ONLYDIR)[0]??null;if(!$root)res($id,text('Paket boş',true));
-  $dst=dirname(__DIR__);$files=['index.html','404.html','.htaccess','cms/index.html','api/fetch.php','api/feeds.php','api/data.php','api/.htaccess','api/'.basename(__FILE__),'api/rewrite.php'];$done=[];
+  $dst=dirname(__DIR__);$files=['index.html','404.html','.htaccess','cms/index.html','api/fetch.php','api/feeds.php','api/data.php','api/.htaccess','api/'.basename(__FILE__),'api/rewrite.php','api/images.php'];$done=[];
   foreach($files as $f){if(file_exists("$root/$f")){@mkdir(dirname("$dst/$f"),0755,true);copy("$root/$f","$dst/$f");$done[]=$f;}}
   $sha=trim(@file_get_contents("$root/.git_sha")?:'');logm('MCP deploy '.$ref.' → '.count($done).' dosya');
   res($id,text(['ok'=>true,'ref'=>$ref,'files'=>$done,'not_in_repo'=>array_values(array_diff($files,$done))]));}
  case 'set_secret':{$sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];$sec[$a['name']]=trim($a['value']);file_put_contents(__DIR__.'/secrets.php',"<?php return ".var_export($sec,true).";\n",LOCK_EX);logm('MCP set_secret '.$a['name']);res($id,text(['ok'=>true,'has_key'=>!empty($sec['ANTHROPIC_KEY']),'model'=>$sec['REWRITE_MODEL']??'claude-haiku-4-5-20251001']));}
  case 'rewrite_now':{require_once __DIR__.'/rewrite.php';$d=load();$r=skyturk_rewrite($d['news'],max(1,min(20,(int)($a['max']??20))),40);save($d);logm('MCP rewrite '.json_encode($r));res($id,text($r));}
+ case 'images_now':{require_once __DIR__.'/images.php';$d=load();$r=skyturk_images($d['news'],max(1,min(30,(int)($a['max']??30))),40);save($d);logm('MCP images '.json_encode($r));res($id,text($r));}
  case 'get_log':{res($id,text(['rss'=>explode("\n",substr((string)@file_get_contents(__DIR__.'/fetch.log'),0,2000)),'mcp'=>explode("\n",substr((string)@file_get_contents($LOG),0,2000))]));}
  default: err($id,-32602,'Unknown tool: '.$name);
 }}catch(Throwable $e){res($id,text('Hata: '.$e->getMessage(),true));}

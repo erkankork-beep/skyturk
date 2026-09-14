@@ -626,7 +626,7 @@ const STANDINGS=[['Galatasaray',5,13,'+9'],['Fenerbahçe',5,11,'+7'],['Beşikta�
 const TRAFFIC=[['Kızılay - Sıhhiye','Yoğun','#E8262C'],['Eskişehir Yolu','Orta','#F9A825'],['Konya Yolu','Akıcı','#22A06B'],['Anadolu Bulvarı','Yoğun','#E8262C'],['Çevre Yolu (Batı)','Akıcı','#22A06B'],['İstanbul Yolu','Orta','#F9A825']];
 
 /* Sunucu köprüsü: CMS'in yayınladığı veriyi api/data.php'den al (yoksa tarayıcı depolaması) */
-function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!n||!n.t)return;if(!CAT[n.cat])n.cat='genel';if(!n.p||!n.p.length)n.p=body(i);if(!n.tags)n.tags=[];if(!n.d)n.d='13.09.2026 00:00';if(typeof n.v!=='number')n.v=0;n.by=n.by||'Skytürk';n.s=n.s||'';n.img=(w,h)=>ph(n.cat,w,h,CAT[n.cat].n);NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}}
+function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!n||!n.t)return;if(!CAT[n.cat])n.cat='genel';if(!n.p||!n.p.length)n.p=body(i);if(!n.tags)n.tags=[];if(!n.d)n.d='13.09.2026 00:00';if(typeof n.v!=='number')n.v=0;n.by=n.by||'Skytürk';n.s=n.s||'';n.img=n.imgUrl?((w,h)=>n.imgUrl):((w,h)=>ph(n.cat,w,h,CAT[n.cat].n));NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}}
 try{const raw=localStorage.getItem('skyturk_news');if(raw)applySaved({news:JSON.parse(raw),polls:JSON.parse(localStorage.getItem('skyturk_polls')||'null')});}catch(e){}
 
 </script>
@@ -742,7 +742,7 @@ function article(id){
     <h1>${esc(n.t)}</h1><p class="lead-p">${esc(n.s)}</p>
     <div class="abar"><div><b>${esc(n.by)}</b> · ${n.d} · Güncelleme ${n.d.slice(11)} · ${fmt(n.v)} okunma</div>
       <div class="share"><button title="X">X</button><button title="Facebook">f</button><button title="WhatsApp">W</button><button title="Bağlantıyı kopyala" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);this.textContent='✓'">⧉</button><button title="Yazdır" onclick="print()">⎙</button></div></div>
-    <figure><img src="${n.img(1200,675)}" alt=""><figcaption>${esc(n.t)}${n.auto?'':' — Fotoğraf: SKYTÜRK Arşiv'}</figcaption></figure>
+    <figure><img src="${n.img(1200,675)}" alt=""><figcaption>${esc(n.t)}${n.imgCredit?` — ${n.imgLink?`<a href="${esc(n.imgLink)}" target="_blank" rel="noopener nofollow">${esc(n.imgCredit)}</a>`:esc(n.imgCredit)} (temsili)`:(n.auto?'':' — Fotoğraf: SKYTÜRK Arşiv')}</figcaption></figure>
     <div class="body">${n.auto?`<p>${esc(n.s)}</p><div class="srcbox"><b>Kaynak: ${esc(n.srcName||n.by)}</b> — ${n.rw?'SKYTÜRK editörlüğüyle özetlenmiştir':'Kaynağın açık RSS akışından özet olarak alınmıştır'}.${n.srcTitle?`<br><small style="color:var(--ink2)">Kaynak başlığı: ${esc(n.srcTitle)}</small>`:''}<br><a href="${esc(n.src)}" target="_blank" rel="noopener nofollow">Haberin tamamını kaynağında okuyun ↗</a></div>`:`<p>${n.p[0]} ${n.p[1]}</p><p>${n.p[2]}</p><h2>Süreç nasıl ilerleyecek?</h2><p>${n.p[3]}</p><blockquote>"${n.p[5]}"</blockquote><p>${n.p[4]} ${n.p[1]}</p><p>${n.p[0]}</p>`}</div>
     <div class="tags" style="padding:16px 0 0">${n.tags.map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div>
     <div class="related"><h3>İlgili Haberler</h3><div class="cards three">${rel.map(x=>card(x,{noP:true})).join('')}</div></div>

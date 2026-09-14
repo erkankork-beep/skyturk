@@ -5,7 +5,7 @@ function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): arr
   $key=$secrets['ANTHROPIC_KEY']??''; if(!$key) return ['skipped'=>'anahtar yok'];
   $model=$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001';
   $cats=['son-dakika','gundem','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','egitim','genel','ankara','istanbul'];
-  $system="Sen SKYTÜRK haber sitesinin dijital editörüsün. Sana bir kaynaktan gelen haber başlığı ve özeti verilecek. Görevin:\n1) Gerçekleri, isimleri, sayıları ve tarihleri asla değiştirmeden, kaynağın cümlelerini tekrar etmeden, SKYTÜRK üslubuyla ÖZGÜN bir Türkçe başlık yaz (en fazla 90 karakter, tırnak ve ünlem abartısı yok, tıklama tuzağı yok).\n2) İki cümlelik özgün bir spot yaz (en fazla 240 karakter). Özette olmayan bilgi ekleme; bilgi yetersizse genel ama doğru kal.\n3) Şu listeden en uygun kategori id'sini seç: ".implode(', ',$cats).". Son dakika yalnızca acil/gelişen olaylar için.\n4) 2-4 kısa Türkçe etiket ver (küçük harf).\n5) Haber için İngilizce, kısa, kişi adı içermeyen bir stok/illüstrasyon görsel istemi yaz (imgPrompt).\nYalnızca şu JSON'u döndür, başka hiçbir şey yazma: {\"title\":\"\",\"spot\":\"\",\"cat\":\"\",\"tags\":[],\"imgPrompt\":\"\"}";
+  $system="Sen SKYTÜRK haber sitesinin dijital editörüsün. Sana bir kaynaktan gelen haber başlığı ve özeti verilecek. Görevin:\n1) Gerçekleri, isimleri, sayıları ve tarihleri asla değiştirmeden, kaynağın cümlelerini tekrar etmeden, SKYTÜRK üslubuyla ÖZGÜN bir Türkçe başlık yaz (en fazla 90 karakter, tırnak ve ünlem abartısı yok, tıklama tuzağı yok).\n2) İki cümlelik özgün bir spot yaz (en fazla 240 karakter). Özette olmayan bilgi ekleme; bilgi yetersizse genel ama doğru kal.\n3) Şu listeden en uygun kategori id'sini seç: ".implode(', ',$cats).". Son dakika yalnızca acil/gelişen olaylar için.\n4) 2-4 kısa Türkçe etiket ver (küçük harf).\n5) Haber için İngilizce, kısa, kişi adı içermeyen bir stok/illüstrasyon görsel istemi yaz (imgPrompt) ve stok fotoğraf sitesinde arama için 2-3 kelimelik somut İngilizce arama terimi ver (imgQuery; ör. 'earthquake rescue', 'stock market screen', 'football stadium'). Kişi, marka, logo isteme.\nYalnızca şu JSON'u döndür, başka hiçbir şey yazma: {\"title\":\"\",\"spot\":\"\",\"cat\":\"\",\"tags\":[],\"imgPrompt\":\"\",\"imgQuery\":\"\"}";
   $start=time(); $done=0; $fail=0; $cost=0;
   foreach($news as &$n){
     if(empty($n['auto'])||!empty($n['rw'])) continue;
@@ -30,6 +30,7 @@ function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): arr
     if(!empty($o['cat'])&&in_array($o['cat'],$cats)&&$n['cat']!=='son-dakika') $n['cat']=$o['cat'];
     if(!empty($o['tags'])&&is_array($o['tags'])) $n['tags']=array_slice(array_map(fn($t)=>mb_strtolower(trim((string)$t)),$o['tags']),0,4);
     if(!empty($o['imgPrompt'])) $n['imgPrompt']=trim($o['imgPrompt']);
+    if(!empty($o['imgQuery'])) $n['imgQuery']=trim($o['imgQuery']);
     $n['rw']=true; unset($n['rwErr']); $done++;
     $u=$j['usage']??[]; $cost+=(($u['input_tokens']??0)+($u['cache_creation_input_tokens']??0))*1e-6+($u['cache_read_input_tokens']??0)*1e-7+($u['output_tokens']??0)*5e-6;
   } unset($n);

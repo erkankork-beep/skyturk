@@ -59,6 +59,7 @@ usort($news,function($a,$b){ return tsOf($b)<=>tsOf($a); });
 function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m)) return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]); return 0; }
 $news=array_slice($news,0,$MAX_ITEMS);
 require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,30,70);
+require_once __DIR__.'/images.php'; $im=skyturk_images($news,30,40); $rw['images']=$im;
 $data['news']=$news; $data['updated']=date('c');
 if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');
 file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX);
