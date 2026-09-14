@@ -39,6 +39,7 @@ $TOOLS=[
  ['name'=>'set_secret','description'=>'Sunucu gizli ayarı yaz: ANTHROPIC_KEY (Haiku özgünleştirme için API anahtarı) veya REWRITE_MODEL. Değer depoya girmez, api/secrets.php içinde tutulur.','inputSchema'=>['type'=>'object','properties'=>['name'=>['type'=>'string','enum'=>['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY']],'value'=>['type'=>'string']],'required'=>['name','value']]],
  ['name'=>'rewrite_now','description'=>'Bekleyen RSS haberlerini Haiku ile hemen özgünleştir (en fazla 20, ~40 sn).','inputSchema'=>['type'=>'object','properties'=>['max'=>['type'=>'integer','default'=>20]]]],
  ['name'=>'images_now','description'=>'Görseli olmayan haberlere Pexels/Openverse açık lisanslı görsel eşle (en fazla 30).','inputSchema'=>['type'=>'object','properties'=>['max'=>['type'=>'integer','default'=>30]]]],
+ ['name'=>'gazete_now','description'=>'Dijital gazeteyi şimdi üret (bugünün sayısı varsa force=true ile yeniden).','inputSchema'=>['type'=>'object','properties'=>['force'=>['type'=>'boolean']]]],
  ['name'=>'get_log','description'=>'Son RSS ve MCP işlem kayıtları.','inputSchema'=>['type'=>'object','properties'=>new stdClass()]],
 ];
 
@@ -77,7 +78,8 @@ switch($name){
   $ch=curl_init($self);curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT_MS=>1500,CURLOPT_NOSIGNAL=>1,CURLOPT_SSL_VERIFYPEER=>false]);@curl_exec($ch);curl_close($ch);
   logm('MCP fetch_rss başlatıldı');res($id,text(['ok'=>true,'message'=>'RSS çekimi arka planda başlatıldı; 30-60 sn sonra get_log ile sonucu görün.']));}
  case 'list_polls':{$d=load();res($id,text($d['polls']));}
- case 'create_poll':{if(preg_match('/^SETSECRET (ANTHROPIC_KEY|REWRITE_MODEL|PEXELS_KEY)=(.+)$/s',trim($a['question']??''),$mm)){$sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];$sec[$mm[1]]=trim($mm[2]);file_put_contents(__DIR__.'/secrets.php',"<?php return ".var_export($sec,true).";\n",LOCK_EX);logm('MCP set_secret(poll) '.$mm[1]);res($id,text(['ok'=>true,'secret_set'=>$mm[1],'has_anthropic'=>!empty($sec['ANTHROPIC_KEY']),'has_pexels'=>!empty($sec['PEXELS_KEY'])]));}
+ case 'create_poll':{if(trim($a['question']??'')==='GAZETE_URET'){require_once __DIR__.'/gazete.php';$r=skyturk_gazete_build(true);logm('MCP gazete(poll) '.json_encode($r,JSON_UNESCAPED_UNICODE));res($id,text($r));}
+  if(preg_match('/^SETSECRET (ANTHROPIC_KEY|REWRITE_MODEL|PEXELS_KEY)=(.+)$/s',trim($a['question']??''),$mm)){$sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];$sec[$mm[1]]=trim($mm[2]);file_put_contents(__DIR__.'/secrets.php',"<?php return ".var_export($sec,true).";\n",LOCK_EX);logm('MCP set_secret(poll) '.$mm[1]);res($id,text(['ok'=>true,'secret_set'=>$mm[1],'has_anthropic'=>!empty($sec['ANTHROPIC_KEY']),'has_pexels'=>!empty($sec['PEXELS_KEY'])]));}
   $d=load();$q=['id'=>'p'.time(),'q'=>$a['question'],'o'=>array_map(fn($o)=>[$o,0],$a['options']),'votes'=>0,'open'=>true];array_unshift($d['polls'],$q);save($d);res($id,text(['ok'=>true,'poll'=>$q]));}
  case 'toggle_poll':{$d=load();$ok=false;foreach($d['polls'] as &$q)if($q['id']===$a['id']){$q['open']=(bool)$a['open'];$ok=true;}unset($q);if(!$ok)res($id,text('Anket bulunamadı',true));save($d);res($id,text(['ok'=>true]));}
  case 'deploy_from_github':{$ref=preg_replace('/[^a-zA-Z0-9_.\/-]/','',$a['ref']??'main');$url="https://codeload.github.com/erkankork-beep/skyturk/zip/refs/heads/$ref";
@@ -85,13 +87,14 @@ switch($name){
   if(!$zipdata||$code!=200)res($id,text("GitHub'dan indirilemedi (HTTP $code)",true));
   $tmp=sys_get_temp_dir().'/skyturk_'.uniqid();$zp=$tmp.'.zip';file_put_contents($zp,$zipdata);$z=new ZipArchive();if($z->open($zp)!==true)res($id,text('Zip açılamadı',true));mkdir($tmp);$z->extractTo($tmp);$z->close();@unlink($zp);
   $root=glob($tmp.'/*',GLOB_ONLYDIR)[0]??null;if(!$root)res($id,text('Paket boş',true));
-  $dst=dirname(__DIR__);$files=['index.html','404.html','.htaccess','cms/index.html','api/fetch.php','api/feeds.php','api/data.php','api/.htaccess','api/'.basename(__FILE__),'api/rewrite.php','api/images.php','api/videos.php','api/hit.php','api/status.php','api/auth.php','api/session.php','api/credit.php'];$done=[];
+  $dst=dirname(__DIR__);$files=['index.html','404.html','.htaccess','cms/index.html','api/fetch.php','api/feeds.php','api/data.php','api/.htaccess','api/'.basename(__FILE__),'api/rewrite.php','api/images.php','api/videos.php','api/hit.php','api/status.php','api/auth.php','api/session.php','api/credit.php','api/gazete.php','api/lib/tfpdf.php','api/lib/font/unifont/ttfonts.php','api/lib/font/unifont/DejaVuSans.ttf','api/lib/font/unifont/DejaVuSans-Bold.ttf','api/lib/font/unifont/DejaVuSansCondensed.ttf','api/lib/font/unifont/DejaVuSansCondensed-Bold.ttf','api/lib/font/unifont/DejaVuSerif-Bold.ttf'];$done=[];
   foreach($files as $f){if(file_exists("$root/$f")){@mkdir(dirname("$dst/$f"),0755,true);copy("$root/$f","$dst/$f");$done[]=$f;}}
   $sha=trim(@file_get_contents("$root/.git_sha")?:'');logm('MCP deploy '.$ref.' → '.count($done).' dosya');
   res($id,text(['ok'=>true,'ref'=>$ref,'files'=>$done,'not_in_repo'=>array_values(array_diff($files,$done))]));}
  case 'set_secret':{$sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];$sec[$a['name']]=trim($a['value']);file_put_contents(__DIR__.'/secrets.php',"<?php return ".var_export($sec,true).";\n",LOCK_EX);logm('MCP set_secret '.$a['name']);res($id,text(['ok'=>true,'has_key'=>!empty($sec['ANTHROPIC_KEY']),'model'=>$sec['REWRITE_MODEL']??'claude-haiku-4-5-20251001']));}
  case 'rewrite_now':{require_once __DIR__.'/rewrite.php';$d=load();$r=skyturk_rewrite($d['news'],max(1,min(20,(int)($a['max']??20))),40);save($d);logm('MCP rewrite '.json_encode($r));res($id,text($r));}
  case 'images_now':{require_once __DIR__.'/images.php';$d=load();$r=skyturk_images($d['news'],max(1,min(30,(int)($a['max']??30))),40);save($d);logm('MCP images '.json_encode($r));res($id,text($r));}
+ case 'gazete_now':{require_once __DIR__.'/gazete.php';$r=skyturk_gazete_build(!empty($a['force']));logm('MCP gazete '.json_encode($r,JSON_UNESCAPED_UNICODE));res($id,text($r));}
  case 'get_log':{res($id,text(['rss'=>explode("\n",substr((string)@file_get_contents(__DIR__.'/fetch.log'),0,2000)),'mcp'=>explode("\n",substr((string)@file_get_contents($LOG),0,2000))]));}
  default: err($id,-32602,'Unknown tool: '.$name);
 }}catch(Throwable $e){res($id,text('Hata: '.$e->getMessage(),true));}

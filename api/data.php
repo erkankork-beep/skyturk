@@ -12,8 +12,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   $raw=file_get_contents('php://input'); $jin=json_decode($raw,true);
   if(isset($jin['_token'])&&!isset($_SERVER['HTTP_X_TOKEN'])) $_SERVER['HTTP_X_TOKEN']=$jin['_token'];
   if(isset($jin['_session'])&&!isset($_SERVER['HTTP_X_SESSION'])) $_SERVER['HTTP_X_SESSION']=$jin['_session'];
-  $need=in_array($_GET['action']??'',['secret','credit'])?'settings':'news.edit';
+  $need=in_array($_GET['action']??'',['secret','credit'])?'settings':((($_GET['action']??'')==='gazete')?'rss':'news.edit');
   sky_require($need);
+  if(($_GET['action']??'')==='gazete'){ require_once __DIR__.'/gazete.php'; $r=skyturk_gazete_build(!empty($jin['force'])); sky_audit('gazete üretimi',json_encode($r['issue']['no']??$r)); echo json_encode($r,JSON_UNESCAPED_UNICODE); exit; }
   if(($_GET['action']??'')==='credit'){ require_once __DIR__.'/credit.php'; $c=sky_credit_set((float)($jin['balance']??0),$jin['email']??null); sky_audit('kredi güncellendi','$'.$c['balance'].' · '.$c['email']); echo json_encode(sky_credit_status()); exit; }
   if(($_GET['action']??'')==='secret'){
     $j=$jin; $allowed=['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY'];

@@ -86,6 +86,8 @@ require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(20,min(40,$ad
 $budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
 require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(40,$added)),40); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
+if((int)date('G')>=9){ $iss=__DIR__.'/../gazete/issues.json'; $have=false; if(file_exists($iss)) foreach(json_decode(file_get_contents($iss),true)?:[] as $is) if(($is['date']??'')===date('Y-m-d')) $have=true;
+  if(!$have){ file_put_contents($file,json_encode($data,JSON_UNESCAPED_UNICODE),LOCK_EX); require_once __DIR__.'/gazete.php'; $rw['gazete']=skyturk_gazete_build(); } }
 require_once __DIR__.'/credit.php'; $rw['kredi']=sky_credit_spend((float)($rw['est_cost_usd']??0)+(!empty($rw['astro']['ok'])?0.01:0),$rw['api_error']??null);
 $data['news']=$news; $data['updated']=date('c');
 if(file_exists($file)) @copy($file,__DIR__.'/data.bak.json');

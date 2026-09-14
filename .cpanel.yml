@@ -5,4 +5,5 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH/cms $DEPLOYPATH/api
     - /bin/cp index.html 404.html .htaccess $DEPLOYPATH/
     - /bin/cp cms/index.html $DEPLOYPATH/cms/
-    - /bin/cp api/fetch.php api/feeds.php api/data.php api/.htaccess api/mcp-*.php api/rewrite.php api/images.php api/videos.php api/hit.php api/status.php api/auth.php api/session.php api/credit.php $DEPLOYPATH/api/
+    - /bin/cp api/fetch.php api/feeds.php api/data.php api/.htaccess api/mcp-*.php api/rewrite.php api/images.php api/videos.php api/hit.php api/status.php api/auth.php api/session.php api/credit.php api/gazete.php $DEPLOYPATH/api/
+    - /bin/mkdir -p $DEPLOYPATH/api/lib/font/unifont && /bin/cp -r api/lib/. $DEPLOYPATH/api/lib/
