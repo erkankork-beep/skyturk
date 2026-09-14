@@ -857,7 +857,7 @@ function editor(id){const nn=id==='yeni'?null:STATE.news.find(x=>x.id==id);if(nn
 function save(id,st){const img=$('#fImg')?$('#fImg').value.trim():'';if(id!=='yeni'){const n=STATE.news.find(x=>x.id==id);if(n){n.imgUrl=img||n.imgUrl;if(img){n.imgCredit=n.imgCredit||'Fotoğraf: SKYTÜRK';n.img=(w,h)=>n.imgUrl}}}else if(img){setTimeout(()=>{const n=STATE.news[0];if(n){n.imgUrl=img;n.imgCredit='Fotoğraf: SKYTÜRK';n.img=(w,h)=>n.imgUrl;publish()}},50)}return _save(id,st)}
 /* ---------- rotalar ---------- */
 function route(){const raw=location.hash.replace(/^#/,'')||'/';const [path,q]=raw.split('?');const p=path.split('/').filter(Boolean);const map={yazarlar:authorsAdmin,reklamlar:adsAdmin,sayfalar:pagesAdmin,gorunum:gorunum,sistem:sistem};if(map[p[0]]){if(!can(p[0]==='yazarlar'?'news.edit':'settings')){$('#app').innerHTML='<div class="panel" style="padding:40px;text-align:center;color:var(--ink2)">Bu sayfa için yönetici yetkisi gerekir.</div>';renderNav('/'+p[0]);return}$('#app').innerHTML=map[p[0]]();renderNav('/'+p[0]);scrollTo(0,0);return}return _route()}
-NAVI.splice(NAVI.findIndex(n=>n.h==='/sayfalar')+1,0,{h:'/reklamlar',t:'Reklamlar',ic:'▭'});NAVI.splice(NAVI.findIndex(n=>n.h==='/etiketler')+1,0,{h:'/yazarlar',t:'Yazarlar',ic:'✍'});
+NAVI.splice(NAVI.findIndex(n=>n.h==='/sayfalar')+1,0,{h:'/reklamlar',t:'Reklamlar',ic:'▭'});(function(){const hb=NAVI.find(n=>n.h==='/haberler');if(hb&&!hb.sub.some(s=>s[0]==='/yazarlar'))hb.sub.splice(2,0,['/yazarlar','Yazarlar','#3F51B5']);})();
 function showApp(){_showApp();}
 
 /* dışa aktar düğmesi */
