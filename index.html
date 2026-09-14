@@ -680,7 +680,7 @@ function sideWidgets(){
   <div class="box" style="--cc:var(--red)"><div class="box-h"><h3><i></i>İstanbul Trafik</h3><a href="#/trafik">Canlı harita</a></div>
     <ul class="traffic">${TRAFFIC.map(t=>`<li style="--c:${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></li>`).join('')}</ul></div>
   <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Günün Anketi</h3><a href="#/anketler">Tüm anketler</a></div>${pollBox(POLLS[0])}</div>
-  <div class="box" style="--cc:#37474F"><div class="box-h"><h3><i></i>Resmi İlanlar</h3><a href="#/kategori/resmi-ilan">Tümü</a></div><div class="ilan-widget">${NEWS.filter(n=>n.cat==='resmi-ilan').map(n=>`<a href="#/haber/${n.id}">${esc(n.t)}</a>`).join('')}<small style="color:var(--ink2);display:block;margin-top:8px">Basın İlan Kurumu — ilan.gov.tr</small></div></div>
+  ${NEWS.some(n=>n.cat==='resmi-ilan')?`<div class="box" style="--cc:#37474F"><div class="box-h"><h3><i></i>Resmi İlanlar</h3><a href="#/kategori/resmi-ilan">Tümü</a></div><div class="ilan-widget">${NEWS.filter(n=>n.cat==='resmi-ilan').map(n=>`<a href="#/haber/${n.id}">${esc(n.t)}</a>`).join('')}<small style="color:var(--ink2);display:block;margin-top:8px">Basın İlan Kurumu — ilan.gov.tr</small></div></div>`:''}
   <div class="ad h-250"><div style="text-align:center"><span>Reklam</span>300×250</div></div>
   <div class="box" style="--cc:var(--gold)"><div class="box-h"><h3><i></i>Etiketler</h3></div><div class="tags">${[...new Set(NEWS.flatMap(n=>n.tags))].slice(0,14).map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div></div>`;
 }
@@ -711,10 +711,10 @@ function home(){
   return `
   <div class="grid-hero"><div>${hero}<div class="cards three" style="margin-top:22px">${sorted.slice(6,9).map(n=>card(n,{noP:true})).join('')}</div>
   <section class="sec" style="margin-top:30px">${secH('Gündem','#0B4F9E','#/kategori/gundem')}<div class="cards two">${inCat('gundem').slice(0,4).map(n=>card(n)).join('')}</div></section>
+  <section class="sec" style="margin-top:30px">${secH('Politika','#3F51B5','#/kategori/politika')}<div class="cards two">${inCat('politika').slice(0,4).map(n=>card(n)).join('')}</div></section>
   ${ozelN.length?`<section class="sec" style="margin-top:30px">${secH('Özel Haber','#F9A825','#/ozel-haber')}<div class="ozel"><a class="big" href="#/haber/${ozelN[0].id}"><img src="${ozelN[0].img(900,520)}" alt=""><div class="cap"><span>ÖZEL HABER</span><h3>${esc(ozelN[0].t)}</h3></div></a><ul>${ozelN.slice(1,5).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(240,156)}" alt=""><div><b>${esc(n.t)}</b><small>${CAT[n.cat].n} · ${n.d.slice(0,10)}</small></div></a></li>`).join('')}</ul></div></section>`:''}
   </div><aside class="side">${sideWidgets()}</aside></div>
   <div class="ad h-100" style="margin-top:26px"><div style="text-align:center"><span>Reklam</span>970×90</div></div>
-  <section class="sec">${secH('Politika','#3F51B5','#/kategori/politika')}<div class="cards">${inCat('politika').slice(0,4).map(n=>card(n)).join('')}</div></section>
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
   <section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span></div></a>`).join('')}</div></section>
   ${tabbed()}
