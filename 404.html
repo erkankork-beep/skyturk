@@ -216,6 +216,7 @@ main{padding:26px 0 40px}
 .article .body p{margin-bottom:18px}
 .article .body p:first-child::first-letter{font-family:var(--fh);font-size:64px;float:left;line-height:.85;margin:6px 10px 0 0;color:var(--navy)}
 .article .body h2{font-size:26px;margin:28px 0 12px}
+.srcline{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
 .srcbox{background:var(--soft);border-left:4px solid var(--sky);padding:14px 18px;border-radius:0 8px 8px 0;font-size:15px;margin-top:8px}.srcbox a{color:var(--navy);font-weight:700}
 .article .body blockquote{border-left:4px solid var(--sky);padding:6px 20px;margin:24px 0;font-size:21px;font-family:var(--fh);font-weight:400;color:var(--navy)}
 .related h3{font-size:22px;margin:36px 0 16px;padding-top:24px;border-top:2px solid var(--ink)}
@@ -853,7 +854,7 @@ function article(id){
     <div class="abar"><div><b>SKYTÜRK</b> · ${n.d} · ${fmt(n.v)} okunma</div>
       <div class="share"><button title="X">X</button><button title="Facebook">f</button><button title="WhatsApp">W</button><button title="Bağlantıyı kopyala" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);this.textContent='✓'">⧉</button><button title="Yazdır" onclick="print()">⎙</button></div></div>
     <figure>${n.video&&n.ytId?`<div style="position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/${esc(n.ytId)}" title="${esc(n.t)}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`:`<img src="${n.img(1200,675)}" alt="">`}<figcaption>${esc(n.t)}${n.imgCredit?` — ${n.imgLink?`<a href="${esc(n.imgLink)}" target="_blank" rel="noopener nofollow">${esc(n.imgCredit)}</a>`:esc(n.imgCredit)} (temsili)`:(n.auto?'':' — Fotoğraf: SKYTÜRK Arşiv')}</figcaption></figure>
-    <div class="body">${n.auto?`<p>${esc(n.s)}</p><div class="srcbox"><b>Kaynak: ${esc(n.srcName||n.by)}</b> — ${n.rw?'SKYTÜRK editörlüğüyle özetlenmiştir':'Kaynağın açık RSS akışından özet olarak alınmıştır'}.${n.srcTitle?`<br><small style="color:var(--ink2)">Kaynak başlığı: ${esc(n.srcTitle)}</small>`:''}<br><a href="${esc(n.src)}" target="_blank" rel="noopener nofollow">Haberin tamamını kaynağında okuyun ↗</a></div>`:renderBody(n.p)}</div>
+    <div class="body">${n.auto?`${(n.long&&n.p&&n.p.length>1)?renderBody(n.p):`<p>${esc(n.s)}</p>`}<p class="srcline">Kaynak: ${esc(n.srcName||n.by)}</p>`:renderBody(n.p)}</div>
     <div class="tags" style="padding:16px 0 0">${n.tags.map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div>
     <div class="related"><h3>İlgili Haberler</h3><div class="cards three">${rel.map(x=>card(x,{noP:true})).join('')}</div></div>
     <div class="comments"><h3>Yorumlar (0)</h3>

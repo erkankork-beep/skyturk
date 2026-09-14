@@ -1,18 +1,31 @@
 <?php
 /* SKYTÜRK — Haiku ile özgünleştirme. fetch.php sonunda çağrılır; tek başına da çalışır. */
+
+/* Kaynak sayfadan haber gövdesini çıkar (yalnızca olguları almak için; metin kopyalanmaz) */
+function sky_article_text(string $url, int $maxChars=5500): string {
+  if(!$url) return ''; $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_TIMEOUT=>8,CURLOPT_CONNECTTIMEOUT=>4,CURLOPT_ENCODING=>'',CURLOPT_USERAGENT=>'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 SKYTURK-RSS/1.0']);
+  $html=curl_exec($ch); $code=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch); if($code!==200||!$html) return '';
+  $html=preg_replace('#<(script|style|noscript|header|footer|nav|aside|form|iframe)\b[^>]*>.*?</\1>#is',' ',$html);
+  if(preg_match('#<article\b[^>]*>(.*?)</article>#is',$html,$m)) $html=$m[1];
+  preg_match_all('#<p\b[^>]*>(.*?)</p>#is',$html,$ps); $out=[];
+  foreach($ps[1] as $p){ $t=trim(preg_replace('/\s+/u',' ',html_entity_decode(strip_tags($p),ENT_QUOTES|ENT_HTML5,'UTF-8'))); if(mb_strlen($t)<50) continue; if(preg_match('/abone ol|tıklayın|reklam|çerez|tüm hakları|copyright|instagram|takip et|haberin devamı|kaynak:|editör:/iu',$t)) continue; $out[]=$t; }
+  $txt=implode("\n",$out); return mb_substr($txt,0,$maxChars);
+}
+
 function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): array {
   $secrets=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];
   $key=$secrets['ANTHROPIC_KEY']??''; if(!$key) return ['skipped'=>'anahtar yok'];
   $model=$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001';
   $cats=['son-dakika','gundem','politika','dunya','ekonomi','spor','kultur-sanat','saglik','yasam','teknoloji','magazin','egitim','genel','ankara','istanbul'];
-  $system="Sen SKYTÜRK haber sitesinin dijital editörüsün. Sana bir kaynaktan gelen haber başlığı ve özeti verilecek. Görevin:\n1) Gerçekleri, isimleri, sayıları ve tarihleri asla değiştirmeden, kaynağın cümlelerini tekrar etmeden, SKYTÜRK üslubuyla ÖZGÜN bir Türkçe başlık yaz (en fazla 90 karakter, tırnak ve ünlem abartısı yok, tıklama tuzağı yok).\n2) İki cümlelik özgün bir spot yaz (en fazla 240 karakter). Özette olmayan bilgi ekleme; bilgi yetersizse genel ama doğru kal.\n3) Şu listeden en uygun kategori id'sini seç: ".implode(', ',$cats).". Son dakika yalnızca acil/gelişen olaylar için.\n4) 2-4 kısa Türkçe etiket ver (küçük harf).\n5) Haber için İngilizce, kısa, kişi adı içermeyen bir stok/illüstrasyon görsel istemi yaz (imgPrompt) ve stok fotoğraf sitesinde arama için 2-3 kelimelik somut İngilizce arama terimi ver (imgQuery; ör. 'earthquake rescue', 'stock market screen', 'football stadium'). Kişi, marka, logo isteme.\n6) Haber tanınmış bir kişi (ünlü, sporcu, siyasetçi, sanatçı) hakkındaysa o kişinin tam adını 'person' alanına yaz (ör. 'Tarkan', 'Arda Güler', 'Hande Erçel'); haber kurum/olay hakkındaysa boş bırak. Birden fazla kişi varsa haberin ana öznesini yaz.\nYalnızca şu JSON'u döndür, başka hiçbir şey yazma: {\"title\":\"\",\"spot\":\"\",\"cat\":\"\",\"tags\":[],\"imgPrompt\":\"\",\"imgQuery\":\"\",\"person\":\"\"}";
+  $system="Sen SKYTÜRK haber sitesinin dijital editörüsün. Sana bir kaynaktan gelen haber başlığı ve özeti verilecek. Görevin:\n1) Gerçekleri, isimleri, sayıları ve tarihleri asla değiştirmeden, kaynağın cümlelerini tekrar etmeden, SKYTÜRK üslubuyla ÖZGÜN bir Türkçe başlık yaz (en fazla 90 karakter, tırnak ve ünlem abartısı yok, tıklama tuzağı yok).\n2) İki cümlelik özgün bir spot yaz (en fazla 240 karakter). Kaynakta olmayan bilgi ekleme; bilgi yetersizse genel ama doğru kal.\n2b) 'body' alanında, KAYNAK METİN verilmişse yalnızca oradaki olguları kullanarak 4-6 paragraflık ÖZGÜN bir haber metni yaz (her paragraf 2-4 cümle; kaynağın cümle yapısını, sıralamasını ve kalıplarını kopyalama; kendi kurgunla anlat; yorum ve tahmin ekleme; kişi adları, sayılar, tarihler aynen korunmalı). KAYNAK METİN yoksa body 2 paragraf olsun ve yalnızca özetteki bilgiye dayansın. Paragrafları JSON dizisi olarak ver.\n3) Şu listeden en uygun kategori id'sini seç: ".implode(', ',$cats).". Son dakika yalnızca acil/gelişen olaylar için.\n4) 2-4 kısa Türkçe etiket ver (küçük harf).\n5) Haber için İngilizce, kısa, kişi adı içermeyen bir stok/illüstrasyon görsel istemi yaz (imgPrompt) ve stok fotoğraf sitesinde arama için 2-3 kelimelik somut İngilizce arama terimi ver (imgQuery; ör. 'earthquake rescue', 'stock market screen', 'football stadium'). Kişi, marka, logo isteme.\n6) Haber tanınmış bir kişi (ünlü, sporcu, siyasetçi, sanatçı) hakkındaysa o kişinin tam adını 'person' alanına yaz (ör. 'Tarkan', 'Arda Güler', 'Hande Erçel'); haber kurum/olay hakkındaysa boş bırak. Birden fazla kişi varsa haberin ana öznesini yaz.\nYalnızca şu JSON'u döndür, başka hiçbir şey yazma: {\"title\":\"\",\"spot\":\"\",\"body\":[],\"cat\":\"\",\"tags\":[],\"imgPrompt\":\"\",\"imgQuery\":\"\",\"person\":\"\"}";
   $start=time(); $done=0; $fail=0; $cost=0; $lastErr=null;
   foreach($news as &$n){
     if(empty($n['auto'])||!empty($n['rw'])) continue;
     if(($n['rwTries']??0)>=2) continue;
     if($done>=$maxItems||time()-$start>$budgetSec) break;
-    $user="KAYNAK: ".($n['srcName']??$n['by'])."\nBAŞLIK: ".$n['t']."\nÖZET: ".($n['s']??'')."\nMEVCUT KATEGORİ: ".$n['cat'];
-    $body=['model'=>$model,'max_tokens'=>400,
+    $full=empty($n['video'])?sky_article_text($n['src']??''):''; $n['srcHasFull']=$full!=='';
+    $user="KAYNAK: ".($n['srcName']??$n['by'])."\nBAŞLIK: ".$n['t']."\nÖZET: ".($n['s']??'')."\nMEVCUT KATEGORİ: ".$n['cat'].($full?"\nKAYNAK METİN:\n".$full:'');
+    $body=['model'=>$model,'max_tokens'=>1400,
       'system'=>[['type'=>'text','text'=>$system,'cache_control'=>['type'=>'ephemeral']]],
       'messages'=>[['role'=>'user','content'=>$user]]];
     $ch=curl_init('https://api.anthropic.com/v1/messages');
@@ -26,6 +39,7 @@ function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): arr
     $o=json_decode(trim($txt),true);
     if(!is_array($o)||empty($o['title'])){ $fail++; $n['rwErr']='json'; continue; }
     $n['srcTitle']=$n['t']; $n['srcSpot']=$n['s']??'';
+    if(!empty($o['body'])&&is_array($o['body'])){ $ps=array_values(array_filter(array_map(fn($x)=>trim((string)$x),$o['body']),fn($x)=>mb_strlen($x)>30)); if($ps){ $n['p']=array_slice($ps,0,8); $n['long']=true; } }
     $n['t']=mb_substr(trim($o['title']),0,140); $n['s']=mb_substr(trim($o['spot']??''),0,300);
     if(!empty($o['cat'])&&in_array($o['cat'],$cats)&&$n['cat']!=='magazin'&&($n['cat']!=='son-dakika'||(time()-($n['ts']??time()))>6*3600)) $n['cat']=$o['cat'];
     if(!empty($o['tags'])&&is_array($o['tags'])) $n['tags']=array_slice(array_map(fn($t)=>mb_strtolower(trim((string)$t)),$o['tags']),0,4);
