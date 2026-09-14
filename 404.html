@@ -466,7 +466,7 @@ footer{background:var(--ink);color:#B7C2D4;margin-top:50px}
   <div class="wrap">
     <div class="hdr-left">
       <div class="w"><span id="hdrWx">☁</span><b id="hdrTemp">24°</b><span>İstanbul</span></div>
-      <a href="#/puan-durumu" id="hdrFix">Derbi · Paz 19:00</a>
+      <a href="#/puan-durumu" id="hdrFix">Unutma Derbi · Paz 19:00</a>
     </div>
     <a class="logo" href="#/" aria-label="Skytürk ana sayfa">SKY<span class="sky">TÜRK</span><i class="dot"></i><small>HABER</small></a>
     <div class="hdr-right">
@@ -783,7 +783,7 @@ function astroPage(id){const s=SIGNS.find(x=>x[0]===id);if(!s)return `<div class
 let FX=null;
 function fxLoad(){if(FX!==null)return;FX=false;fetch('api/fixtures.json?t='+Math.floor(Date.now()/600000)).then(r=>r.ok?r.json():null).then(j=>{FX=j||{matches:[],leagues:[]};fxRender()}).catch(()=>{FX={matches:[],leagues:[]}})}
 function fxBadgeColor(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return `hsl(${h} 55% 38%)`}
-function hdrFixUpdate(){const el=$('#hdrFix');if(!el||!FX||!FX.matches)return;const now=Date.now()/1000;const m=FX.matches.filter(x=>x.league==='TSL'&&x.ts>now-2*3600).sort((a,b)=>a.ts-b.ts)[0];if(!m)return;const d=new Date(m.ts*1000),t=new Date();const dd=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(t.getFullYear(),t.getMonth(),t.getDate()))/86400000);const day=dd===0?'Bugün':dd===1?'Yarın':['Paz','Pzt','Sal','Çrş','Prş','Cum','Cmt'][d.getDay()];el.textContent=`${m.h} – ${m.a} · ${day} ${m.time}`;el.title=m.home+' – '+m.away}
+function hdrFixUpdate(){const el=$('#hdrFix');if(!el||!FX||!FX.matches)return;const now=Date.now()/1000;const m=FX.matches.filter(x=>x.league==='TSL'&&x.ts>now-2*3600).sort((a,b)=>a.ts-b.ts)[0];if(!m)return;const d=new Date(m.ts*1000),t=new Date();const dd=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(t.getFullYear(),t.getMonth(),t.getDate()))/86400000);const day=dd===0?'Bugün':dd===1?'Yarın':['Paz','Pzt','Sal','Çrş','Prş','Cum','Cmt'][d.getDay()];el.textContent=`Unutma ${m.h} – ${m.a} · ${day} ${m.time}`;el.title=m.home+' – '+m.away}
 function fxRender(){hdrFixUpdate();const el=$('#fxStrip');if(!el||!FX)return;const sel=el.querySelector('select');const lg=sel?sel.value:'';const now=Date.now()/1000;
   let ms=(FX.matches||[]).filter(m=>!lg||m.league===lg);const up=ms.filter(m=>m.ts>=now-2*3600);const past=ms.filter(m=>m.ts<now-2*3600).slice(-6);ms=[...past,...up].slice(0,60);
   const dayLbl=ts=>{const d=new Date(ts*1000),t=new Date();const dd=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(t.getFullYear(),t.getMonth(),t.getDate()))/86400000);return dd===0?'Bugün':dd===1?'Yarın':dd===-1?'Dün':['Paz','Pzt','Sal','Çrş','Prş','Cum','Cmt'][d.getDay()]};
