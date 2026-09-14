@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — açık lisanslı görsel eşleme (Pexels → Openverse yedek). Haberlere imgUrl/imgCredit ekler. */
 function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): array {
   $secrets=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];

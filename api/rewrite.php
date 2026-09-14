@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — Haiku ile özgünleştirme. fetch.php sonunda çağrılır; tek başına da çalışır. */
 
 /* Kaynak sayfadan haber gövdesini çıkar (yalnızca olguları almak için; metin kopyalanmaz) */

@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — giriş, oturum, kullanıcı yönetimi */
 require_once __DIR__.'/config.php'; require_once __DIR__.'/session.php';
 header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store');

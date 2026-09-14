@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 // SKYTÜRK — RSS kaynakları. Biçim: [ 'RSS adresi', 'kategori-id', 'Kaynak adı' ]
 // Kategoriler: son-dakika, gundem, politika, dunya, ekonomi, spor, kultur-sanat, saglik, yasam, teknoloji, egitim, genel, ankara, istanbul
 return [

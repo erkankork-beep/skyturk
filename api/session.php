@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — oturum ve yetki yardımcıları */
 const SKY_ROLES=[
   'yonetici'=>['*'],

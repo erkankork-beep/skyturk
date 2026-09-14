@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 // SKYTÜRK — YouTube kanal akışları. Biçim: [ 'akış adresi', 'kategori', 'Kaynak adı' ]
 // Kanal kimliği: https://www.youtube.com/feeds/videos.xml?channel_id=UC...   Eski kullanıcı adı: ...?user=ad
 return [

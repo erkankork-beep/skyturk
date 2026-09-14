@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — ziyaret sayacı + anomali dedektörü + bal küpü (çerezsiz; IP+UA günlük özet) */
 header('Content-Type: application/json'); header('Cache-Control: no-store');
 $ip=$_SERVER['REMOTE_ADDR']??''; $ua=$_SERVER['HTTP_USER_AGENT']??''; $d=date('Y-m-d'); $h=substr(hash('sha256',$ip.'|'.$ua.'|'.$d),0,16); $iph=substr(hash('sha256',$ip.'|'.$d),0,10);

@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — API kredi takibi ve uyarılar */
 function sky_credit_file(){return __DIR__.'/credit.json';}
 function sky_credit_load(){$f=sky_credit_file();$c=file_exists($f)?(json_decode(file_get_contents($f),true)?:[]):[];return array_merge(['balance'=>0,'spent'=>0,'set_at'=>null,'alerts'=>[],'hourly'=>[],'email'=>'','exhausted'=>false],$c);}

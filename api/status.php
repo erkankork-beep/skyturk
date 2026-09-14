@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — panel sayaçları: kuyruk, disk, sunucu, trafik */
 header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store');
 $data=file_exists(__DIR__.'/data.json')?json_decode(file_get_contents(__DIR__.'/data.json'),true):['news'=>[]];

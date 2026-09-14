@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — sistem araçları (yetki: settings): önbellek temizle, yedek indir, günlükler */
 require_once __DIR__.'/config.php'; require_once __DIR__.'/session.php'; sky_require('settings');
 $act=$_GET['action']??'info'; $root=dirname(__DIR__);

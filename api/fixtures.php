@@ -1,4 +1,4 @@
-<?php
+<?php date_default_timezone_set("Europe/Istanbul");
 /* SKYTÜRK — fikstür/skor (TheSportsDB açık API) → fixtures.json */
 function skyturk_fixtures(){
   $leagues=[['4339','TSL','Türkiye Süper Ligi'],['4480','UCL','UEFA Şampiyonlar Ligi'],['4481','UEL','UEFA Avrupa Ligi'],['4328','EPL','İngiltere Premier Ligi'],['4335','LAL','La Liga'],['4332','SEA','Serie A'],['4331','BUN','Bundesliga'],['4334','LI1','Fransa Ligue 1']];
