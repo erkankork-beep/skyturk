@@ -28,15 +28,38 @@ function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): arra
     if(!$ok&&$pexels){
       [$c,$r]=$get('https://api.pexels.com/v1/search?per_page=6&orientation=landscape&locale=en-US&query='.rawurlencode($q),['Authorization: '.$pexels]);
       $j=$c===200?json_decode($r,true):null;
-      if($j&&!empty($j['photos'])){ $qw=array_filter(preg_split('/\W+/',strtolower($q)),fn($w)=>strlen($w)>2); $foreign=($n['cat']??'')!=='dunya'; $best=null; foreach($j['photos'] as $ph){ $alt=strtolower($ph['alt']??''); if($foreign&&preg_match('/american|usa|u\.s\.|united states|us flag|capitol|white house|washington|new york|dollar|statue of liberty|congress|nyc|london|big ben|eiffel|paris/i',$alt)) continue; $sc=0; foreach($qw as $w) if(strpos($alt,$w)!==false) $sc++; if($best===null||$sc>$best[0]) $best=[$sc,$ph]; } if($best){ $j['photos']=[$best[1]]; } else { $j['photos']=[]; } }
+      if($j&&!empty($j['photos'])){ $foreign=($n['cat']??'')!=='dunya'; $cands=[]; foreach($j['photos'] as $ph){ $alt=strtolower($ph['alt']??''); if($foreign&&preg_match('/american|usa|u\.s\.|united states|us flag|capitol|white house|washington|new york|dollar|statue of liberty|congress|nyc|london|big ben|eiffel|paris/i',$alt)) continue; $cands[]=$ph; }
+        $pick=null; if($cands){ $pick=sky_pick_photo($n,$cands,$secrets); } $j['photos']=$pick?[$pick]:[]; if(!$pick) $n['imgNoMatch']=true; }
       if(!empty($j['photos'][0])){ $p=$j['photos'][0]; $n['imgUrl']=$p['src']['large']??$p['src']['landscape']; $n['imgCredit']='Fotoğraf: '.($p['photographer']??'Pexels').' / Pexels'; $n['imgLink']=$p['url']??''; $n['imgLicense']='Pexels License'; $ok=true; $src['pexels']++; }
     }
-    if(!$ok){
+    if(!$ok&&empty($n['imgNoMatch'])){
       [$c,$r]=$get('https://api.openverse.org/v1/images/?page_size=3&license_type=commercial&mature=false&q='.rawurlencode($q));
       $j=$c===200?json_decode($r,true):null;
       if(!empty($j['results'][0]['url'])){ $p=$j['results'][0]; $n['imgUrl']=$p['url']; $n['imgCredit']='Fotoğraf: '.($p['creator']??'Bilinmiyor').' · '.strtoupper($p['license']??'CC').' '.($p['license_version']??''); $n['imgLink']=$p['foreign_landing_url']??''; $n['imgLicense']=$p['license']??'cc'; $ok=true; $src['openverse']++; }
     }
+    /* 3) Kategori havuzu: Türkiye bağlamlı nötr fotoğraf (Commons) */
+    if(!$ok){ $pool=sky_cat_pool($n['cat']??'gundem',$get); if($pool){ $p=$pool[array_rand($pool)]; $n['imgUrl']=$p['url']; $n['imgCredit']='Fotoğraf: '.$p['author'].' / Wikimedia Commons ('.$p['lic'].')'; $n['imgLink']=$p['page']; $n['imgSource']='pool'; $ok=true; $src['pool']=($src['pool']??0)+1; } }
+    unset($n['imgNoMatch']);
     $ok?$done++:$fail++;
   } unset($n);
   return ['images'=>$done,'failed'=>$fail,'sources'=>$src,'pexels_key'=>$pexels?'var':'yok'];
+}
+
+/* Haiku ile aday fotoğraf seçimi: açıklamalar habere uyuyorsa indeksi, uymuyorsa -1 döner */
+function sky_pick_photo(array $n, array $cands, array $secrets){
+  $key=$secrets['ANTHROPIC_KEY']??''; if(!$key||count($cands)===1) return $cands[0]??null;
+  $list=[]; foreach($cands as $k=>$ph) $list[]=$k.': '.mb_substr($ph['alt']??'(açıklama yok)',0,140);
+  $prompt="Haber başlığı: ".$n['t']."\nÖzet: ".mb_substr($n['s']??'',0,200)."\n\nAşağıdaki stok fotoğraf açıklamalarından bu habere TEMSİLİ görsel olarak en uygun olanın numarasını ver. Hiçbiri uygun değilse ya da yanıltıcıysa (başka ülke simgesi, alakasız nesne, yanlış bağlam) -1 yaz. Sadece sayı yaz.\n\n".implode("\n",$list);
+  $ch=curl_init('https://api.anthropic.com/v1/messages'); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>15,CURLOPT_POST=>1,CURLOPT_POSTFIELDS=>json_encode(['model'=>$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001','max_tokens'=>5,'messages'=>[['role'=>'user','content'=>$prompt]]],JSON_UNESCAPED_UNICODE),CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$key,'anthropic-version: 2023-06-01']]);
+  $resp=curl_exec($ch); curl_close($ch); $j=json_decode((string)$resp,true); $t=trim($j['content'][0]['text']??'');
+  if(!preg_match('/-?\d+/',$t,$m)) return $cands[0]; $idx=(int)$m[0]; if($idx<0) return null; return $cands[$idx]??$cands[0];
+}
+/* Kategori başına Commons havuzu (24 saat önbellek) */
+function sky_cat_pool(string $cat, callable $get): array {
+  $terms=['politika'=>['Grand National Assembly of Turkey building','Ankara Turkey government building'],'gundem'=>['Istanbul cityscape Turkey','Ankara city Turkey'],'son-dakika'=>['Istanbul street Turkey','Turkish police car'],'ekonomi'=>['Borsa Istanbul','Turkish lira banknotes'],'spor'=>['Turkish football stadium','Süper Lig match'],'saglik'=>['Turkey hospital building','hospital corridor'],'egitim'=>['Turkish school classroom','Istanbul University building'],'teknoloji'=>['data center servers','technology circuit board'],'kultur-sanat'=>['Istanbul museum interior','Turkish theatre stage'],'yasam'=>['Istanbul Bosphorus daily life','Turkish tea bazaar'],'magazin'=>['red carpet event','Istanbul concert stage'],'dunya'=>['United Nations headquarters','world map globe'],'genel'=>['Turkey landscape','Istanbul skyline']];
+  $q=$terms[$cat]??$terms['genel']; $cf=__DIR__.'/pool-'.$cat.'.json'; if(file_exists($cf)&&time()-filemtime($cf)<86400){ $p=json_decode(file_get_contents($cf),true); if($p) return $p; }
+  $pool=[]; foreach($q as $term){ [$c,$r]=$get('https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=10&gsrsearch='.rawurlencode($term.' filetype:bitmap').'&prop=imageinfo&iiprop=url|extmetadata|mime|size&iiurlwidth=1200'); $j=$c===200?json_decode($r,true):null;
+    foreach(($j['query']['pages']??[]) as $pg){ $ii=$pg['imageinfo'][0]??null; if(!$ii) continue; $m=$ii['extmetadata']??[]; $lic=$m['LicenseShortName']['value']??''; if(!preg_match('/cc0|cc by|public domain/i',$lic)) continue; if(!in_array($ii['mime']??'',['image/jpeg']) || ($ii['width']??0)<900 || ($ii['width']??0)<($ii['height']??1)) continue; if(preg_match('/logo|map|flag|diagram|svg|chart|coat|arma/i',$pg['title']??'')) continue;
+      $pool[]=['url'=>$ii['thumburl']??$ii['url'],'author'=>mb_substr(trim(preg_replace('/\s+/',' ',strip_tags($m['Artist']['value']??'Wikimedia Commons'))),0,60),'lic'=>$lic,'page'=>$ii['descriptionurl']??'']; } }
+  $pool=array_slice($pool,0,16); if($pool) file_put_contents($cf,json_encode($pool,JSON_UNESCAPED_UNICODE)); return $pool;
 }
