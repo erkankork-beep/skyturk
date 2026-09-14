@@ -22,6 +22,7 @@ function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): arra
         if(preg_match('/logo|map|flag|signature|imza|poster|cover|album|screenshot|coat|arma|book|diagram|chart|svg|icon/i',$title)) $score-=3; if(preg_match('/bet|casino|gambl|poker|slot|jackpot|lottery|bahis|iddaa|kumar|alcohol|beer|wine|whisk|cigarette|tobacco/i',$title)) continue;
         if($best===null||$score>$best[0]) $best=[$score,$ii,$m,$pg['title']??''];
       }
+      if($best&&$best[0]>0){ $ii=$best[1]; $m=$best[2]; if(!sky_vision_ok($ii['thumburl']??$ii['url'],$secrets)){ $best=null; $n['visionRejected']=($n['visionRejected']??0)+1; } }
       if($best&&$best[0]>0){ $ii=$best[1]; $m=$best[2]; $author=trim(strip_tags($m['Artist']['value']??'Wikimedia Commons')); $author=mb_substr(preg_replace('/\s+/',' ',$author),0,60); $lic=$m['LicenseShortName']['value']??'CC';
         $n['imgUrl']=$ii['thumburl']??$ii['url']; $n['imgCredit']='Fotoğraf: '.$author.' / Wikimedia Commons ('.$lic.')'; $n['imgLink']=$ii['descriptionurl']??''; $n['imgSource']='commons'; $ok=true; $src['commons']=($src['commons']??0)+1; }
     }
@@ -29,7 +30,7 @@ function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): arra
       [$c,$r]=$get('https://api.pexels.com/v1/search?per_page=6&orientation=landscape&locale=en-US&query='.rawurlencode($q),['Authorization: '.$pexels]);
       $j=$c===200?json_decode($r,true):null;
       if($j&&!empty($j['photos'])){ $foreign=($n['cat']??'')!=='dunya'; $cands=[]; foreach($j['photos'] as $ph){ $alt=strtolower(($ph['alt']??'').' '.($ph['url']??'')); if(preg_match('/\bbet|betting|bookmaker|casino|gambl|poker|roulette|slot machine|jackpot|lottery|bahis|iddaa|kumar|blackjack|dice game|alcohol|whisk|vodka|beer|wine glass|cigarette|tobacco|vape|hookah|nargile/i',$alt)) continue; if($foreign&&preg_match('/american|usa|u\.s\.|united states|us flag|capitol|white house|washington|new york|dollar|statue of liberty|congress|nyc|london|big ben|eiffel|paris/i',$alt)) continue; $cands[]=$ph; }
-        $pick=null; if($cands){ $pick=sky_pick_photo($n,$cands,$secrets); } $j['photos']=$pick?[$pick]:[]; if(!$pick) $n['imgNoMatch']=true; }
+        $pick=null; if($cands){ $pick=sky_pick_photo($n,$cands,$secrets); if($pick&&in_array($n['cat']??'',['spor','magazin','yasam','gundem','son-dakika'])&&!sky_vision_ok($pick['src']['large']??$pick['src']['landscape']??'',$secrets)) $pick=null; } $j['photos']=$pick?[$pick]:[]; if(!$pick) $n['imgNoMatch']=true; }
       if(!empty($j['photos'][0])){ $p=$j['photos'][0]; $n['imgUrl']=$p['src']['large']??$p['src']['landscape']; $n['imgCredit']='Fotoğraf: '.($p['photographer']??'Pexels').' / Pexels'; $n['imgLink']=$p['url']??''; $n['imgLicense']='Pexels License'; $ok=true; $src['pexels']++; }
     }
     if(!$ok&&empty($n['imgNoMatch'])){
@@ -38,7 +39,7 @@ function skyturk_images(array &$news, int $maxItems=30, int $budgetSec=40): arra
       if(!empty($j['results'][0]['url'])){ $p=$j['results'][0]; $n['imgUrl']=$p['url']; $n['imgCredit']='Fotoğraf: '.($p['creator']??'Bilinmiyor').' · '.strtoupper($p['license']??'CC').' '.($p['license_version']??''); $n['imgLink']=$p['foreign_landing_url']??''; $n['imgLicense']=$p['license']??'cc'; $ok=true; $src['openverse']++; }
     }
     /* 3) Kategori havuzu: Türkiye bağlamlı nötr fotoğraf (Commons) */
-    if(!$ok){ $pool=sky_cat_pool($n['cat']??'gundem',$get); if($pool){ $p=$pool[array_rand($pool)]; $n['imgUrl']=$p['url']; $n['imgCredit']='Fotoğraf: '.$p['author'].' / Wikimedia Commons ('.$p['lic'].')'; $n['imgLink']=$p['page']; $n['imgSource']='pool'; $ok=true; $src['pool']=($src['pool']??0)+1; } }
+    if(!$ok){ $pool=sky_cat_pool($n['cat']??'gundem',$get); if($pool){ shuffle($pool); $p=null; foreach(array_slice($pool,0,3) as $cand){ if(sky_vision_ok($cand['url'],$secrets)){ $p=$cand; break; } } if(!$p) $p=$pool[0]; $n['imgUrl']=$p['url']; $n['imgCredit']='Fotoğraf: '.$p['author'].' / Wikimedia Commons ('.$p['lic'].')'; $n['imgLink']=$p['page']; $n['imgSource']='pool'; $ok=true; $src['pool']=($src['pool']??0)+1; } }
     unset($n['imgNoMatch']);
     $ok?$done++:$fail++;
   } unset($n);
@@ -62,4 +63,15 @@ function sky_cat_pool(string $cat, callable $get): array {
     foreach(($j['query']['pages']??[]) as $pg){ $ii=$pg['imageinfo'][0]??null; if(!$ii) continue; $m=$ii['extmetadata']??[]; $lic=$m['LicenseShortName']['value']??''; if(!preg_match('/cc0|cc by|public domain/i',$lic)) continue; if(!in_array($ii['mime']??'',['image/jpeg']) || ($ii['width']??0)<900 || ($ii['width']??0)<($ii['height']??1)) continue; if(preg_match('/logo|map|flag|diagram|svg|chart|coat|arma|bet|casino|gambl|poker|slot|lottery|alcohol|beer|wine|cigarette/i',$pg['title']??'')) continue;
       $pool[]=['url'=>$ii['thumburl']??$ii['url'],'author'=>mb_substr(trim(preg_replace('/\s+/',' ',strip_tags($m['Artist']['value']??'Wikimedia Commons'))),0,60),'lic'=>$lic,'page'=>$ii['descriptionurl']??'']; } }
   $pool=array_slice($pool,0,16); if($pool) file_put_contents($cf,json_encode($pool,JSON_UNESCAPED_UNICODE)); return $pool;
+}
+
+/* Görüş denetimi: fotoğrafta bahis/kumar/alkol/sigara/silah logosu-yazısı var mı? (Haiku vision) true=temiz */
+function sky_vision_ok(string $url, array $secrets): bool {
+  $key=$secrets['ANTHROPIC_KEY']??''; if(!$key) return true;
+  $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>10,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_USERAGENT=>'SKYTURK/1.0 (news; contact@skyturk)']); $bin=curl_exec($ch); $ct=curl_getinfo($ch,CURLINFO_CONTENT_TYPE); curl_close($ch);
+  if(!$bin||strlen($bin)>4500000) return true; $mime=stripos((string)$ct,'png')!==false?'image/png':(stripos((string)$ct,'webp')!==false?'image/webp':'image/jpeg');
+  if(function_exists('imagecreatefromstring')&&strlen($bin)>900000){ $im=@imagecreatefromstring($bin); if($im){ $w=imagesx($im); $r=900/max(1,$w); if($r<1){ $t=imagecreatetruecolor(900,(int)(imagesy($im)*$r)); imagecopyresampled($t,$im,0,0,0,0,900,(int)(imagesy($im)*$r),$w,imagesy($im)); ob_start(); imagejpeg($t,null,80); $bin=ob_get_clean(); $mime='image/jpeg'; } } }
+  $body=['model'=>$secrets['REWRITE_MODEL']??'claude-haiku-4-5-20251001','max_tokens'=>5,'messages'=>[['role'=>'user','content'=>[['type'=>'image','source'=>['type'=>'base64','media_type'=>$mime,'data'=>base64_encode($bin)]],['type'=>'text','text'=>"Bu fotoğrafta bahis/kumar/casino/piyango markası veya yazısı (bet, casino, 1xbet, fonbet, winline, betboo, iddaa vb.), alkol, sigara/tütün, silah ya da müstehcen içerik var mı? Forma, pano, reklam tabelası dahil dikkatle bak. Varsa EVET, yoksa HAYIR yaz. Sadece tek kelime."]]]]];
+  $ch=curl_init('https://api.anthropic.com/v1/messages'); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>25,CURLOPT_POST=>1,CURLOPT_POSTFIELDS=>json_encode($body),CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$key,'anthropic-version: 2023-06-01']]);
+  $resp=curl_exec($ch); curl_close($ch); $j=json_decode((string)$resp,true); $t=mb_strtoupper(trim($j['content'][0]['text']??'HAYIR')); return strpos($t,'EVET')===false;
 }
