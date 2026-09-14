@@ -22,6 +22,7 @@ function sky_merge_write($file,$news,$data){
 $feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.'/data.json'),true); if(!empty($dj['settings']['feeds'])&&is_array($dj['settings']['feeds'])) $feeds=array_values(array_filter(array_map(fn($x)=>isset($x['url'],$x['cat'],$x['name'])?[$x['url'],$x['cat'],$x['name']]:null,$dj['settings']['feeds'])));
 $KEEP_DAYS=7; $MAX_ITEMS=600; $PER_FEED=25;
 $PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=500; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
+$boost=null; $bf=__DIR__.'/boost.json'; if(file_exists($bf)){ $boost=json_decode(file_get_contents($bf),true); @unlink($bf); } // tek seferlik: belirli kategoriden fazla haber çek
 $catNew=[]; $dayKey=date('Y-m-d'); $titleKeys=[]; foreach($news as $x0) $titleKeys[mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($x0['t']??'')),0,30)]=1; $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
@@ -58,7 +59,7 @@ foreach($feeds as [$url,$cat,$srcName]){
     $tk=mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($title0)),0,30); if(isset($titleKeys[$tk])) continue;
     $pub0=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
     if(time()-$pub0>$MAX_AGE_H*3600) continue;                 // eski haber
-    if(($catNew[$cat]??0)>=$PER_CAT) continue;                  // bu kategori bu turda doldu
+    $capCat=($boost&&($boost['cat']??'')===$cat)?(int)$boost['n']:$PER_CAT; if(($catNew[$cat]??0)>=$capCat) continue;                  // bu kategori bu turda doldu
     if($usedToday+$added>=$DAILY_BUDGET) break 2;               // günlük tavan
     $desc=cut(clean($it->description ?? $it->summary ?? $it->content ?? ''),280);
     $enc=$it->children('http://purl.org/rss/1.0/modules/content/')->encoded ?? null; $full=$enc?clean((string)$enc):'';
@@ -100,9 +101,9 @@ $news=array_values(array_filter($news,fn($n)=>empty($n['auto'])||(($n['ts']??tim
 usort($news,function($a,$b){ return tsOf($b)<=>tsOf($a); });
 function tsOf($n){ if(isset($n['ts']))return $n['ts']; if(preg_match('/(\d\d)\.(\d\d)\.(\d{4}) (\d\d):(\d\d)/',$n['d']??'',$m)) return mktime($m[4],$m[5],0,$m[2],$m[1],$m[3]); return 0; }
 $news=array_slice($news,0,$MAX_ITEMS);
-require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(20,min(40,$added)),80); // yeni gelenler + birikim varsa en az 20
+require_once __DIR__.'/rewrite.php'; $rw=skyturk_rewrite($news,max(20,min(60,$added)),100); // yeni gelenler + birikim varsa en az 20
 $budget=[$dayKey=>$usedToday+($rw['rewritten']??0)]; file_put_contents($budgetFile,json_encode($budget)); $rw['gunluk_kullanim']=$budget[$dayKey].'/'.$DAILY_BUDGET;
-require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(40,$added)),40); $rw['images']=$im;
+require_once __DIR__.'/images.php'; $im=skyturk_images($news,max(20,min(60,$added)),60); $rw['images']=$im;
 $data['news']=$news; $rw['astro']=skyturk_astro($data);
 if((int)date('G')>=9){ $iss=__DIR__.'/../gazete/issues.json'; $have=false; if(file_exists($iss)) foreach(json_decode(file_get_contents($iss),true)?:[] as $is) if(($is['date']??'')===date('Y-m-d')) $have=true;
   if(!$have){ $GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1; sky_merge_write($file,$news,$data); require_once __DIR__.'/gazete.php'; $rw['gazete']=skyturk_gazete_build(); } }
