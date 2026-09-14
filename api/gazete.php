@@ -6,6 +6,7 @@ define('_SYSTEM_TTFONTS', __DIR__.'/lib/font/unifont/');
 require_once __DIR__.'/lib/tfpdf.php'; require_once __DIR__.'/lib/font/unifont/ttfonts.php';
 date_default_timezone_set('Europe/Istanbul');
 
+function trUp($s){ return mb_strtoupper(str_replace(['i','ı'],['İ','I'],$s)); }
 class SkyPDF extends tFPDF {
   function W(){return $this->w;} function Hh(){return $this->h;}
   public $ink=[17,17,17]; public $grey=[85,85,85]; public $sky=[46,155,240]; public $navy=[11,42,107]; public $red=[216,35,42]; public $yel=[255,212,0]; public $line=[201,211,227]; public $soft=[243,246,250];
@@ -13,7 +14,7 @@ class SkyPDF extends tFPDF {
   public $imgDir; public $dateStr; public $issueNo; public $pageNo=0; public $totalPages=10;
   function hex($h){ $h=ltrim($h,'#'); return [hexdec(substr($h,0,2)),hexdec(substr($h,2,2)),hexdec(substr($h,4,2))]; }
   function fill($c){ $this->SetFillColor($c[0],$c[1],$c[2]); } function color($c){ $this->SetTextColor($c[0],$c[1],$c[2]); } function draw($c){ $this->SetDrawColor($c[0],$c[1],$c[2]); }
-  function catName($k){ return $this->catMap[$k][0]??mb_strtoupper($k); } function catCol($k){ return $this->hex($this->catMap[$k][1]??'#0B4F9E'); }
+  function catName($k){ return $this->catMap[$k][0]??trUp($k); } function catCol($k){ return $this->hex($this->catMap[$k][1]??'#0B4F9E'); }
   function T($x,$y,$s){ $this->Text($x,$y,$s); }
   /* satır kırma */
   function wrap($s,$font,$size,$w){ $this->SetFont($font,'',$size); $words=preg_split('/\s+/u',trim($s)); $lines=[]; $cur='';
@@ -22,9 +23,9 @@ class SkyPDF extends tFPDF {
   /* metin bloğu: sol-üst köşe, döndürür alt y */
   function block($x,$y,$w,$s,$font,$size,$col,$lead=1.28,$maxl=0){ $ls=$this->wrap($s,$font,$size,$w); if($maxl&&count($ls)>$maxl){ $ls=array_slice($ls,0,$maxl); $ls[$maxl-1]=mb_substr($ls[$maxl-1],0,max(0,mb_strlen($ls[$maxl-1])-1)).'…'; }
     $this->SetFont($font,'',$size); $this->color($col); foreach($ls as $l){ $y+=$size; $this->T($x,$y,$l); $y+=$size*($lead-1); } return $y; }
-  function head($x,$y,$w,$h,$s,$col,$start,$upper=true,$lead=.98,$align='L'){ $t=$upper?mb_strtoupper($s):$s; [$sz,$ls]=$this->fit($t,'T',$w,$h,$start,13,$lead); $this->SetFont('T','',$sz); $this->color($col); $yy=$y+$sz*.92;
+  function head($x,$y,$w,$h,$s,$col,$start,$upper=true,$lead=.98,$align='L'){ $t=$upper?trUp($s):$s; [$sz,$ls]=$this->fit($t,'T',$w,$h,$start,13,$lead); $this->SetFont('T','',$sz); $this->color($col); $yy=$y+$sz*.92;
     foreach($ls as $l){ $xx=$align==='C'?$x+($w-$this->GetStringWidth($l))/2:$x; $this->T($xx,$yy,$l); $yy+=$sz*$lead; } return $yy-$sz*$lead+$sz*.3; }
-  function kicker($x,$y,$s,$bg,$fg,$size=8.5){ $this->SetFont('TB','',$size); $s=mb_strtoupper($s); $w=$this->GetStringWidth($s)+12; $this->fill($bg); $this->Rect($x,$y,$w,$size+7,'F'); $this->color($fg); $this->T($x+6,$y+$size+1,$s); return $w; }
+  function kicker($x,$y,$s,$bg,$fg,$size=8.5){ $this->SetFont('TB','',$size); $s=trUp($s); $w=$this->GetStringWidth($s)+12; $this->fill($bg); $this->Rect($x,$y,$w,$size+7,'F'); $this->color($fg); $this->T($x+6,$y+$size+1,$s); return $w; }
   function rule($x1,$x2,$y,$c=null,$wd=.6){ $this->draw($c?:$this->line); $this->SetLineWidth($wd); $this->Line($x1,$y,$x2,$y); }
   /* görsel: Pexels/YouTube URL → önbellek → JPEG; yoksa renkli kutu */
   function img($x,$y,$w,$h,$n){ $f=$this->fetchImg($n); if($f){ try{ $this->Image($f,$x,$y,$w,$h,'JPG'); $this->draw([255,255,255]); $this->SetLineWidth(1); $this->Rect($x,$y,$w,$h); return true; }catch(Throwable $e){} }
@@ -36,7 +37,7 @@ class SkyPDF extends tFPDF {
     if(stripos((string)$ct,'jpeg')!==false){ file_put_contents($f,$d); return $f; } return null; }
   function SetAlpha($a){ /* tFPDF'te alpha yok — yaklaşık: atla */ }
   /* üst/alt bilgi */
-  function mastheadInner(){ $this->fill($this->ink); $this->Rect(0,0,$this->w,22,'F'); $this->SetFont('H','',12); $this->color([255,255,255]); $this->T(36,15,'SKYTÜRK'); $this->SetFont('SC','',8); $this->color([201,211,227]); $s=mb_strtoupper($this->dateStr).'  ·  SAYI '.$this->issueNo.'  ·  testhabersitesimiz.site'; $this->T($this->w-36-$this->GetStringWidth($s),15,$s); return 40; }
+  function mastheadInner(){ $this->fill($this->ink); $this->Rect(0,0,$this->w,22,'F'); $this->SetFont('H','',12); $this->color([255,255,255]); $this->T(36,15,'SKYTÜRK'); $this->SetFont('SC','',8); $this->color([201,211,227]); $s=trUp($this->dateStr).'  ·  SAYI '.$this->issueNo.'  ·  testhabersitesimiz.site'; $this->T($this->w-36-$this->GetStringWidth($s),15,$s); return 40; }
   function footer2(){ $this->rule(36,$this->w-36,$this->h-28); $this->SetFont('SC','',7.5); $this->color($this->grey); $this->T(36,$this->h-16,'SKYTÜRK Dijital Gazete · Fotoğraflar temsilidir · Kaynaklar künyede.'); $s='Sayfa '.$this->pageNo.' / '.$this->totalPages; $this->T($this->w-36-$this->GetStringWidth($s),$this->h-16,$s); }
   function section($y,$cat,$x=36,$w=null){ $w=$w??($this->w-72); $this->fill($this->catCol($cat)); $this->Rect($x,$y-14,4,18,'F'); $this->SetFont('H','',15); $this->color($this->ink); $this->T($x+10,$y,$this->catName($cat)); $this->rule($x,$x+$w,$y+8); return $y+26; }
   function story($x,$y,$w,$n,$imgH=0,$size=11.5,$spot=true,$maxl=0,$src=false){ if($imgH){ $this->img($x,$y,$w,$imgH,$n); $y+=$imgH+10; }
@@ -50,6 +51,25 @@ class SkyPDF extends tFPDF {
 
 /* ===== İÇ SAYFA ŞABLON MOTORU (12 kolon × 24 satır ızgara) =====
    slot: [col,row,cw,rh,type]  type: hero(fotoğraf+üstüne başlık) | photo(fotoğraf+başlık+spot) | box(renkli blok) | text | strip(yatay küçük foto+başlık) | yellow(sarı blok) */
+
+/* GD ile kapak önizlemesi (Imagick yoksa) — A4 oranı 900×1273 */
+function sky_cover_gd($out,$lead,$pool,$pdf,$no,$dateStr,$rnd){
+  $W=900;$H=1273;$im=imagecreatetruecolor($W,$H); $white=imagecolorallocate($im,255,255,255); imagefill($im,0,0,$white);
+  $red=imagecolorallocate($im,216,35,42); $navy=imagecolorallocate($im,11,42,107); $ink=imagecolorallocate($im,17,17,17); $yel=imagecolorallocate($im,255,212,0); $grey=imagecolorallocate($im,120,120,120); $soft=imagecolorallocate($im,241,241,241);
+  $F=__DIR__.'/lib/font/unifont/'; $fT=$F.'DejaVuSansCondensed-Bold.ttf'; $fB=$F.'DejaVuSans.ttf';
+  $bandCol=$rnd%2==0?$red:$navy; imagefilledrectangle($im,0,0,$W,120,$bandCol); imagettftext($im,74,0,28,96,$white,$fT,'SKYTÜRK'); imagettftext($im,13,0,560,48,$white,$fB,trUp($dateStr).' · SAYI '.$no); imagettftext($im,13,0,560,72,$white,$fB,'DİJİTAL GAZETE · 10 SAYFA');
+  imagefilledrectangle($im,0,120,$W,146,$ink); imagettftext($im,12,0,28,138,$white,$fB,'DOLAR 48,65   EURO 56,49   ALTIN 6.784   BİST 100 14.467   İSTANBUL 24°');
+  $placeImg=function($n,$x,$y,$w,$h)use($im,$pdf,$navy){ $f=$pdf->fetchImg($n); $ok=false; if($f){ $src=@imagecreatefromjpeg($f); if($src){ $sw=imagesx($src); $sh=imagesy($src); $r=max($w/$sw,$h/$sh); $cw=(int)($w/$r); $ch=(int)($h/$r); imagecopyresampled($im,$src,$x,$y,(int)(($sw-$cw)/2),(int)(($sh-$ch)/2),$w,$h,$cw,$ch); imagedestroy($src); $ok=true; } } if(!$ok){ $c=$pdf->catCol($n['cat']??'gundem'); imagefilledrectangle($im,$x,$y,$x+$w,$y+$h,imagecolorallocate($im,$c[0],$c[1],$c[2])); } };
+  $wrap=function($txt,$size,$font,$maxw)use($im){ $words=preg_split('/\s+/u',$txt); $lines=[]; $cur=''; foreach($words as $wd){ $t=$cur===''?$wd:$cur.' '.$wd; $bb=imagettfbbox($size,0,$font,$t); if(($bb[2]-$bb[0])<=$maxw) $cur=$t; else { if($cur!=='') $lines[]=$cur; $cur=$wd; } } if($cur!=='') $lines[]=$cur; return $lines; };
+  /* manşet fotoğrafı + başlık */ $placeImg($lead,28,170,$W-56,470); imagefilledrectangle($im,28,470,$W-28,640,imagecolorallocate($im,0,0,0)); imagefilledrectangle($im,44,486,44+140,486+28,$yel); imagettftext($im,13,0,52,506,$ink,$fT,trUp($pdf->catName($lead['cat']??'gundem')));
+  $sz=34; $lines=$wrap(trUp($lead['t']),$sz,$fT,$W-100); if(count($lines)>2){ $sz=27; $lines=$wrap(trUp($lead['t']),$sz,$fT,$W-100); } $lines=array_slice($lines,0,3); $lh=(int)($sz*1.25); $yy=636-8-(count($lines)-1)*$lh-6; foreach($lines as $l){ imagettftext($im,$sz,0,44,$yy,$white,$fT,$l); $yy+=$lh; }
+  /* alt: 3 haber */ $cw=(int)(($W-56-24)/3); for($i=0;$i<3;$i++){ $n=$pool[$i]??null; if(!$n) break; $x=28+$i*($cw+12); $placeImg($n,$x,664,$cw,200); imagefilledrectangle($im,$x,864,$x+$cw,868,[$red,$navy,$ink][$i]); $ls=$wrap(trUp($n['t']),17,$fT,$cw-8); $yy=896; foreach(array_slice($ls,0,4) as $l){ imagettftext($im,17,0,$x+4,$yy,$ink,$fT,$l); $yy+=22; } }
+  /* alt bant */ imagefilledrectangle($im,28,1020,$W-28,1110,$navy); $n=$pool[3]??null; if($n){ $ls=$wrap(trUp($n['t']),22,$fT,$W-100); $yy=1058; foreach(array_slice($ls,0,2) as $l){ imagettftext($im,22,0,44,$yy,$white,$fT,$l); $yy+=30; } }
+  $n=$pool[4]??null; if($n){ imagefilledrectangle($im,28,1126,$W-28,1200,$soft); $ls=$wrap(trUp($n['t']),20,$fT,$W-100); $yy=1160; foreach(array_slice($ls,0,2) as $l){ imagettftext($im,20,0,44,$yy,$ink,$fT,$l); $yy+=26; } }
+  imagefilledrectangle($im,0,$H-36,$W,$H,$red); imagettftext($im,13,0,28,$H-13,$white,$fT,'SON DAKİKA   ▸ '.mb_substr($pool[5]['t']??'',0,70));
+  $ok=imagejpeg($im,$out,86); imagedestroy($im); return $ok;
+}
+
 function sky_templates(){ return [
  [[0,0,12,9,'hero'],[0,9,4,7,'photo'],[4,9,4,7,'photo'],[8,9,4,7,'photo'],[0,16,6,4,'box'],[6,16,6,4,'strip'],[0,20,12,4,'text']],
  [[0,0,7,12,'hero'],[7,0,5,6,'box'],[7,6,5,6,'photo'],[0,12,4,6,'photo'],[4,12,4,6,'text'],[8,12,4,6,'photo'],[0,18,12,3,'strip'],[0,21,6,3,'text'],[6,21,6,3,'text']],
@@ -91,17 +111,17 @@ function sky_render_page($pdf,$cats,$items,$tpl,$W,$H,$M){
   return $i;
 }
 
-function skyturk_gazete_build($force=false){
+function skyturk_gazete_build($force=false,$forDate=null){
   $root=dirname(__DIR__); $gdir=$root.'/gazete'; if(!is_dir($gdir)) @mkdir($gdir,0755,true);
   $issuesF=$gdir.'/issues.json'; $issues=file_exists($issuesF)?(json_decode(file_get_contents($issuesF),true)?:[]):[];
-  $today=date('Y-m-d'); foreach($issues as $is) if(($is['date']??'')===$today&&!$force) return ['skipped'=>'bugünün sayısı var','issue'=>$is];
+  $today=$forDate?:date('Y-m-d'); $tsDay=strtotime($today.' 09:00'); foreach($issues as $is) if(($is['date']??'')===$today&&!$force) return ['skipped'=>'bugünün sayısı var','issue'=>$is];
   $data=json_decode(@file_get_contents(__DIR__.'/data.json'),true)?:['news'=>[]];
   $all=array_values(array_filter($data['news'],fn($n)=>!empty($n['rw'])&&empty($n['video'])&&($n['st']??'')==='Yayında'));
   $ts=fn($n)=>$n['ts']??0; usort($all,fn($a,$b)=>$ts($b)<=>$ts($a));
   $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-24*3600)); if(count($win)<40) $win=array_values(array_filter($all,fn($n)=>$ts($n)>=time()-48*3600)); if(count($win)<40) $win=$all;
   if(count($win)<12) return ['error'=>'yeterli haber yok ('.count($win).')'];
   $no=null; foreach($issues as $k=>$is){ if(($is['date']??'')===$today){ $no=$no===null?$is['no']:min($no,$is['no']); unset($issues[$k]); } } $issues=array_values($issues); if($no===null) $no=count($issues)+1; $months=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık']; $days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
-  $dateStr=date('j').' '.$months[(int)date('n')-1].' '.date('Y').' '.$days[(int)date('w')];
+  $dateStr=date('j',$tsDay).' '.$months[(int)date('n',$tsDay)-1].' '.date('Y',$tsDay).' '.$days[(int)date('w',$tsDay)];
   $pdf=new SkyPDF('P','pt','A4'); $pdf->imgDir=$gdir.'/img'; $pdf->dateStr=$dateStr; $pdf->issueNo=$no; $pdf->SetAutoPageBreak(false); $pdf->SetMargins(0,0,0);
   foreach([['T','DejaVuSansCondensed-Bold.ttf'],['TB','DejaVuSans-Bold.ttf'],['B','DejaVuSans.ttf'],['SC','DejaVuSansCondensed.ttf'],['H','DejaVuSerif-Bold.ttf']] as [$k,$f]) $pdf->AddFont($k,'',$f,true);
   $pdf->SetTitle('SKYTÜRK Dijital Gazete — Sayı '.$no.' — '.$dateStr,true); $pdf->SetAuthor('SKYTÜRK',true);
@@ -114,9 +134,9 @@ function skyturk_gazete_build($force=false){
   $pdf->AddPage(); $pdf->pageNo=1;
   $mast=function($v)use($pdf,$W,$H,$M,$dateStr,$no){ if($v%2==0){ $pdf->fill($pdf->red); $pdf->Rect(0,0,$W,78,'F'); $pdf->SetFont('T','',60); $pdf->color([255,255,255]); $pdf->T($M,64,'SKYTÜRK');
       $pdf->fill($pdf->yel); $pdf->Rect($M+300,30,90,30,'F'); $pdf->SetFont('TB','',9); $pdf->color($pdf->ink); $pdf->T($M+318,42,'HER SABAH'); $pdf->T($M+326,54,"09:00'DA");
-      $pdf->SetFont('SC','',8.5); $pdf->color([255,255,255]); foreach([[30,mb_strtoupper($dateStr).' · SAYI '.$no],[44,'DİJİTAL GAZETE · ÜCRETSİZ'],[58,'testhabersitesimiz.site']] as [$yy,$s]) $pdf->T($W-$M-$pdf->GetStringWidth($s),$yy,$s); }
+      $pdf->SetFont('SC','',8.5); $pdf->color([255,255,255]); foreach([[30,trUp($dateStr).' · SAYI '.$no],[44,'DİJİTAL GAZETE · ÜCRETSİZ'],[58,'testhabersitesimiz.site']] as [$yy,$s]) $pdf->T($W-$M-$pdf->GetStringWidth($s),$yy,$s); }
     else { $pdf->fill($pdf->navy); $pdf->Rect(0,0,$W,84,'F'); $pdf->fill($pdf->red); $pdf->Rect(0,78,$W,6,'F'); $pdf->SetFont('T','',60); $pdf->color([255,255,255]); $s='SKYTÜRK'; $pdf->T(($W-$pdf->GetStringWidth($s))/2,62,$s);
-      $pdf->SetFont('SC','',8.5); $pdf->color([201,211,227]); $pdf->T($M,76,mb_strtoupper($dateStr)); $s='SAYI '.$no.' · 10 SAYFA · testhabersitesimiz.site'; $pdf->T($W-$M-$pdf->GetStringWidth($s),76,$s); }
+      $pdf->SetFont('SC','',8.5); $pdf->color([201,211,227]); $pdf->T($M,76,trUp($dateStr)); $s='SAYI '.$no.' · 10 SAYFA · testhabersitesimiz.site'; $pdf->T($W-$M-$pdf->GetStringWidth($s),76,$s); }
     $pdf->fill($pdf->ink); $pdf->Rect(0,84,$W,16,'F'); $pdf->SetFont('SC','',7.5); $pdf->color([255,255,255]); $pdf->T($M,95,'DOLAR 48,65   EURO 56,49   ALTIN 6.784   BİST 100 14.467   BİTCOİN 3.754.831'); $s='İSTANBUL 24° PARÇALI BULUTLU  ·  TRAFİK: 15 TEMMUZ KÖPRÜSÜ YOĞUN'; $pdf->T($W-$M-$pdf->GetStringWidth($s),95,$s); return 108; };
   $lead=$take(['gundem','son-dakika','politika','genel'],1)[0]??$win[0]; if(!in_array($lead['id'],$used)) $used[]=$lead['id']; $pool=$take(['gundem','politika','dunya','ekonomi','spor','saglik','genel','teknoloji','egitim','kultur-sanat'],12); $fillTo($pool,12);
   $CN=fn($k)=>$pdf->catName($k); $PG=fn($k)=>['gundem'=>2,'genel'=>3,'politika'=>4,'dunya'=>5,'ekonomi'=>6,'spor'=>7,'saglik'=>8,'teknoloji'=>8,'egitim'=>9,'kultur-sanat'=>9][$k]??2;
@@ -155,7 +175,7 @@ function skyturk_gazete_build($force=false){
   { $pdf->AddPage(); $pdf->pageNo=10; $y=$pdf->mastheadInner();
     $astro=$data['astro']['items']??[]; $signs=[['koc','♈','Koç'],['boga','♉','Boğa'],['ikizler','♊','İkizler'],['yengec','♋','Yengeç'],['aslan','♌','Aslan'],['basak','♍','Başak'],['terazi','♎','Terazi'],['akrep','♏','Akrep'],['yay','♐','Yay'],['oglak','♑','Oğlak'],['kova','♒','Kova'],['balik','♓','Balık']];
       $pdf->fill([63,81,181]); $pdf->Rect($M,$y,4,18,'F'); $pdf->SetFont('H','',15); $pdf->color($pdf->ink); $pdf->T($M+10,$y+14,'GÜNLÜK BURÇ YORUMLARI'); $pdf->rule($M,$W-$M,$y+22); $y+=36; $cw=($W-2*$M-24)/3; $ch=92;
-      foreach($signs as $i=>[$id,$sym,$name]){ $x=$M+($i%3)*($cw+12); $yy=$y+intdiv($i,3)*($ch+10); $pdf->fill($pdf->soft); $pdf->Rect($x,$yy,$cw,$ch,'F'); $pdf->SetFont('B','',20); $pdf->color($pdf->navy); $pdf->T($x+10,$yy+26,$sym); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x+36,$yy+22,mb_strtoupper($name));
+      foreach($signs as $i=>[$id,$sym,$name]){ $x=$M+($i%3)*($cw+12); $yy=$y+intdiv($i,3)*($ch+10); $pdf->fill($pdf->soft); $pdf->Rect($x,$yy,$cw,$ch,'F'); $pdf->SetFont('B','',20); $pdf->color($pdf->navy); $pdf->T($x+10,$yy+26,$sym); $pdf->SetFont('H','',11); $pdf->color($pdf->ink); $pdf->T($x+36,$yy+22,trUp($name));
         $it=$astro[$id]??null; $txt=$it['genel']??'Bugünün yorumu sitede: testhabersitesimiz.site/#/astroloji'; $pdf->block($x+10,$yy+32,$cw-20,$txt,'B',7.6,$pdf->grey,1.32,4); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x+10,$yy+$ch-8,$it?('Şanslı sayı '.($it['sansli_sayi']??'').' · Renk: '.($it['renk']??'')):''); }
       $yb=$y+4*($ch+10)+14; $pdf->rule($M,$W-$M,$yb,$pdf->navy,1.2); $yb+=14; $hw3=($W-2*$M-28)/3; $bh=150;
       /* HAVA */ $x=$M; $pdf->fill($pdf->soft); $pdf->Rect($x,$yb,$hw3,$bh,'F'); $pdf->SetFont('H','',10.5); $pdf->color($pdf->ink); $pdf->T($x+12,$yb+20,'HAVA · İSTANBUL'); $pdf->rule($x+12,$x+$hw3-12,$yb+26,$pdf->navy,1.2);
@@ -168,8 +188,11 @@ function skyturk_gazete_build($force=false){
     $pdf->footer2();
   }
   $fn='sayi-'.$no.'-'.$today.'.pdf'; $pdf->Output('F',$gdir.'/'.$fn); foreach(glob($gdir.'/sayi-*-'.$today.'.pdf') as $old) if(basename($old)!==$fn) @unlink($old);
-  $issue=['no'=>$no,'date'=>$today,'dateStr'=>$dateStr,'file'=>'gazete/'.$fn,'pages'=>10,'lead'=>$lead['t'],'leadImg'=>$lead['imgUrl']??null,'count'=>count($win),'layout'=>$rnd,'templates'=>$usedT,'created'=>date('c')];
+  $cover='gazete/sayi-'.$no.'-'.$today.'.jpg'; $coverOk=false;
+  try{ if(class_exists('Imagick')){ $im=new Imagick(); $im->setResolution(110,110); $im->readImage($gdir.'/'.$fn.'[0]'); $im->setImageBackgroundColor('white'); $im=$im->flattenImages(); $im->setImageFormat('jpeg'); $im->setImageCompressionQuality(85); $im->writeImage($root.'/'.$cover); $coverOk=true; } }catch(Throwable $e){}
+  if(!$coverOk&&function_exists('imagecreatetruecolor')){ $coverOk=sky_cover_gd($root.'/'.$cover,$lead,$pool,$pdf,$no,$dateStr,$rnd); }
+  $issue=['no'=>$no,'date'=>$today,'cover'=>$coverOk?$cover:null,'dateStr'=>$dateStr,'file'=>'gazete/'.$fn,'pages'=>10,'lead'=>$lead['t'],'leadImg'=>$lead['imgUrl']??null,'count'=>count($win),'layout'=>$rnd,'templates'=>$usedT,'created'=>date('c')];
   array_unshift($issues,$issue); file_put_contents($issuesF,json_encode($issues,JSON_UNESCAPED_UNICODE),LOCK_EX);
   return ['ok'=>true,'issue'=>$issue];
 }
-if(PHP_SAPI==='cli'&&realpath($_SERVER['SCRIPT_FILENAME'])===__FILE__){ echo json_encode(skyturk_gazete_build(in_array('--force',$argv)),JSON_UNESCAPED_UNICODE)."\n"; }
+if(PHP_SAPI==='cli'&&realpath($_SERVER['SCRIPT_FILENAME'])===__FILE__){ $fd=null; foreach($argv as $a) if(preg_match('/^\d{4}-\d{2}-\d{2}$/',$a)) $fd=$a; echo json_encode(skyturk_gazete_build(in_array('--force',$argv),$fd),JSON_UNESCAPED_UNICODE)."\n"; }
