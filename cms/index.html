@@ -503,7 +503,7 @@ function dashboard(){
   const stats=[['#/reklamlar',9,'Reklam','#E8394A'],['#/haberler',fmt(STATE.news.length),'Haber','#6C5CE7'],['#/yorumlar',120,'Yorum','#F6B93B'],['#/iletisim',msgs.filter(m=>!m[3]).length,'Okunmamış İleti','#2D3436'],['#/uyeler',STATE.users.length,'Üye','#4CB8A4']];
   const wxIco=['⛈','🌧','⛅','☀'];
   return `
-  <div class="panel welcome"><a class="btn btn-s" href="../" target="_blank" style="float:right">Siteyi görüntüle ↗</a><h1>SKYTÜRK İçerik Yönetim Sistemine Hoşgeldiniz</h1><p style="color:var(--ink2);margin-top:4px">Yapım · Tasarım: <b>E.K.</b></p><p>Bugün ${pub} haber yayında · son giriş: bugün 15:47 · İstanbul</p></div>
+  <div class="panel welcome"><a class="btn btn-s" href="../" target="_blank" style="float:right">Siteyi görüntüle ↗</a><h1>SKYTÜRK İçerik Yönetim Sistemine Hoşgeldiniz</h1><p style="color:var(--ink2);margin-top:4px">Kodlayan ve Tasarlayan: <b>E.K.</b></p><p>Bugün ${pub} haber yayında · son giriş: bugün 15:47 · İstanbul</p></div>
   <div class="stats">${stats.map(s=>`<a class="stat" href="${s[0]}" style="background:${s[3]}"><b>${s[1]}</b><span>${s[2]}</span></a>`).join('')}</div>
   <div class="widgets">
     <div class="panel"><div class="wh"><div><h3>Hava Durumu</h3><small>${w.city}</small></div><div class="act"><button title="Yenile" onclick="toast('Hava durumu güncellendi')">⟳</button><button title="Kapat">✕</button></div></div>
