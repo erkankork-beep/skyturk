@@ -52,6 +52,25 @@ foreach($feeds as [$url,$cat,$srcName]){
   }
   $perFeed[$url]=$new.' yeni / '.count($items).' toplam';
 }
+/* YouTube videoları */
+$vfeeds=file_exists(__DIR__.'/videos.php')?(include __DIR__.'/videos.php'):[]; $vadded=0;
+foreach($vfeeds as [$url,$cat,$srcName]){
+  $xml=get($url); if(!$xml){ $perFeed[$url]='ERİŞİLEMEDİ'; continue; }
+  libxml_use_internal_errors(true); $doc=simplexml_load_string($xml); if(!$doc){ $perFeed[$url]='XML DEĞİL'; continue; }
+  $i=0; $new=0;
+  foreach($doc->entry as $e){
+    if(++$i>10) break;
+    $yt=$e->children('http://www.youtube.com/xml/schemas/2015'); $vid=(string)($yt->videoId??''); if(!$vid) continue;
+    $link='https://www.youtube.com/watch?v='.$vid; if(isset($seen[$link])) continue;
+    $media=$e->children('http://search.yahoo.com/mrss/'); $desc=cut(clean((string)($media->group->description??'')),240);
+    $pub=strtotime((string)$e->published)?:time();
+    $news[]=['id'=>abs(crc32($link))%900000000+100000000,'cat'=>$cat,'t'=>cut(clean((string)$e->title),160),'s'=>$desc,'d'=>date('d.m.Y H:i',$pub),'ts'=>$pub,
+      'by'=>$srcName,'v'=>0,'st'=>'Yayında','tags'=>['video'],'auto'=>true,'src'=>$link,'srcName'=>$srcName.' / YouTube','video'=>true,'ytId'=>$vid,
+      'imgUrl'=>'https://i.ytimg.com/vi/'.$vid.'/hqdefault.jpg','imgCredit'=>'Görsel: '.$srcName.' / YouTube','imgLink'=>$link,'rw'=>true];
+    $seen[$link]=true; $added++; $new++; $vadded++;
+  }
+  $perFeed[$url]=$new.' yeni video / '.$i.' toplam';
+}
 /* Temizlik: otomatik haberlerde eski olanları at, elle girilenleri koru */
 $cut=time()-$KEEP_DAYS*86400;
 $news=array_values(array_filter($news,fn($n)=>empty($n['auto'])||(($n['ts']??time())>=$cut)));

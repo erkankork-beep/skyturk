@@ -687,7 +687,7 @@ function tabbed(){const ids=['dunya','ekonomi','kultur-sanat','spor','egitim','y
 function tabTo(id,btn){btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.parentNode.style.setProperty('--cc',CAT[id].c);$('#tabBody').innerHTML=inCat(id).slice(0,4).map(n=>card(n)).join('')||'<p style="color:var(--ink2)">Bu kategoride henüz haber yok.</p>'}
 /* ---- Sayfalar ---- */
 function home(){
-  const heroN=sorted.slice(0,6);
+  const heroN=sorted.filter(n=>!n.video).slice(0,6);
   const hero=`<section class="hero" aria-label="Manşetler">
     ${heroN.map((n,i)=>`<div class="slide ${i?'':'on'}"><img src="${n.img(1200,640)}" alt=""><a class="cap" href="#/haber/${n.id}"><span class="cat" style="--cc:${CAT[n.cat].c}">${CAT[n.cat].n}</span><h2>${esc(n.t)}</h2><p>${esc(n.s)}</p></a></div>`).join('')}
     <button class="arrow l" onclick="slide(-1)" aria-label="Önceki">‹</button><button class="arrow r" onclick="slide(1)" aria-label="Sonraki">›</button>
@@ -740,7 +740,7 @@ function article(id){
     <h1>${esc(n.t)}</h1><p class="lead-p">${esc(n.s)}</p>
     <div class="abar"><div><b>${esc(n.by)}</b> · ${n.d} · Güncelleme ${n.d.slice(11)} · ${fmt(n.v)} okunma</div>
       <div class="share"><button title="X">X</button><button title="Facebook">f</button><button title="WhatsApp">W</button><button title="Bağlantıyı kopyala" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);this.textContent='✓'">⧉</button><button title="Yazdır" onclick="print()">⎙</button></div></div>
-    <figure><img src="${n.img(1200,675)}" alt=""><figcaption>${esc(n.t)}${n.imgCredit?` — ${n.imgLink?`<a href="${esc(n.imgLink)}" target="_blank" rel="noopener nofollow">${esc(n.imgCredit)}</a>`:esc(n.imgCredit)} (temsili)`:(n.auto?'':' — Fotoğraf: SKYTÜRK Arşiv')}</figcaption></figure>
+    <figure>${n.video&&n.ytId?`<div style="position:relative;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#000"><iframe src="https://www.youtube-nocookie.com/embed/${esc(n.ytId)}" title="${esc(n.t)}" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`:`<img src="${n.img(1200,675)}" alt="">`}<figcaption>${esc(n.t)}${n.imgCredit?` — ${n.imgLink?`<a href="${esc(n.imgLink)}" target="_blank" rel="noopener nofollow">${esc(n.imgCredit)}</a>`:esc(n.imgCredit)} (temsili)`:(n.auto?'':' — Fotoğraf: SKYTÜRK Arşiv')}</figcaption></figure>
     <div class="body">${n.auto?`<p>${esc(n.s)}</p><div class="srcbox"><b>Kaynak: ${esc(n.srcName||n.by)}</b> — ${n.rw?'SKYTÜRK editörlüğüyle özetlenmiştir':'Kaynağın açık RSS akışından özet olarak alınmıştır'}.${n.srcTitle?`<br><small style="color:var(--ink2)">Kaynak başlığı: ${esc(n.srcTitle)}</small>`:''}<br><a href="${esc(n.src)}" target="_blank" rel="noopener nofollow">Haberin tamamını kaynağında okuyun ↗</a></div>`:`<p>${n.p[0]} ${n.p[1]}</p><p>${n.p[2]}</p><h2>Süreç nasıl ilerleyecek?</h2><p>${n.p[3]}</p><blockquote>"${n.p[5]}"</blockquote><p>${n.p[4]} ${n.p[1]}</p><p>${n.p[0]}</p>`}</div>
     <div class="tags" style="padding:16px 0 0">${n.tags.map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div>
     <div class="related"><h3>İlgili Haberler</h3><div class="cards three">${rel.map(x=>card(x,{noP:true})).join('')}</div></div>
