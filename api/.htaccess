@@ -1,3 +1,3 @@
-<FilesMatch "^(config\.php|feeds\.php|data\.bak\.json|fetch\.log|mcp\.log|secrets\.php|stats\.json|users\.json|sessions\.json|session\.php|audit\.jsonl|budget\.json|credit\.json)$">
+<FilesMatch "^(config\.php|feeds\.php|data\.bak\.json|fetch\.log|mcp\.log|secrets\.php|stats\.json|users\.json|sessions\.json|session\.php|audit\.jsonl|budget\.json|credit\.json|ratelimit\.json)$">
 Require all denied
 </FilesMatch>

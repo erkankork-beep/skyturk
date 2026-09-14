@@ -8,7 +8,7 @@ if(!$cli){ header('Content-Type: application/json; charset=utf-8'); require_once
 date_default_timezone_set('Europe/Istanbul');
 @ignore_user_abort(true); @set_time_limit(180);
 $file=__DIR__.'/data.json'; $log=__DIR__.'/fetch.log';
-$feeds=require __DIR__.'/feeds.php';
+$feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.'/data.json'),true); if(!empty($dj['settings']['feeds'])&&is_array($dj['settings']['feeds'])) $feeds=array_values(array_filter(array_map(fn($x)=>isset($x['url'],$x['cat'],$x['name'])?[$x['url'],$x['cat'],$x['name']]:null,$dj['settings']['feeds'])));
 $KEEP_DAYS=7; $MAX_ITEMS=600; $PER_FEED=25;
 $PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=500; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
 $catNew=[]; $dayKey=date('Y-m-d'); $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
