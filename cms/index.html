@@ -685,7 +685,8 @@ function creditBanner(j){const c=j.credit;if(!c)return;let el=$('#crBanner');if(
   if(c.exhausted){el.style.background='#FDECEC';el.style.color='#B00020';el.innerHTML='⚠ API kredisi bitti — özgünleştirme ve astroloji durdu. Console › Add funds, ardından Ayarlar › Servisler & API › Yüklenen kredi.';return}
   if(!c.balance){el.style.background='#FFF6DD';el.style.color='#7A5200';el.innerHTML='Kredi sayacı kurulmadı — Ayarlar › Servisler & API › "Yüklenen kredi" alanına Console\'daki bakiyeyi girin.';return}
   const h=c.hours_left;const warn=h!==null&&h<=48;el.style.background=warn?(h<=6?'#FDECEC':'#FFF6DD'):'#E8F5EE';el.style.color=warn?(h<=6?'#B00020':'#7A5200'):'#1B6B3A';
-  el.innerHTML=(warn?'⚠ ':'✓ ')+'API kredisi: kalan $'+c.remaining+' / $'+c.balance+' · harcama $'+c.rate_per_day+'/gün'+(h!==null?' · tahmini <b>'+(h>=48?Math.round(h/24)+' gün':Math.round(h)+' saat')+'</b> kaldı':' · hız hesaplanıyor');}if(!can('settings')){toast('Bu işlem için yönetici yetkisi gerekir');return}
+  el.innerHTML=(warn?'⚠ ':'✓ ')+'API kredisi: kalan $'+c.remaining+' / $'+c.balance+' · harcama $'+c.rate_per_day+'/gün'+(h!==null?' · tahmini <b>'+(h>=48?Math.round(h/24)+' gün':Math.round(h)+' saat')+'</b> kaldı':' · hız hesaplanıyor');}
+function saveSecret(){if(!can('settings')){toast('Bu işlem için yönetici yetkisi gerekir');return}
   const k=$('#akey').value.trim(),m=$('#amodel').value;const body={REWRITE_MODEL:m};if(k)body.ANTHROPIC_KEY=k;const pk=$('#pkey').value.trim();if(pk)body.PEXELS_KEY=pk;
   fetch('../api/data.php?action=secret',{method:'POST',headers:hdrs(),body:JSON.stringify(body)}).then(async r=>{const t=await r.text();let j={};try{j=JSON.parse(t)}catch(e){}
     if(r.status===403){$('#akeyst').textContent='Yetkiniz yok (yönetici gerekir)';toast('Yetkiniz yok');return}
