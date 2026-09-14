@@ -752,7 +752,7 @@ function home(){if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then
   <div class="ad h-100" style="margin-top:26px"><div style="text-align:center"><span>Reklam</span>970×90</div></div>
   ${fxStrip()}
   <section class="sec"><div class="catblocks">${cb('ekonomi')}${cb('spor')}</div></section>
-  <section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span></div></a>`).join('')}</div></section>
+  ${AUTHORS.length?`<section class="sec">${secH('Yazarlar','#14213D','#/yazarlar','Tüm Yazarlar')}<div class="authors">${AUTHORS.map(a=>`<a class="author" href="#/yazar/${a.id}" style="--cc:${a.c}">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:`<span class="av" style="background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><b>${esc(a.n)}</b><span>${esc(a.t||'')}</span></div></a>`).join('')}</div></section>`:''}
   ${tabbed()}
   </div>${videoN().length?`<section class="gallery-band"><div class="wrap">
     ${videoN().length?`${secH('Video','#E8262C','#/video','Tüm Videolar')}<div class="cards">${videoN().slice(0,4).map(n=>card(n,{noP:true,play:true})).join('')}</div>`:''}
@@ -801,7 +801,8 @@ function article(id){
       </div></div>
   </div><aside class="side sticky">${sideWidgets()}</aside></article>`;
 }
-function authorsPage(){return `<div class="page" style="max-width:var(--w)"><h1>Yazarlar</h1><p class="sub">SKYTÜRK köşe yazarlarının güncel yazıları.</p><div class="authors page-grid">${AUTHORS.map(a=>`<a class="author" href="#/yazarlar" style="--cc:${a.c}"><span class="av" style="background:${a.c}">${a.n.split(' ').map(x=>x[0]).join('')}</span><div><b>${a.n}</b><span>${a.t}</span><small style="color:var(--ink2)">13 Eylül 2026</small></div></a>`).join('')}</div></div>`}
+function authorsPage(){return `<div class="page" style="max-width:var(--w)"><h1>Yazarlar</h1><p class="sub">SKYTÜRK köşe yazarları.</p>${AUTHORS.length?`<div class="authors page-grid">${AUTHORS.map(a=>{const last=sorted.find(n=>n.by===a.n);return `<a class="author" href="#/yazar/${a.id}" style="--cc:${a.c}">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:`<span class="av" style="background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><b>${esc(a.n)}</b><span>${esc(a.t||'')}</span><small style="color:var(--ink2)">${last?esc(last.t):'Henüz yazı yok'}</small></div></a>`}).join('')}</div>`:`<p style="color:var(--ink2);padding:30px 0">Henüz yazar eklenmedi.</p>`}</div>`}
+function authorPage(id){const a=AUTHORS.find(x=>x.id===id);if(!a)return notFound();const L=sorted.filter(n=>n.by===a.n);return `<div class="page" style="max-width:var(--w)"><div class="crumb"><a href="#/">Ana Sayfa</a>›<a href="#/yazarlar">Yazarlar</a>›<span>${esc(a.n)}</span></div><div style="display:flex;gap:20px;align-items:center;margin:10px 0 24px">${a.imgUrl?`<img src="${esc(a.imgUrl)}" alt="" style="width:96px;height:96px;border-radius:50%;object-fit:cover">`:`<span class="av" style="width:96px;height:96px;font-size:32px;border-radius:50%;display:grid;place-items:center;color:#fff;background:${a.c}">${esc(a.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}<div><h1 style="margin:0">${esc(a.n)}</h1><p class="sub" style="margin:4px 0">${esc(a.t||'')}</p>${a.bio?`<p style="color:var(--ink2);max-width:720px">${esc(a.bio)}</p>`:''}</div></div>${L.length?`<div class="cards">${L.map(n=>card(n)).join('')}</div>`:`<p style="color:var(--ink2)">Henüz yazısı yok.</p>`}</div>`}
 const galeriN=()=>{const w=sorted.filter(n=>n.imgUrl);return w.length>=4?w:sorted};
 const videoN=()=>sorted.filter(n=>n.video);
 function gallery(video){const l=(video?videoN():galeriN()).slice(0,24);if(!l.length)return `<div class="cat-head" style="--cc:#E8262C"><div><h1>Video Galeri</h1><p>Henüz video içerik yok.</p></div></div>`;return `<div class="cat-head" style="--cc:${video?'#E8262C':'#2E9BF0'}"><div><h1>${video?'Video Galeri':'Foto Galeri'}</h1><p>${video?'Haberin görüntülü hâli: röportajlar, canlı yayın kesitleri ve analizler.':'Günün öne çıkan fotoğraf hikâyeleri.'}</p></div></div><div class="cards" style="margin-top:0">${l.map((n,i)=>card(n,{noP:true,play:video})).join('')}</div>`}
@@ -844,6 +845,7 @@ function routeInner(){
     case 'kategori':html=catPage(p[1]);break;
     case 'haber':html=article(p[1]);break;
     case 'yazarlar':html=authorsPage();break;
+    case 'yazar':html=authorPage(p[1]);break;
     case 'astroloji':html=astroPage(p[1]);break;
     case 'roportaj':html=p[1]?personPage('roportaj',p[1]):peoplePage('roportaj');break;
     case 'biyografi':html=p[1]?personPage('biyografi',p[1]):peoplePage('biyografi');break;
@@ -878,7 +880,7 @@ try{if(location.protocol.startsWith('http'))fetch('api/hit.php',{keepalive:true}
 <script>
 /* ================= SKYTÜRK SİTE — İŞLEVSEL KATMAN ================= */
 let COMMENTS=[],ADS={},PAGES={},SOCIAL={};
-function applyServer(d){if(!d)return;const lu=$('#lastUpd');if(lu&&d.updated){const u=new Date(d.updated);lu.textContent='Son güncelleme: '+u.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+' · '+d.news.length+' haber';lu.title='Sistem son çekim: '+u.toLocaleString('tr-TR')}SETTINGS=d.settings||{};COMMENTS=d.comments||[];ADS=SETTINGS.ads||{};PAGES=SETTINGS.pages||{};SOCIAL=SETTINGS.social||{};
+function applyServer(d){if(!d)return;AUTHORS.length=0;((d.settings||{}).authors||[]).forEach(a=>AUTHORS.push(a));const lu=$('#lastUpd');if(lu&&d.updated){const u=new Date(d.updated);lu.textContent='Son güncelleme: '+u.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+' · '+d.news.length+' haber';lu.title='Sistem son çekim: '+u.toLocaleString('tr-TR')}SETTINGS=d.settings||{};COMMENTS=d.comments||[];ADS=SETTINGS.ads||{};PAGES=SETTINGS.pages||{};SOCIAL=SETTINGS.social||{};
   const rep=(arr,src)=>{arr.length=0;(src||[]).forEach(x=>arr.push(x))};
   rep(INTERVIEWS,(d.interviews||[]).map(p=>Object.assign({},p)));rep(BIOS,(d.bios||[]).map(p=>Object.assign({},p)));
   rep(DIRECTORY,(d.dir||[]).filter(x=>x.ok!==false).map(x=>[x.n,x.c,x.l,x]));rep(CLASSIFIEDS,(d.cls||[]).filter(x=>x.ok).map(x=>[x.t,x.c,x.p,x]));
