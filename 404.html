@@ -758,13 +758,10 @@ function article(id){
     <div class="body">${n.auto?`<p>${esc(n.s)}</p><div class="srcbox"><b>Kaynak: ${esc(n.srcName||n.by)}</b> — ${n.rw?'SKYTÜRK editörlüğüyle özetlenmiştir':'Kaynağın açık RSS akışından özet olarak alınmıştır'}.${n.srcTitle?`<br><small style="color:var(--ink2)">Kaynak başlığı: ${esc(n.srcTitle)}</small>`:''}<br><a href="${esc(n.src)}" target="_blank" rel="noopener nofollow">Haberin tamamını kaynağında okuyun ↗</a></div>`:`<p>${n.p[0]} ${n.p[1]}</p><p>${n.p[2]}</p><h2>Süreç nasıl ilerleyecek?</h2><p>${n.p[3]}</p><blockquote>"${n.p[5]}"</blockquote><p>${n.p[4]} ${n.p[1]}</p><p>${n.p[0]}</p>`}</div>
     <div class="tags" style="padding:16px 0 0">${n.tags.map(t=>`<a href="#/arama/${encodeURIComponent(t)}">#${t}</a>`).join('')}</div>
     <div class="related"><h3>İlgili Haberler</h3><div class="cards three">${rel.map(x=>card(x,{noP:true})).join('')}</div></div>
-    <div class="comments"><h3>Yorumlar (3)</h3>
+    <div class="comments"><h3>Yorumlar (0)</h3>
       <textarea placeholder="Yorumunuzu yazın… Yorumlar editör onayından sonra yayımlanır."></textarea>
       <div class="row"><span>Yorum yaparak <a href="#/yayin-ilkeleri" style="color:var(--navy)">yayın ilkelerimizi</a> kabul etmiş olursunuz.</span><button class="btn btn-navy" style="height:36px" onclick="this.textContent='Gönderildi ✓'">Yorumu gönder</button></div>
-      <div style="margin-top:20px">
-        <div class="cmt"><span class="av">MK</span><div><b>Murat K.</b><small>2 saat önce</small><p>Haberin detaylı olması güzel, kaynak belirtilmesi güven veriyor.</p></div></div>
-        <div class="cmt"><span class="av">EY</span><div><b>Elif Y.</b><small>3 saat önce</small><p>Gelişmeleri takip ediyoruz, güncelleme bekliyoruz.</p></div></div>
-        <div class="cmt"><span class="av">AT</span><div><b>Ahmet T.</b><small>5 saat önce</small><p>Konunun uzun vadeli etkileri de ayrıca ele alınmalı.</p></div></div>
+      <p style="color:var(--ink2);font-size:14px;margin-top:16px">Henüz yorum yapılmamış. İlk yorumu siz yazın.</p></div>
       </div></div>
   </div><aside class="side sticky">${sideWidgets()}</aside></article>`;
 }
