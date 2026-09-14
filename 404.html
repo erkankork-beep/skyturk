@@ -626,7 +626,7 @@ const STANDINGS=[['Galatasaray',5,13,'+9'],['Fenerbahçe',5,11,'+7'],['Beşikta�
 const TRAFFIC=[['Kızılay - Sıhhiye','Yoğun','#E8262C'],['Eskişehir Yolu','Orta','#F9A825'],['Konya Yolu','Akıcı','#22A06B'],['Anadolu Bulvarı','Yoğun','#E8262C'],['Çevre Yolu (Batı)','Akıcı','#22A06B'],['İstanbul Yolu','Orta','#F9A825']];
 
 /* Sunucu köprüsü: CMS'in yayınladığı veriyi api/data.php'den al (yoksa tarayıcı depolaması) */
-function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!CAT[n.cat])n.cat='genel';if(!n.p)n.p=body(i);if(!n.tags)n.tags=[];n.img=(w,h)=>ph(n.cat,w,h,CAT[n.cat].n);NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}}
+function applySaved(saved){if(saved&&saved.news){NEWS.length=0;saved.news.forEach((n,i)=>{if(!n||!n.t)return;if(!CAT[n.cat])n.cat='genel';if(!n.p||!n.p.length)n.p=body(i);if(!n.tags)n.tags=[];if(!n.d)n.d='13.09.2026 00:00';if(typeof n.v!=='number')n.v=0;n.by=n.by||'Skytürk';n.s=n.s||'';n.img=(w,h)=>ph(n.cat,w,h,CAT[n.cat].n);NEWS.push(n)});}if(saved&&saved.polls){POLLS.length=0;saved.polls.forEach(p=>POLLS.push(p));}}
 try{const raw=localStorage.getItem('skyturk_news');if(raw)applySaved({news:JSON.parse(raw),polls:JSON.parse(localStorage.getItem('skyturk_polls')||'null')});}catch(e){}
 
 </script>
@@ -660,7 +660,7 @@ var bi=0;setInterval(()=>{const a=$('#breakItems').children;a[bi].classList.remo
 
 /* Yardımcı parçalar */
 const catTag=c=>`<span class="cat" style="--cc:${CAT[c].c}">${CAT[c].n}</span>`;
-function card(n,opts={}){return `<article class="card"><a class="im" href="#/haber/${n.id}"><img src="${n.img(640,384)}" alt="">${catTag(n.cat)}${opts.play?'<span class="play"><i>▶</i></span>':''}${opts.cnt?`<span class="cnt">${opts.cnt} fotoğraf</span>`:''}</a><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3>${opts.noP?'':`<p>${esc(n.s)}</p>`}<div class="meta"><time>${n.d.slice(0,10)}</time><span>${n.d.slice(11)}</span><span>${esc(n.by)}</span></div></article>`}
+function card(n,opts={}){n.by=n.by||'Skytürk';n.s=n.s||'';return `<article class="card"><a class="im" href="#/haber/${n.id}"><img src="${n.img(640,384)}" alt="">${catTag(n.cat)}${opts.play?'<span class="play"><i>▶</i></span>':''}${opts.cnt?`<span class="cnt">${opts.cnt} fotoğraf</span>`:''}</a><h3><a href="#/haber/${n.id}">${esc(n.t)}</a></h3>${opts.noP?'':`<p>${esc(n.s)}</p>`}<div class="meta"><time>${n.d.slice(0,10)}</time><span>${n.d.slice(11)}</span><span>${esc(n.by)}</span></div></article>`}
 function secH(t,c,link,label='Tümü'){return `<div class="sec-h" style="--cc:${c}"><h2>${t}</h2><hr>${link?`<a href="${link}">${label} ›</a>`:''}</div>`}
 function sideWidgets(){
   const w=WEATHER;
@@ -694,11 +694,11 @@ function home(){
     <button class="arrow l" onclick="slide(-1)" aria-label="Önceki">‹</button><button class="arrow r" onclick="slide(1)" aria-label="Sonraki">›</button>
     <div class="dots">${heroN.map((n,i)=>`<button class="${i?'':'on'}" onclick="slideTo(${i})">${i+1}</button>`).join('')}</div>
   </section>`;
-  const cb=(c)=>{const l=inCat(c);const lead=l[0];return `<div class="catblock" style="--cc:${CAT[c].c}">${secH(CAT[c].n,CAT[c].c,'#/kategori/'+c)}<div class="lead">${card(lead)}</div><ul>${l.slice(1,4).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(192,128)}" alt=""><span>${esc(n.t)}</span></a></li>`).join('')}</ul></div>`};
+  const cb=(c)=>{const l=inCat(c);const lead=l[0];if(!lead)return `<div class="catblock">${secH(CAT[c].n,CAT[c].c,'#/kategori/'+c)}<p style="color:var(--ink2)">Henüz haber yok.</p></div>`;return `<div class="catblock" style="--cc:${CAT[c].c}">${secH(CAT[c].n,CAT[c].c,'#/kategori/'+c)}<div class="lead">${card(lead)}</div><ul>${l.slice(1,4).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(192,128)}" alt=""><span>${esc(n.t)}</span></a></li>`).join('')}</ul></div>`};
   return `
   <div class="grid-hero"><div>${hero}<div class="cards three" style="margin-top:22px">${sorted.slice(6,9).map(n=>card(n,{noP:true})).join('')}</div>
   <section class="sec" style="margin-top:30px">${secH('Gündem','#0B4F9E','#/kategori/gundem')}<div class="cards two">${inCat('gundem').slice(0,4).map(n=>card(n)).join('')}</div></section>
-  <section class="sec" style="margin-top:30px">${secH('Özel Haber','#F9A825','#/ozel-haber')}<div class="ozel"><a class="big" href="#/haber/${ozelN[0].id}"><img src="${ozelN[0].img(900,520)}" alt=""><div class="cap"><span>ÖZEL HABER</span><h3>${esc(ozelN[0].t)}</h3></div></a><ul>${ozelN.slice(1,5).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(240,156)}" alt=""><div><b>${esc(n.t)}</b><small>${CAT[n.cat].n} · ${n.d.slice(0,10)}</small></div></a></li>`).join('')}</ul></div></section>
+  ${ozelN.length?`<section class="sec" style="margin-top:30px">${secH('Özel Haber','#F9A825','#/ozel-haber')}<div class="ozel"><a class="big" href="#/haber/${ozelN[0].id}"><img src="${ozelN[0].img(900,520)}" alt=""><div class="cap"><span>ÖZEL HABER</span><h3>${esc(ozelN[0].t)}</h3></div></a><ul>${ozelN.slice(1,5).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(240,156)}" alt=""><div><b>${esc(n.t)}</b><small>${CAT[n.cat].n} · ${n.d.slice(0,10)}</small></div></a></li>`).join('')}</ul></div></section>`:''}
   </div><aside class="side">${sideWidgets()}</aside></div>
   <div class="ad h-100" style="margin-top:26px"><div style="text-align:center"><span>Reklam</span>970×90</div></div>
   <section class="sec">${secH('Politika','#3F51B5','#/kategori/politika')}<div class="cards">${inCat('politika').slice(0,4).map(n=>card(n)).join('')}</div></section>
@@ -780,7 +780,8 @@ function allHeadlines(){return `<div class="cat-head"><div><h1>Tüm Manşetler</
 function notFound(){return `<div class="page" style="text-align:center;padding:60px 0"><h1 style="font-size:80px;color:var(--sky)">404</h1><p class="sub">Aradığınız sayfa bulunamadı.</p><a class="btn btn-navy" href="#/">Ana sayfaya dön</a></div>`}
 
 /* Router */
-function route(){
+function route(){try{routeInner()}catch(e){$('#app').innerHTML=`<div class="page"><h1>Sayfa yüklenemedi</h1><p class="sub">Teknik ayrıntı: ${esc(e.message)}</p><a class="btn btn-navy" href="#/" onclick="localStorage.clear()">Yeniden dene</a></div>`;console.error(e)}}
+function routeInner(){
   const h=location.hash.replace(/^#/,'')||'/';const p=h.split('/').filter(Boolean);
   let html='';document.title='SKYTÜRK — Son Dakika Haberler, Gündem, Ekonomi, Spor';
   switch(p[0]){
