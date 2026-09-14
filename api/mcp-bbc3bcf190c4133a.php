@@ -83,7 +83,7 @@ switch($name){
   if(!$zipdata||$code!=200)res($id,text("GitHub'dan indirilemedi (HTTP $code)",true));
   $tmp=sys_get_temp_dir().'/skyturk_'.uniqid();$zp=$tmp.'.zip';file_put_contents($zp,$zipdata);$z=new ZipArchive();if($z->open($zp)!==true)res($id,text('Zip açılamadı',true));mkdir($tmp);$z->extractTo($tmp);$z->close();@unlink($zp);
   $root=glob($tmp.'/*',GLOB_ONLYDIR)[0]??null;if(!$root)res($id,text('Paket boş',true));
-  $dst=dirname(__DIR__);$files=['index.html','404.html','.htaccess','cms/index.html','api/fetch.php','api/feeds.php','api/data.php','api/.htaccess','api/'.basename(__FILE__),'api/rewrite.php','api/images.php','api/videos.php','api/hit.php','api/status.php'];$done=[];
+  $dst=dirname(__DIR__);$files=['index.html','404.html','.htaccess','cms/index.html','api/fetch.php','api/feeds.php','api/data.php','api/.htaccess','api/'.basename(__FILE__),'api/rewrite.php','api/images.php','api/videos.php','api/hit.php','api/status.php','api/auth.php','api/session.php'];$done=[];
   foreach($files as $f){if(file_exists("$root/$f")){@mkdir(dirname("$dst/$f"),0755,true);copy("$root/$f","$dst/$f");$done[]=$f;}}
   $sha=trim(@file_get_contents("$root/.git_sha")?:'');logm('MCP deploy '.$ref.' → '.count($done).' dosya');
   res($id,text(['ok'=>true,'ref'=>$ref,'files'=>$done,'not_in_repo'=>array_values(array_diff($files,$done))]));}

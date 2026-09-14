@@ -217,10 +217,42 @@ tr:hover .rowact{opacity:1}
 .kv b{font-family:var(--fh);font-weight:400;font-size:18px}
 @media (max-width:1280px){.stats{grid-template-columns:repeat(3,1fr)}.widgets{grid-template-columns:1fr 1fr}.editor{grid-template-columns:1fr}.media{grid-template-columns:repeat(4,1fr)}}
 @media (max-width:900px){.layout{grid-template-columns:1fr}.sb{display:none}.top{grid-template-columns:1fr auto;padding:0 16px}.top .tl .search{display:none}.top .mid{font-size:22px}.top .mid small{display:none}.content{padding:16px}.stats,.widgets,.cards{grid-template-columns:1fr}.settings{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+
+/* Giriş */
+.login{position:fixed;inset:0;background:linear-gradient(135deg,#0B4F9E,#14213D);display:grid;place-items:center;z-index:100;padding:20px}
+.login .card{background:#fff;border-radius:10px;padding:34px 34px 28px;width:100%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.login .lg{font-family:var(--fh);font-size:34px;font-weight:600;color:var(--navy);text-align:center;margin-bottom:4px}.login .lg b{color:var(--sky);font-weight:600}
+.login .sub{text-align:center;color:var(--ink2);font-size:13px;margin-bottom:22px}
+.login .err{background:#FDECEC;color:#B00020;border-radius:5px;padding:10px 12px;font-size:13.5px;margin-bottom:12px;display:none}
+.login .btn{width:100%;justify-content:center;height:42px;margin-top:6px}
+.login .foot{margin-top:16px;text-align:center;font-size:12px;color:var(--ink2)}
+.role-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:3px;background:#EEF2FF;color:var(--navy);text-transform:uppercase;letter-spacing:.04em}
+.top .who{display:flex;align-items:center;gap:10px;cursor:pointer}
+.top .who small{font-size:12px;color:var(--ink2);line-height:1.2;text-align:right}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
-<div class="layout">
+<div class="login" id="login"><div class="card">
+  <div class="lg">SKY<b>TÜRK</b> <span style="font-family:var(--fb);font-size:12px;letter-spacing:.14em;color:var(--ink2)">CMS</span></div>
+  <div class="sub" id="loginSub">Yönetim paneline giriş</div>
+  <div class="err" id="loginErr"></div>
+  <div id="loginForm">
+    <div class="field"><label>Kullanıcı adı</label><input id="lu" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="field"><label>Şifre</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-p" onclick="doLogin()">Giriş yap</button>
+  </div>
+  <div id="setupForm" class="hidden">
+    <p style="font-size:13.5px;color:var(--ink2);margin-bottom:14px">Henüz kullanıcı yok. İlk yönetici hesabını oluşturun; bunun için <b>yayın anahtarı</b> (config.php) gerekir.</p>
+    <div class="field"><label>Yayın anahtarı</label><input id="sk" type="password"></div>
+    <div class="field"><label>Ad Soyad</label><input id="sn"></div>
+    <div class="field"><label>Kullanıcı adı</label><input id="su" placeholder="küçük harf, rakam, nokta"></div>
+    <div class="field"><label>Şifre (en az 8 karakter)</label><input id="sp" type="password"></div>
+    <button class="btn btn-g" onclick="doSetup()">Yönetici hesabını oluştur</button>
+  </div>
+  <div class="foot">Kodlayan ve Tasarlayan: E.K. · Oturum 12 saat geçerlidir</div>
+</div></div>
+<div class="layout" id="layout" style="visibility:hidden">
   <aside class="sb">
     <div class="brand"><a class="lg" href="#/">st<b>.</b></a><button title="Menüyü daralt">◂</button></div>
     <nav id="sbNav"></nav>
@@ -239,7 +271,7 @@ tr:hover .rowact{opacity:1}
         <a href="#/ayarlar" title="Ayarlar">⚙</a>
         <a href="#" title="Önbelleği temizle" onclick="toast('Önbellek temizlendi');return false">⟳</a>
         <span class="lang"><i></i> Türkçe ▾</span>
-        <span class="av" title="Editör">SE</span>
+        <span class="who" onclick="if(confirm('Oturumu kapatmak istiyor musunuz?'))doLogout()"><small id="whoName">—</small><span class="av" id="whoAv">?</span></span>
       </div>
     </header>
     <main class="content" id="app"></main>
@@ -424,12 +456,27 @@ const CLASSIFIEDS=[];
 const STANDINGS=[['Galatasaray',5,13,'+9'],['Fenerbahçe',5,11,'+7'],['Beşiktaş',5,10,'+6'],['Trabzonspor',5,9,'+3'],['Konyaspor',5,8,'+2'],['Göztepe',5,8,'+1'],['Kocaelispor',5,7,'0'],['Gençlerbirliği',5,6,'-1'],['Samsunspor',5,5,'-2'],['Erzurum FK',5,2,'-6']];
 const TRAFFIC=[['15 Temmuz Şehitler Köprüsü','Yoğun','#E8262C'],['Fatih Sultan Mehmet Köprüsü','Orta','#F9A825'],['Yavuz Sultan Selim Köprüsü','Akıcı','#22A06B'],['Avrasya Tüneli','Akıcı','#22A06B'],['D-100 (E-5) Avrupa','Yoğun','#E8262C'],['D-100 (E-5) Anadolu','Orta','#F9A825'],['TEM Otoyolu','Orta','#F9A825'],['Basın Ekspres Yolu','Akıcı','#22A06B'],['Sahil Yolu (Kennedy Cad.)','Akıcı','#22A06B']];
 
-let API_TOKEN=sessionStorage.getItem('skyturk_token')||'';
+let API_TOKEN='';
+let SESSION=localStorage.getItem('skyturk_sess')||'',ME=null;
+const hdrs=(extra={})=>Object.assign({'Content-Type':'application/json'},SESSION?{'X-Session':SESSION}:{},extra);
+const can=p=>!!ME&&(ME.perms.includes('*')||ME.perms.includes(p));
+const ROLE_TR={yonetici:'Yönetici',editor:'Editör',muhabir:'Muhabir',moderator:'Moderatör',izleyici:'İzleyici'};
+function authInit(){fetch('../api/auth.php?action=status',{headers:hdrs()}).then(r=>r.json()).then(j=>{
+  if(j.user){ME=j.user;showApp();return}
+  $('#login').style.display='grid';$('#layout').style.visibility='hidden';
+  if(j.setup_needed){$('#loginForm').classList.add('hidden');$('#setupForm').classList.remove('hidden');$('#loginSub').textContent='İlk kurulum'}
+  else{$('#loginForm').classList.remove('hidden');$('#setupForm').classList.add('hidden');setTimeout(()=>$('#lu').focus(),50)}
+}).catch(()=>{$('#loginErr').style.display='block';$('#loginErr').textContent='Sunucuya ulaşılamadı'})}
+function loginErr(m){const e=$('#loginErr');e.style.display=m?'block':'none';e.textContent=m||''}
+function doLogin(){loginErr('');fetch('../api/auth.php?action=login',{method:'POST',headers:hdrs(),body:JSON.stringify({username:$('#lu').value,password:$('#lp').value})}).then(async r=>{const j=await r.json();if(!r.ok||!j.ok){loginErr(j.error||'Giriş başarısız');return}SESSION=j.session;localStorage.setItem('skyturk_sess',SESSION);ME=j.user;showApp()}).catch(()=>loginErr('Sunucuya ulaşılamadı'))}
+function doSetup(){loginErr('');fetch('../api/auth.php?action=setup',{method:'POST',headers:hdrs({'X-Token':$('#sk').value.trim()}),body:JSON.stringify({name:$('#sn').value,username:$('#su').value,password:$('#sp').value})}).then(async r=>{const j=await r.json();if(!r.ok||!j.ok){loginErr(j.error||'Kurulum başarısız');return}$('#lu').value=$('#su').value;$('#lp').value=$('#sp').value;doLogin()}).catch(()=>loginErr('Sunucuya ulaşılamadı'))}
+function doLogout(){fetch('../api/auth.php?action=logout',{method:'POST',headers:hdrs()}).finally(()=>{localStorage.removeItem('skyturk_sess');SESSION='';ME=null;location.reload()})}
+function showApp(){$('#login').style.display='none';$('#layout').style.visibility='visible';$('#whoName').innerHTML=esc(ME.name)+'<br><span class="role-badge">'+(ROLE_TR[ME.role]||ME.role)+'</span>';$('#whoAv').textContent=ME.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();loadServer().finally(route)}
 function publish(){
   const payload={news:STATE.news.map(({img,...n})=>n),polls:STATE.polls};
   try{localStorage.setItem('skyturk_news',JSON.stringify(payload.news));localStorage.setItem('skyturk_polls',JSON.stringify(payload.polls));}catch(e){}
-  if(!API_TOKEN){API_TOKEN=prompt('Yayın anahtarı (config.php içindeki token):')||'';if(!API_TOKEN)return;sessionStorage.setItem('skyturk_token',API_TOKEN);}
-  fetch('../api/data.php?key='+encodeURIComponent(API_TOKEN),{method:'POST',headers:{'Content-Type':'application/json','X-Token':API_TOKEN},body:JSON.stringify(Object.assign({_token:API_TOKEN},payload))}).then(r=>{if(r.status===403){sessionStorage.removeItem('skyturk_token');API_TOKEN='';toast('Yayın anahtarı hatalı');}else if(!r.ok)toast('Sunucuya yazılamadı');}).catch(()=>toast('Sunucuya ulaşılamadı'));
+  if(!can('news.edit')){toast('Bu işlem için yetkiniz yok');return}
+  fetch('../api/data.php',{method:'POST',headers:hdrs(),body:JSON.stringify(payload)}).then(r=>{if(r.status===403)toast('Yetkiniz yok');else if(r.status===401)authInit();else if(!r.ok)toast('Sunucuya yazılamadı');}).catch(()=>toast('Sunucuya ulaşılamadı'));
 }
 function loadServer(){return fetch('../api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d&&d.news){STATE.news=d.news.map(n=>{if(!CAT[n.cat])n.cat='genel';if(!n.tags)n.tags=[];n.img=(w,h)=>ph(n.cat,w,h,CAT[n.cat].n);return n});if(d.polls)STATE.polls=d.polls;STATE.updated=d.updated||'';}}).catch(()=>{});}
 
@@ -464,7 +511,8 @@ const NAVI=[
   {h:'/iletisim',t:'İletişim',ic:'✉',badge:()=>msgs.filter(m=>!m[3]).length,bc:'y'}
 ];
 function renderNav(cur){
-  $('#sbNav').innerHTML=NAVI.map(n=>{
+  const NEED={'/ayarlar':'settings','/uyeler':'users','/sistem':'settings','/gorunum':'settings','/ilan':'settings','/rehber':'settings','/yorumlar':'comments'};
+  $('#sbNav').innerHTML=NAVI.filter(n=>!NEED[n.h]||can(NEED[n.h])).map(n=>{
     const b=typeof n.badge==='function'?n.badge():n.badge;
     const on=cur===n.h||(n.sub&&n.sub.some(s=>s[0]===cur));
     return `<div class="grp"><a class="it ${on?'on':''}" href="#${n.h}"><span class="lft"><span>${n.t}</span>${b?`<span class="badge ${n.bc||''}">${b}</span>`:''}</span><span class="ic">${n.ic}</span></a>
@@ -474,10 +522,10 @@ function renderNav(cur){
 /* ---- Sayfalar ---- */
 const stCls=s=>({'Yayında':'','Taslak':'draft','Planlandı':'plan','Arşiv':'arc'})[s]||'';
 function row(n){return `<tr class="${n.st==='Taslak'?'draft':''}"><td>${n.id}</td><td class="th"><img src="${n.img(128,88)}" alt=""></td><td class="title"><a href="#/haber/${n.id}">${esc(n.t)}</a></td><td style="color:var(--ink2)">${n.ozel?'<span class="st" style="background:#F9A825;color:#222;margin-right:6px">Özel</span>':''}${n.auto?'<span class="st" style="background:#6B7280;margin-right:6px" title="RSS ile otomatik">RSS</span>':''}${CAT[n.cat].n}${n.tags.length?', '+n.tags.slice(0,2).join(', '):''}</td><td style="color:var(--ink2)">${esc(n.by)}</td><td>${fmt(n.v)}</td><td><span class="st ${stCls(n.st)}">${n.st}</span></td><td style="color:var(--ink2);white-space:nowrap">${n.d}</td><td><div class="rowact"><button title="Düzenle" onclick="location.hash='#/haber/${n.id}'">✎</button><button title="${n.st==='Yayında'?'Taslağa al':'Yayınla'}" onclick="toggleSt(${n.id})">${n.st==='Yayında'?'⏸':'▶'}</button><button class="del" title="Sil" onclick="del(${n.id})">✕</button></div></td></tr>`}
-function toggleSt(id){const n=STATE.news.find(x=>x.id===id);n.st=n.st==='Yayında'?'Taslak':'Yayında';publish();toast(n.st==='Yayında'?'Haber yayınlandı':'Haber taslağa alındı');route()}
-function del(id){if(!confirm('Haber silinsin mi?'))return;STATE.news=STATE.news.filter(x=>x.id!==id);publish();toast('Haber silindi');route()}
+function toggleSt(id){if(!can('news.publish')){toast('Yayınlama yetkiniz yok');return}const n=STATE.news.find(x=>x.id===id);n.st=n.st==='Yayında'?'Taslak':'Yayında';publish();toast(n.st==='Yayında'?'Haber yayınlandı':'Haber taslağa alındı');route()}
+function del(id){if(!can('news.delete')){toast('Silme yetkiniz yok');return}if(!confirm('Haber silinsin mi?'))return;STATE.news=STATE.news.filter(x=>x.id!==id);publish();toast('Haber silindi');route()}
 
-function loadStatus(){fetch('../api/status.php?t='+Date.now()).then(r=>r.json()).then(j=>{const el=$('#stats2');if(!el)return;const b=el.querySelectorAll('.stat b'),s=el.querySelectorAll('.stat span');
+function loadStatus(){if(can('users'))fetch('../api/auth.php?action=users',{headers:hdrs()}).then(r=>r.json()).then(l=>{const st=document.querySelectorAll('.stats')[0];if(st&&Array.isArray(l))st.querySelectorAll('.stat b')[4].textContent=l.length}).catch(()=>{});fetch('../api/status.php?t='+Date.now()).then(r=>r.json()).then(j=>{const el=$('#stats2');if(!el)return;const b=el.querySelectorAll('.stat b'),s=el.querySelectorAll('.stat span');
   b[0].textContent=j.pending_rewrite;b[1].textContent=j.pending_images;
   b[2].innerHTML=(j.disk_used_mb>=1024?(j.disk_used_mb/1024).toFixed(2)+' GB':j.disk_used_mb+' MB');s[2].textContent='Toplam Doluluk · '+j.disk_quota_gb+' GB kotanın %'+j.disk_pct;
   b[3].textContent=j.server.ok?'✓':'!';s[3].textContent='Sunucu '+(j.server.ok?'Sağlıklı':'Yoğun')+' · yük '+j.server.load+' · PHP '+j.server.php;
@@ -486,7 +534,7 @@ function loadStatus(){fetch('../api/status.php?t='+Date.now()).then(r=>r.json())
   }).catch(()=>{})}
 function dashboard(){setTimeout(loadStatus,50);
   const w=WEATHER,pub=STATE.news.filter(n=>n.st==='Yayında').length;
-  const stats=[['#/reklamlar',9,'Reklam','#E8394A'],['#/haberler',fmt(STATE.news.length),'Haber','#6C5CE7'],['#/yorumlar',STATE.comments.length,'Yorum','#F6B93B'],['#/iletisim',msgs.filter(m=>!m[3]).length,'Okunmamış İleti','#2D3436'],['#/uyeler',STATE.users.length,'Üye','#4CB8A4']];
+  const stats=[['#/reklamlar',9,'Reklam','#E8394A'],['#/haberler',fmt(STATE.news.length),'Haber','#6C5CE7'],['#/yorumlar',STATE.comments.length,'Yorum','#F6B93B'],['#/iletisim',msgs.filter(m=>!m[3]).length,'Okunmamış İleti','#2D3436'],['#/uyeler','…','Üye','#4CB8A4']];
   const wxIco=['⛈','🌧','⛅','☀'];
   return `
   <div class="panel welcome"><a class="btn btn-s" href="../" target="_blank" style="float:right">Siteyi görüntüle ↗</a><h1>SKYTÜRK İçerik Yönetim Sistemine Hoşgeldiniz</h1><p style="color:var(--ink2);margin-top:4px">Kodlayan ve Tasarlayan: <b>E.K.</b></p><p>Bugün ${pub} haber yayında · son giriş: bugün 15:47 · İstanbul</p></div>
@@ -553,6 +601,8 @@ function editor(id){
 function slug(t){return (t||'').toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,70)}
 function seo(){$('#seoT').textContent=($('#fT').value||'Haber başlığı')+' — SKYTÜRK';$('#seoS').textContent=$('#fS').value||'Spot metni burada görünür.';$('#fU').value=slug($('#fT').value)}
 function save(id,st){
+  if(!can('news.create')&&!can('news.edit')){toast('Yetkiniz yok');return}
+  if(st==='Yayında'&&!can('news.publish')){st='Taslak';toast('Yayınlama yetkiniz yok — taslak olarak kaydedildi');}
   const t=$('#fT').value.trim();if(!t){toast('Başlık zorunlu');$('#fT').focus();return}
   const s=$('#fS').value.trim(),cat=[...document.querySelectorAll('.pbox .chk input')].findIndex(c=>c.checked);
   const tags=[...document.querySelectorAll('.tagin .chip')].map(c=>c.textContent.replace('✕','').trim());
@@ -569,11 +619,24 @@ function mansetler(){const l=[3001,3002,3004,3006,3008,3025].map(id=>STATE.news.
   return `<div class="ph"><div><h1>Manşetler</h1><p>Anasayfa slider sırası · ${l.length}/8 slot dolu</p></div><a class="btn btn-p" href="#/haberler">＋ Manşete ekle</a></div><div class="panel"><table><thead><tr><th>Sıra</th><th>Görsel</th><th>Başlık</th><th>Kategori</th><th>Tıklanma</th><th>Bitiş</th><th></th></tr></thead><tbody>${l.map((n,i)=>`<tr><td><b class="fh" style="font-size:20px;color:var(--sky)">${i+1}</b></td><td class="th"><img src="${n.img(128,88)}" alt=""></td><td class="title">${esc(n.t)}</td><td style="color:var(--ink2)">${CAT[n.cat].n}</td><td>${fmt(n.v)}</td><td style="color:var(--ink2)">Süresiz</td><td><div class="rowact"><button title="Yukarı">↑</button><button title="Aşağı">↓</button><button class="del" title="Manşetten kaldır">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function comments(){return `<div class="ph"><div><h1>Yorumlar</h1><p>${STATE.comments.filter(c=>c.st==='pending').length} onay bekliyor · ${STATE.comments.filter(c=>c.st==='ok').length} onaylı · ${STATE.comments.filter(c=>c.st==='spam').length} spam</p></div><button class="btn btn-s" onclick="STATE.comments=STATE.comments.filter(c=>c.st!=='spam');toast('Spam temizlendi');route()">Spam klasörünü boşalt</button></div>
   <div class="panel">${STATE.comments.length?'':'<p style="padding:30px;text-align:center;color:var(--ink2)">Henüz yorum yok.</p>'}${STATE.comments.map(c=>{const n=STATE.news.find(x=>x.id===c.on);return `<div class="cmt"><span class="av" style="background:${c.c}">${c.u.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}</span><div><b>${esc(c.u)}</b><small>${c.d}</small> <span class="st ${c.st==='pending'?'pending':c.st==='spam'?'draft':''}">${{pending:'Bekliyor',ok:'Onaylı',spam:'Spam'}[c.st]}</span><p>${esc(c.t)}</p><div class="on">Haber: <a href="#/haber/${c.on}">${n?esc(n.t):'—'}</a></div></div><div class="acts">${c.st!=='ok'?`<button class="mini ok" onclick="cst(${c.id},'ok')">Onayla</button>`:''}${c.st!=='spam'?`<button class="mini no" onclick="cst(${c.id},'spam')">Spam</button>`:''}<button class="mini" onclick="STATE.comments=STATE.comments.filter(x=>x.id!==${c.id});toast('Yorum silindi');route()">Sil</button></div></div>`}).join('')}</div>`}
-function cst(id,st){STATE.comments.find(c=>c.id===id).st=st;toast(st==='ok'?'Yorum onaylandı':'Spam olarak işaretlendi');route()}
+function cst(id,st){if(!can('comments')){toast('Yorum yetkiniz yok');return}STATE.comments.find(c=>c.id===id).st=st;toast(st==='ok'?'Yorum onaylandı':'Spam olarak işaretlendi');route()}
 function media(){return `<div class="ph"><div><h1>Medya</h1><p>1.842 dosya · 4,2 GB / 20 GB</p></div><button class="btn btn-p" onclick="toast('Yükleme penceresi')">⤒ Dosya yükle</button></div><div class="panel"><div class="toolbar"><input placeholder="Dosya adı ara…"><select><option>Tümü</option><option>Görseller</option><option>Videolar</option><option>PDF</option></select><span class="sp"></span><span style="font-size:13px;color:var(--ink2)">Eylül 2026</span></div><div style="margin:0 16px;padding:12px 14px;background:#FFF6DD;border:1px solid #F6E3A8;border-radius:5px;font-size:13.5px"><b>${STATE.news.length} haberde ajans görseli yok.</b> Referans siteye ait fotoğraflar telif (AA/DHA/İHA ve site arşivi) kapsamında olduğu için aktarılmadı; her haber için görsel üretim istemi haber düzenleme ekranında hazır. <button class="btn btn-s" style="height:30px;margin-left:8px" onclick="exportPrompts()">⤓ İstem listesini indir</button></div>
 <div class="media">${STATE.news.slice(0,24).map(n=>`<div class="m"><img src="${n.imgUrl||n.img(320,240)}" alt="" loading="lazy"><span>${n.imgCredit||slug(n.t).slice(0,28)+'.jpg'}</span></div>`).join('')}</div></div>`}
 function exportPrompts(){const txt=STATE.news.map(n=>`${n.id}\t${slug(n.t)}.jpg\t16:9\t${n.imgPrompt||''}`).join('\n');const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent('id\tdosya\toran\tistem\n'+txt);a.download='skyturk-gorsel-istemleri.tsv';a.click();toast('İstem listesi indirildi')}
-function users(){return `<div class="ph"><div><h1>Üyeler</h1><p>${STATE.users.length} kullanıcı · 4 rol</p></div><button class="btn btn-p" onclick="toast('Davet e-postası gönderildi')">＋ Kullanıcı davet et</button></div><div class="panel"><table><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Rol</th><th>Son giriş</th><th>Durum</th><th></th></tr></thead><tbody>${STATE.users.map(u=>`<tr class="userrow"><td><div style="display:flex;gap:10px;align-items:center"><span class="av">${u[0].split(' ').map(x=>x[0]).join('').slice(0,2)}</span><b>${u[0]}</b></div></td><td style="color:var(--ink2)">${u[2]}@skyturk.com.tr</td><td><span class="role">${u[1]}</span></td><td style="color:var(--ink2)">${u[3]}</td><td><span class="st">Aktif</span></td><td><div class="rowact"><button>✎</button><button class="del">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
+function users(){if(!can('users'))return `<div class="panel" style="padding:40px;text-align:center;color:var(--ink2)">Bu sayfa için yönetici yetkisi gerekir.</div>`;setTimeout(loadUsers,30);return `<div class="ph"><div><h1>Üyeler ve Yetkiler</h1><p>Kullanıcı ekleyin, rol atayın, şifre belirleyin.</p></div></div>
+  <div class="widgets" style="grid-template-columns:2fr 1fr;margin-top:0"><div class="panel"><table><thead><tr><th>Kullanıcı</th><th>Kullanıcı adı</th><th>Rol</th><th>Son giriş</th><th>Durum</th><th></th></tr></thead><tbody id="userRows"><tr><td colspan="6" style="padding:24px;color:var(--ink2)">Yükleniyor…</td></tr></tbody></table></div>
+  <div class="panel" style="padding:20px"><h3 style="margin-bottom:12px">Kullanıcı ekle / güncelle</h3>
+    <div class="field"><label>Ad Soyad</label><input id="uName"></div><div class="field"><label>Kullanıcı adı</label><input id="uUser" placeholder="küçük harf, rakam, nokta"></div>
+    <div class="field"><label>Rol</label><select id="uRole">${Object.entries(ROLE_TR).map(r=>`<option value="${r[0]}">${r[1]}</option>`).join('')}</select></div>
+    <div class="field"><label>Şifre <small style="font-weight:400">(mevcut kullanıcıda boş bırakılırsa değişmez)</small></label><input id="uPass" type="password"></div>
+    <button class="btn btn-p" onclick="saveUser()">Kaydet</button>
+    <div style="margin-top:18px;font-size:13px;color:var(--ink2);line-height:1.6"><b>Roller</b><br>Yönetici: her şey · Editör: haber ekle/düzenle/yayınla/sil, manşet, anket, yorum, RSS · Muhabir: haber ekle/düzenle, yalnızca taslak · Moderatör: yorumlar · İzleyici: görüntüleme</div></div></div>`}
+function loadUsers(){fetch('../api/auth.php?action=users',{headers:hdrs()}).then(r=>r.json()).then(list=>{const tb=$('#userRows');if(!tb)return;tb.innerHTML=(Array.isArray(list)?list:[]).map(u=>`<tr class="userrow"><td><div style="display:flex;gap:10px;align-items:center"><span class="av">${esc(u.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase())}</span><b>${esc(u.name)}</b></div></td><td style="color:var(--ink2)">${esc(u.username)}</td><td><span class="role">${ROLE_TR[u.role]||u.role}</span></td><td style="color:var(--ink2)">${u.last?new Date(u.last).toLocaleString('tr-TR'):'—'}</td><td><span class="st ${u.active?'':'draft'}">${u.active?'Aktif':'Pasif'}</span></td><td><div class="rowact" style="opacity:1"><button title="Düzenle" onclick="editUser('${esc(u.username)}','${esc(u.name)}','${u.role}')">✎</button><button title="${u.active?'Pasifleştir':'Aktifleştir'}" onclick="userActive('${esc(u.username)}',${u.active?'false':'true'})">${u.active?'⏸':'▶'}</button><button class="del" title="Sil" onclick="delUser('${esc(u.username)}')">✕</button></div></td></tr>`).join('')||'<tr><td colspan="6" style="padding:24px;color:var(--ink2)">Kullanıcı yok</td></tr>'})}
+function editUser(u,n,r){$('#uUser').value=u;$('#uName').value=n;$('#uRole').value=r;$('#uPass').value='';$('#uName').focus()}
+function saveUser(){fetch('../api/auth.php?action=user_save',{method:'POST',headers:hdrs(),body:JSON.stringify({username:$('#uUser').value,name:$('#uName').value,role:$('#uRole').value,password:$('#uPass').value})}).then(async r=>{const j=await r.json();if(!r.ok||!j.ok){toast(j.error||'Kaydedilemedi');return}toast('Kullanıcı kaydedildi');$('#uPass').value='';loadUsers()})}
+function userActive(u,a){fetch('../api/auth.php?action=user_save',{method:'POST',headers:hdrs(),body:JSON.stringify({username:u,active:a})}).then(async r=>{const j=await r.json();toast(j.ok?'Güncellendi':(j.error||'Hata'));loadUsers()})}
+function delUser(u){if(!confirm(u+' silinsin mi?'))return;fetch('../api/auth.php?action=user_delete',{method:'POST',headers:hdrs(),body:JSON.stringify({username:u})}).then(async r=>{const j=await r.json();toast(j.ok?'Silindi':(j.error||'Hata'));loadUsers()})}
+function usersOld(){return `<div class="ph"><div><h1>Üyeler</h1><p>${STATE.users.length} kullanıcı · 4 rol</p></div><button class="btn btn-p" onclick="toast('Davet e-postası gönderildi')">＋ Kullanıcı davet et</button></div><div class="panel"><table><thead><tr><th>Kullanıcı</th><th>E-posta</th><th>Rol</th><th>Son giriş</th><th>Durum</th><th></th></tr></thead><tbody>${STATE.users.map(u=>`<tr class="userrow"><td><div style="display:flex;gap:10px;align-items:center"><span class="av">${u[0].split(' ').map(x=>x[0]).join('').slice(0,2)}</span><b>${u[0]}</b></div></td><td style="color:var(--ink2)">${u[2]}@skyturk.com.tr</td><td><span class="role">${u[1]}</span></td><td style="color:var(--ink2)">${u[3]}</td><td><span class="st">Aktif</span></td><td><div class="rowact"><button>✎</button><button class="del">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function settings(sec){sec=sec||'genel';const M=[['genel','Genel'],['seo','SEO'],['sosyal','Sosyal Medya'],['api','Servisler & API'],['kvkk','KVKK / Çerez'],['eposta','E-posta'],['guvenlik','Güvenlik']];
   const forms={genel:`<div class="g2"><div class="field"><label>Site adı</label><input value="SKYTÜRK"></div><div class="field"><label>Slogan</label><input value="Gökyüzü kadar geniş, haber kadar hızlı"></div><div class="field"><label>Alan adı</label><input value="skyturk.com.tr"></div><div class="field"><label>Zaman dilimi</label><select><option>Europe/Istanbul (UTC+3)</option></select></div><div class="field"><label>Varsayılan şehir (hava durumu)</label><input value="İstanbul"></div><div class="field"><label>Anasayfa manşet sayısı</label><input type="number" value="6"></div></div><div class="field"><label>Site açıklaması</label><textarea>SKYTÜRK: Türkiye ve dünyadan son dakika haberleri, ekonomi, spor, kültür-sanat ve yaşam.</textarea></div>`,
     seo:`<div class="field"><label>Başlık şablonu</label><input value="%baslik% — SKYTÜRK"></div><div class="field"><label>Google Search Console doğrulama</label><input placeholder="meta content"></div><div class="sw"><span>XML site haritası</span><button class="tog on" onclick="this.classList.toggle('on')"></button></div><div class="sw"><span>Google News beslemesi</span><button class="tog on" onclick="this.classList.toggle('on')"></button></div><div class="sw"><span>AMP sayfaları</span><button class="tog" onclick="this.classList.toggle('on')"></button></div>`,
@@ -588,7 +651,7 @@ function inbox(){return `<div class="ph"><div><h1>İletişim</h1><p>${msgs.filte
 function galleryPage(video){const l=STATE.news.filter(n=>video?/gececilik|Fethi Akkoç|Katarakt|damar/i.test(n.t):/LİSTE|FIRTINASI|MAAŞ|DEĞERLİ/.test(n.t));return `<div class="ph"><div><h1>${video?'Video Galeri':'Foto Galeri'}</h1><p>${l.length} ${video?'video':'galeri'} yayında</p></div><button class="btn btn-p" onclick="toast('${video?'Video':'Galeri'} oluşturma formu')">＋ Yeni ${video?'Video':'Galeri'}</button></div><div class="panel"><table><thead><tr><th>ID</th><th>Kapak</th><th>Başlık</th><th>${video?'Süre':'Fotoğraf'}</th><th>Kategori</th><th>Görüntüleme</th><th>Durum</th><th></th></tr></thead><tbody>${l.map((n,i)=>`<tr><td>${n.id}</td><td class="th"><img src="${n.img(128,88)}" alt=""></td><td class="title">${esc(n.t)}</td><td>${video?['04:12','12:40','06:05','08:30'][i%4]:[18,12,24,9][i%4]}</td><td style="color:var(--ink2)">${CAT[n.cat].n}</td><td>${fmt(n.v)}</td><td><span class="st">Yayında</span></td><td><div class="rowact"><button>✎</button><button class="del">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function peopleAdmin(kind){const L=kind==='roportaj'?INTERVIEWS:BIOS;return `<div class="ph"><div><h1>${kind==='roportaj'?'Röportaj':'Biyografi'}</h1><p>${L.length} kayıt</p></div><button class="btn btn-p" onclick="toast('Yeni kayıt formu')">＋ Yeni ${kind==='roportaj'?'Röportaj':'Biyografi'}</button></div><div class="panel"><table><thead><tr><th>Kişi</th><th>Unvan</th><th>${kind==='roportaj'?'Başlık':'Özet'}</th><th>Kategori</th><th>Durum</th><th></th></tr></thead><tbody>${L.length?'':'<tr><td colspan="6" style="color:var(--ink2);text-align:center;padding:30px">Henüz kayıt yok.</td></tr>'}${L.map(p=>`<tr class="userrow"><td><div style="display:flex;gap:10px;align-items:center"><span class="av" style="background:${CAT[p.cat].c}">${p.n.replace(/^(Prof\. |Dr\. )+/,'').split(' ').map(x=>x[0]).join('').slice(0,2)}</span><b>${esc(p.n)}</b></div></td><td style="color:var(--ink2)">${esc(p.role)}</td><td class="title">${esc(p.t||p.s)}</td><td style="color:var(--ink2)">${CAT[p.cat].n}</td><td><span class="st">Yayında</span></td><td><div class="rowact"><button>✎</button><button class="del">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function pollsAdmin(){return `<div class="ph"><div><h1>Anketler</h1><p>${STATE.polls.filter(p=>p.open).length} açık · ${STATE.polls.filter(p=>!p.open).length} sonuçlanmış</p></div><button class="btn btn-p" onclick="toast('Yeni anket formu')">＋ Yeni Anket</button></div><div class="cards">${STATE.polls.map(p=>`<div class="panel ccard"><div class="hd"><i style="background:${p.open?'var(--green)':'var(--ink2)'}"></i><b style="font-size:15px;line-height:1.3">${esc(p.q)}</b></div>${p.o.map(o=>`<div style="font-size:13px"><div style="display:flex;justify-content:space-between"><span>${o[0]}</span><b>${o[1]}%</b></div><div style="height:6px;background:#EEF2F7;border-radius:3px;overflow:hidden"><i style="display:block;height:100%;width:${o[1]}%;background:var(--sky)"></i></div></div>`).join('')}<p>${fmt(p.votes)} oy · ${p.open?'Anasayfada gösteriliyor':'Kapalı'}</p><div class="ft"><button onclick="togglePoll('${p.id}')">${p.open?'Kapat':'Yeniden aç'}</button><button onclick="toast('Anket düzenleme')">Düzenle</button></div></div>`).join('')}</div>`}
-function togglePoll(id){const p=STATE.polls.find(x=>x.id===id);p.open=!p.open;publish();toast(p.open?'Anket açıldı':'Anket kapatıldı');route()}
+function togglePoll(id){if(!can('polls')){toast('Anket yetkiniz yok');return}const p=STATE.polls.find(x=>x.id===id);p.open=!p.open;publish();toast(p.open?'Anket açıldı':'Anket kapatıldı');route()}
 function ozelAdmin(){const l=STATE.news.filter(n=>n.ozel);return `<div class="ph"><div><h1>Özel Haber</h1><p>${l.length} dosya haber anasayfa Özel Haber bloğunda</p></div><a class="btn btn-p" href="#/haberler">＋ Haberden seç</a></div><div class="panel"><table><thead><tr><th>ID</th><th>Görsel</th><th>Başlık</th><th>Kategori</th><th>Tıklanma</th><th></th></tr></thead><tbody>${l.map(n=>`<tr><td>${n.id}</td><td class="th"><img src="${n.img(128,88)}" alt=""></td><td class="title">${esc(n.t)}</td><td style="color:var(--ink2)">${CAT[n.cat].n}</td><td>${fmt(n.v)}</td><td><div class="rowact"><button onclick="location.hash='#/haber/${n.id}'">✎</button><button class="del" title="Özel haberden çıkar" onclick="const x=STATE.news.find(a=>a.id===${n.id});x.ozel=false;publish();toast('Özel haberden çıkarıldı');route()">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function ilanAdmin(){const l=STATE.news.filter(n=>n.cat==='resmi-ilan');return `<div class="ph"><div><h1>Resmi İlan</h1><p>Basın İlan Kurumu (ilan.gov.tr) entegrasyonu · ${l.length} ilan yayında</p></div><button class="btn btn-s" onclick="toast('BİK beslemesi eşitlendi')">⟳ BİK ile eşitle</button></div><div class="panel"><div class="toolbar"><span class="chip">Widget: aktif</span><span class="chip">Otomatik çekim: 06:00 / 12:00 / 18:00</span><span class="sp"></span><span style="font-size:13px;color:var(--ink2)">Son eşitleme: bugün 12:00</span></div><table><thead><tr><th>ID</th><th>İlan</th><th>Kurum</th><th>Tarih</th><th>Durum</th><th></th></tr></thead><tbody>${l.map(n=>`<tr><td>${n.id}</td><td class="title">${esc(n.t)}</td><td style="color:var(--ink2)">${esc(n.by)}</td><td style="color:var(--ink2)">${n.d}</td><td><span class="st">Yayında</span></td><td><div class="rowact"><button onclick="location.hash='#/haber/${n.id}'">✎</button><button class="del" onclick="del(${n.id})">✕</button></div></td></tr>`).join('')}</tbody></table></div>`}
 function epaperAdmin(){return `<div class="ph"><div><h1>Dijital Gazete</h1><p>Günlük PDF baskılar · son yükleme 13 Eylül 05:30</p></div><button class="btn btn-p" onclick="toast('PDF yükleme penceresi')">⤒ Bugünün baskısını yükle</button></div><div class="panel"><div class="media" style="grid-template-columns:repeat(8,1fr)">${Array.from({length:8},(_,i)=>{const d=new Date(2026,8,13-i);return `<div class="m"><img src="${ph(CATS[(i+1)%CATS.length].id,300,400,'SKYTÜRK '+d.getDate()+' EYLÜL')}" style="aspect-ratio:3/4" alt=""><span>${d.toLocaleDateString('tr-TR',{day:'2-digit',month:'short'})} · ${(2.1+i*.13).toFixed(1)} MB</span></div>`}).join('')}</div></div>`}
@@ -604,11 +667,11 @@ function ajanslar(){const auto=STATE.news.filter(n=>n.auto);const bySrc={};auto.
   <div class="panel"><div class="wh"><div><h3>Nasıl çalışır</h3></div></div><div style="padding:0 22px 22px;font-size:14px;line-height:1.6;color:#374151"><p>Her kaynağın açık RSS akışından <b>başlık + özet + bağlantı</b> alınır; tam metin kopyalanmaz. Ayarlar › Servisler'de API anahtarı girilirse Haiku her yeni haberin başlık ve spotunu özgün yazar, kategori/etiket atar. Sitede haber sayfası özeti gösterir ve "Haberin tamamını kaynağında okuyun" bağlantısı verir.</p><p style="margin-top:8px">Otomatik haberler 7 gün sonra akıştan düşer; elle yazdığınız haberler korunur. Bir otomatik haberi düzenlerseniz elle haber sayılır ve silinmez.</p><p style="margin-top:8px">Kaynak eklemek için <code>api/feeds.php</code> dosyasına satır ekleyin.</p></div>
   <div class="kv"><span>Kaynak dağılımı</span><b>${Object.entries(bySrc).map(k=>k[0]+' '+k[1]).join(' · ')||'—'}</b></div></div></div>
   <div class="panel tbl-wrap"><div class="wh"><h3>Son çekilen haberler</h3></div><div style="overflow:auto"><table><thead><tr><th>ID</th><th>Görsel</th><th>Başlık</th><th>Kategoriler</th><th>Oluşturan</th><th>Tıklanma</th><th>Durum</th><th>Oluşturma</th><th></th></tr></thead><tbody>${auto.slice(0,30).map(row).join('')}</tbody></table></div></div>`}
-function runFetch(btn){if(!API_TOKEN){API_TOKEN=prompt('Yayın anahtarı (config.php içindeki token):')||'';if(!API_TOKEN)return;sessionStorage.setItem('skyturk_token',API_TOKEN);}btn.disabled=true;btn.textContent='Çekiliyor…';fetch('../api/fetch.php?key='+encodeURIComponent(API_TOKEN)).then(r=>r.json()).then(j=>{toast(j.ok?`${j.added} yeni haber eklendi (toplam ${j.total})`:'Hata: '+(j.error||''));return loadServer()}).catch(()=>toast('Sunucuya ulaşılamadı')).finally(()=>{btn.disabled=false;btn.textContent='⟳ Şimdi çek';route()})}
-function saveSecret(){if(!API_TOKEN){API_TOKEN=prompt('Yayın anahtarı (config.php içindeki token):')||'';if(!API_TOKEN)return;sessionStorage.setItem('skyturk_token',API_TOKEN);}
-  const k=$('#akey').value.trim(),m=$('#amodel').value;const body={REWRITE_MODEL:m,_token:API_TOKEN};if(k)body.ANTHROPIC_KEY=k;const pk=$('#pkey').value.trim();if(pk)body.PEXELS_KEY=pk;
-  fetch('../api/data.php?action=secret&key='+encodeURIComponent(API_TOKEN),{method:'POST',headers:{'Content-Type':'application/json','X-Token':API_TOKEN},body:JSON.stringify(body)}).then(async r=>{const t=await r.text();let j={};try{j=JSON.parse(t)}catch(e){}
-    if(r.status===403){sessionStorage.removeItem('skyturk_token');API_TOKEN='';$('#akeyst').textContent='403 — '+t.slice(0,160);toast('Yayın anahtarı hatalı');return}
+function runFetch(btn){if(!can('rss')){toast('Bu işlem için yetkiniz yok');return}btn.disabled=true;btn.textContent='Çekiliyor…';fetch('../api/fetch.php',{headers:hdrs()}).then(r=>r.json()).then(j=>{toast(j.ok?`${j.added} yeni haber eklendi (toplam ${j.total})`:'Hata: '+(j.error||''));return loadServer()}).catch(()=>toast('Sunucuya ulaşılamadı')).finally(()=>{btn.disabled=false;btn.textContent='⟳ Şimdi çek';route()})}
+function saveSecret(){if(!can('settings')){toast('Bu işlem için yönetici yetkisi gerekir');return}
+  const k=$('#akey').value.trim(),m=$('#amodel').value;const body={REWRITE_MODEL:m};if(k)body.ANTHROPIC_KEY=k;const pk=$('#pkey').value.trim();if(pk)body.PEXELS_KEY=pk;
+  fetch('../api/data.php?action=secret',{method:'POST',headers:hdrs(),body:JSON.stringify(body)}).then(async r=>{const t=await r.text();let j={};try{j=JSON.parse(t)}catch(e){}
+    if(r.status===403){$('#akeyst').textContent='Yetkiniz yok (yönetici gerekir)';toast('Yetkiniz yok');return}
     if(!r.ok||!j.ok){$('#akeyst').textContent='Hata '+r.status+': '+(j.error||t.slice(0,120));toast('Kaydedilemedi');return}
     $('#akeyst').textContent='Kaydedildi · anahtar: '+(j.has_key?'var':'yok')+' · model: '+j.model;toast('Kaydedildi')}).catch(e=>{$('#akeyst').textContent='Sunucuya ulaşılamadı: '+e.message;toast('Sunucuya ulaşılamadı')})}
 function generic(t,d){return `<div class="ph"><div><h1>${t}</h1><p>${d}</p></div></div><div class="panel" style="padding:40px;text-align:center;color:var(--ink2)">Bu modül yapılandırma aşamasında. <a href="#/" style="color:var(--navy);font-weight:700">Kontrol paneline dön</a></div>`}
@@ -654,7 +717,7 @@ function route(){
   }
   $('#app').innerHTML=html;renderNav(cur);scrollTo(0,0);
 }
-addEventListener('hashchange',route);loadServer().finally(route);
+addEventListener('hashchange',()=>{if(ME)route()});authInit();
 </script>
 </body>
 </html>
