@@ -68,7 +68,9 @@ switch($name){
   if(!$found)res($id,text('Haber bulunamadı',true));save($d);logm('MCP update #'.$a['id']);res($id,text(['ok'=>true,'updated'=>$out]));}
  case 'delete_news':{$d=load();$before=count($d['news']);
   if(!empty($a['delete_all_manual'])){if(empty($a['confirm']))res($id,text('confirm=true gerekli',true));$d['news']=array_values(array_filter($d['news'],fn($x)=>!empty($x['auto'])));}
-  else{$ids=array_map('intval',$a['ids']??[]);$d['news']=array_values(array_filter($d['news'],fn($x)=>!in_array((int)$x['id'],$ids)));}
+  else{$ids=array_map('intval',$a['ids']??[]);
+    if(in_array(-1,$ids)) $d['news']=array_values(array_filter($d['news'],fn($x)=>!(!empty($x['auto'])&&empty($x['rw'])))); // -1: kuyrukta bekleyen (özgünleştirilmemiş) RSS haberleri
+    else $d['news']=array_values(array_filter($d['news'],fn($x)=>!in_array((int)$x['id'],$ids)));}
   save($d);$n=$before-count($d['news']);logm("MCP delete $n haber");res($id,text(['ok'=>true,'deleted'=>$n,'remaining'=>count($d['news'])]));}
  case 'set_status':{$d=load();$ok=false;foreach($d['news'] as &$x)if($x['id']==$a['id']){$x['st']=$a['status'];$ok=true;}unset($x);if(!$ok)res($id,text('Haber bulunamadı',true));save($d);res($id,text(['ok'=>true,'id'=>$a['id'],'status'=>$a['status']]));}
  case 'fetch_rss':{$self='https://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['REQUEST_URI']).'/fetch.php?key='.urlencode(SKYTURK_TOKEN);
