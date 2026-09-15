@@ -3,3 +3,13 @@ RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 AddDefaultCharset UTF-8
 ErrorDocument 404 /404.html
+
+# HTML her zaman taze, statik varlıklar uzun önbellek
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+  </FilesMatch>
+  <FilesMatch "\.(jpg|jpeg|png|webp|gif|svg|pdf|ttf)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
