@@ -2,7 +2,11 @@
 /* SKYTÜRK — e-posta gönderimi: CMS'te SMTP tanımlıysa Gmail/SMTP (STARTTLS), yoksa PHP mail() */
 function sky_smtp_conf(){ $d=json_decode(@file_get_contents(__DIR__.'/data.json'),true); $s=$d['settings']['smtp']??[]; $sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[]; $s['pass']=$sec['SMTP_PASS']??''; return $s; }
 function sky_mail(string $to, string $subject, string $body, ?string $replyTo=null): bool {
-  $c=sky_smtp_conf(); $from=$c['addr']??''; $fromName=$c['from']??'SKYTÜRK'; $host=$c['host']??''; $port=(int)($c['port']??587); $pass=$c['pass']??'';
+  $c=sky_smtp_conf(); $sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];
+  /* 1) Brevo (HTTPS API) — paylaşımlı hostingde SMTP portları kapalı olduğu için tercih edilen yol */
+  if(!empty($sec['BREVO_KEY'])){ $from=$c['addr']??'skyturk0607@gmail.com'; $payload=['sender'=>['name'=>$c['from']??'SKYTÜRK','email'=>$from],'to'=>[['email'=>$to]],'subject'=>$subject,'textContent'=>$body]; if($replyTo) $payload['replyTo']=['email'=>$replyTo];
+    $ch=curl_init('https://api.brevo.com/v3/smtp/email'); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>15,CURLOPT_POST=>1,CURLOPT_POSTFIELDS=>json_encode($payload,JSON_UNESCAPED_UNICODE),CURLOPT_HTTPHEADER=>['accept: application/json','content-type: application/json','api-key: '.$sec['BREVO_KEY']]]);
+    $r=curl_exec($ch); $code=curl_getinfo($ch,CURLINFO_HTTP_CODE); curl_close($ch); @file_put_contents(__DIR__.'/mail.log',date('c').' BREVO '.$code.' → '.$to.': '.($code>=200&&$code<300?'OK':substr((string)$r,0,160))."\n",FILE_APPEND); if($code>=200&&$code<300) return true; } $from=$c['addr']??''; $fromName=$c['from']??'SKYTÜRK'; $host=$c['host']??''; $port=(int)($c['port']??587); $pass=$c['pass']??'';
   if($host&&$from&&$pass){ try{ return sky_smtp_send($host,$port,$from,$pass,$fromName,$to,$subject,$body,$replyTo); }catch(Throwable $e){ @file_put_contents(__DIR__.'/mail.log',date('c').' SMTP HATA: '.$e->getMessage()."\n",FILE_APPEND); } }
   $hdr=['From: '.$fromName.' <'.($from?:'cms@'.($_SERVER['HTTP_HOST']??'testhabersitesimiz.site')).'>','Content-Type: text/plain; charset=UTF-8']; if($replyTo) $hdr[]='Reply-To: '.$replyTo;
   return @mail($to,'=?UTF-8?B?'.base64_encode($subject).'?=',$body,implode("\r\n",$hdr));

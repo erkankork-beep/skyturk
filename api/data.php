@@ -28,7 +28,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   if(($_GET['action']??'')==='mailtest'){ require_once __DIR__.'/mailer.php'; $to=trim($jin['to']??''); $ok=$to?sky_mail($to,'SKYTÜRK test e-postası','Bu bir test iletisidir. SMTP ayarlarınız çalışıyor.'):false; $log=@file_get_contents(__DIR__.'/mail.log'); echo json_encode(['ok'=>$ok,'log'=>array_slice(array_filter(explode("\n",(string)$log)),-3)],JSON_UNESCAPED_UNICODE); exit; }
   if(($_GET['action']??'')==='credit'){ require_once __DIR__.'/credit.php'; $c=sky_credit_set((float)($jin['balance']??0),$jin['email']??null); sky_audit('kredi güncellendi','$'.$c['balance'].' · '.$c['email']); echo json_encode(sky_credit_status()); exit; }
   if(($_GET['action']??'')==='secret'){
-    $j=$jin; $allowed=['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY','SMTP_PASS'];
+    $j=$jin; $allowed=['ANTHROPIC_KEY','REWRITE_MODEL','PEXELS_KEY','SMTP_PASS','BREVO_KEY'];
     $sec=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[];
     foreach($allowed as $k) if(isset($j[$k])) $sec[$k]=trim((string)$j[$k]);
     file_put_contents(__DIR__.'/secrets.php',"<?php return ".var_export($sec,true).";\n",LOCK_EX); sky_audit('ayar değişikliği',implode(', ',array_keys(array_intersect_key($j,array_flip($allowed)))));
