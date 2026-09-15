@@ -14,4 +14,4 @@ function sky_credit_spend($usd,$apiError=null){
     sky_credit_mail($c,"SKYTÜRK — API kredisi ~{$t} saat içinde bitiyor","Kalan tahmini kredi: \${$st['remaining']} · günlük harcama hızı: \${$st['rate_per_day']} · tahmini kalan süre: {$st['hours_left']} saat.\nKredi yüklemek: platform.claude.com > Credits > Add funds. Ardından CMS > Ayarlar > Servisler & API > 'Yüklenen kredi' alanına yeni toplamı girin; uyarılar sıfırlanır."); break; } } }
   return $st;
 }
-function sky_credit_mail($c,$subj,$body){ $to=$c['email']??''; if(!$to) return false; $host=$_SERVER['HTTP_HOST']??'testhabersitesimiz.site'; return @mail($to,'=?UTF-8?B?'.base64_encode($subj).'?=',$body."\n\n— SKYTÜRK CMS",implode("\r\n",['From: SKYTÜRK CMS <cms@'.$host.'>','Content-Type: text/plain; charset=UTF-8'])); }
+function sky_credit_mail($c,$subj,$body){ $to=$c['email']??''; if(!$to) return false; require_once __DIR__.'/mailer.php'; return sky_mail($to,$subj,$body."\n\n— SKYTÜRK CMS"); }
