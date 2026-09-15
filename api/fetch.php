@@ -129,6 +129,7 @@ $data['news']=$news; $rw['astro']=skyturk_astro($data);
 if((int)date('G')>=9){ $iss=__DIR__.'/../gazete/issues.json'; $have=false; if(file_exists($iss)) foreach(json_decode(file_get_contents($iss),true)?:[] as $is) if(($is['date']??'')===date('Y-m-d')) $have=true;
   if(!$have){ $GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1; sky_merge_write($file,$news,$data); require_once __DIR__.'/gazete.php'; $rw['gazete']=skyturk_gazete_build(); } }
 require_once __DIR__.'/fixtures.php'; $fx=__DIR__.'/fixtures.json'; if(!file_exists($fx)||time()-filemtime($fx)>1800) $rw['fikstur']=skyturk_fixtures();
+require_once __DIR__.'/social.php'; try{ $rw['instagram']=sky_social_autopost($news,2); $secx=file_exists(__DIR__.'/secrets.php')?(include __DIR__.'/secrets.php'):[]; if(!empty($secx['IG_TOKEN'])&&(time()-(int)($secx['IG_TOKEN_AT']??0))>50*86400){ $rw['ig_refresh']=sky_ig_refresh(); } }catch(Throwable $e){ $rw['instagram']=['error'=>$e->getMessage()]; }
 require_once __DIR__.'/credit.php'; $rw['kredi']=sky_credit_spend((float)($rw['est_cost_usd']??0)+(!empty($rw['astro']['ok'])?0.01:0),$rw['api_error']??null);
 $GLOBALS['sky_disk_ids']=[]; foreach((json_decode(@file_get_contents($file),true)['news']??[]) as $x0) $GLOBALS['sky_disk_ids'][(int)$x0['id']]=1;
 $news=sky_merge_write($file,$news,$data);
