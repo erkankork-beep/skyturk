@@ -64,7 +64,10 @@ foreach($feeds as $fi=>[$url,$cat,$srcName]){
   }
   $cands[$fi]=['url'=>$url,'cat'=>$cat,'src'=>$srcName,'items'=>$list,'total'=>count($items),'new'=>0];
 }
-/* 2) Dönüşümlü seçim: her turda her kaynaktan bir haber — hiçbir kategori aç kalmaz */
+/* 2) Dönüşümlü seçim: her turda her kaynaktan bir haber — hiçbir kategori aç kalmaz.
+      Sıra: en uzun süredir yeni haber almayan kategori önce (pay küçükse bile adil dağılır) */
+$lastTs=[]; foreach($news as $x0){ if(empty($x0['auto'])||!empty($x0['video'])) continue; $c0=$x0['cat']??''; $lastTs[$c0]=max($lastTs[$c0]??0,(int)($x0['ts']??0)); }
+uasort($cands,function($a,$b)use($lastTs){ return ($lastTs[$a['cat']]??0)<=>($lastTs[$b['cat']]??0); });
 $progress=true; $round=0;
 while($progress&&$round<$PER_FEED){ $progress=false; $round++;
   foreach($cands as $fi=>&$cf){ if(empty($cf['items'])) continue; $progress=true;
