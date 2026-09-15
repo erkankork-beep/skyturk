@@ -46,29 +46,36 @@ function get($url){
 function clean($s){ $s=html_entity_decode(strip_tags((string)$s),ENT_QUOTES|ENT_HTML5,'UTF-8'); return trim(preg_replace('/\s+/u',' ',$s)); }
 function cut($s,$n){ return mb_strlen($s)>$n ? mb_substr($s,0,$n-1).'…' : $s; }
 
-$added=0; $errors=[]; $perFeed=[];
-foreach($feeds as [$url,$cat,$srcName]){
+$added=0; $errors=[]; $perFeed=[]; $cands=[];
+/* 1) Tüm kaynakları çek, adayları topla */
+foreach($feeds as $fi=>[$url,$cat,$srcName]){
   $xml=get($url); if(!$xml){ $errors[]=$url; $perFeed[$url]='ERİŞİLEMEDİ'; continue; }
   libxml_use_internal_errors(true);
   $doc=simplexml_load_string($xml); if(!$doc){ $errors[]=$url; $perFeed[$url]='XML DEĞİL'; continue; }
   $items=$doc->channel->item ?? $doc->entry ?? [];
-  /* en yeniler önce: bazı akışlar (Hürriyet) yüzlerce eski kaydı karışık sırayla verir */
   $arr=[]; foreach($items as $it){ $pubx=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: 0; $arr[]=[$pubx,$it]; }
   usort($arr,fn($a,$b)=>$b[0]<=>$a[0]); $items=array_map(fn($x)=>$x[1],array_slice($arr,0,120));
-  $i=0; $new=0;
-  foreach($items as $it){
-    if(++$i>120||$new>=$PER_FEED) break; // en fazla 200 öğe taranır, kaynak başına 25 yeni
-    $link=clean($it->link['href'] ?? $it->link ?? '');
-    $title=clean($it->title ?? ''); if(!$link||!$title) continue;
+  $list=[]; foreach($items as $it){
+    $link=clean($it->link['href'] ?? $it->link ?? ''); $title=clean($it->title ?? ''); if(!$link||!$title) continue;
     if(isset($seen[$link])) continue;
-    $title0=clean((string)$it->title); if(preg_match('/İğneli Fırça|Karikatür|Günün Karikatürü|Bulmaca|Günün Fotoğrafı|Çizgi Roman|Kim Kime Dum Duma|Köşe Yazısı|Yazarlar:/iu',$title0)) continue; // haber değil
-    /* benzer başlık tekilleştirme: aynı olay farklı kaynaktan geldiyse atla */
+    if(preg_match('/İğneli Fırça|Karikatür|Günün Karikatürü|Bulmaca|Günün Fotoğrafı|Çizgi Roman|Kim Kime Dum Duma|Köşe Yazısı|Yazarlar:/iu',$title)) continue;
+    $pub0=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time(); if(time()-$pub0>$MAX_AGE_H*3600) continue;
+    $list[]=$it; if(count($list)>=$PER_FEED) break;
+  }
+  $cands[$fi]=['url'=>$url,'cat'=>$cat,'src'=>$srcName,'items'=>$list,'total'=>count($items),'new'=>0];
+}
+/* 2) Dönüşümlü seçim: her turda her kaynaktan bir haber — hiçbir kategori aç kalmaz */
+$progress=true; $round=0;
+while($progress&&$round<$PER_FEED){ $progress=false; $round++;
+  foreach($cands as $fi=>&$cf){ if(empty($cf['items'])) continue; $progress=true;
+    $it=array_shift($cf['items']); $url=$cf['url']; $cat=$cf['cat']; $srcName=$cf['src'];
+    $link=clean($it->link['href'] ?? $it->link ?? ''); $title=clean($it->title ?? ''); $title0=$title;
+    if(isset($seen[$link])) continue;
     $tk=mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($title0)),0,30); if(isset($titleKeys[$tk])) continue;
-    $pub0=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
-    if(time()-$pub0>$MAX_AGE_H*3600) continue;                 // eski haber
-    $capCat=($boost&&($boost['cat']??'')===$cat)?(int)$boost['n']:$PER_CAT; if(($catNew[$cat]??0)>=$capCat) continue;                  // bu kategori bu turda doldu
-    if($usedToday+$added>=$DAILY_BUDGET) break 2;               // günlük tavan
-    if($usedToday+$added>=$allowedSoFar) break 2;                // saatlik dağıtım: bu saate kadar izin verilen pay doldu
+    $capCat=($boost&&($boost['cat']??'')===$cat)?(int)$boost['n']:$PER_CAT; if(($catNew[$cat]??0)>=$capCat) continue;
+    if($usedToday+$added>=$DAILY_BUDGET) break 2;
+    if($usedToday+$added>=$allowedSoFar) break 2;
+    $new=&$cf['new'];
     $desc=cut(clean($it->description ?? $it->summary ?? $it->content ?? ''),280);
     $enc=$it->children('http://purl.org/rss/1.0/modules/content/')->encoded ?? null; $full=$enc?clean((string)$enc):'';
     $pub=strtotime((string)($it->pubDate ?? $it->published ?? $it->updated ?? '')) ?: time();
@@ -80,9 +87,10 @@ foreach($feeds as [$url,$cat,$srcName]){
       'auto'=>true,'src'=>$link,'srcName'=>$srcName,'fullLen'=>mb_strlen($full)
     ];
     $seen[$link]=true; $added++; $new++; $catNew[$cat]=($catNew[$cat]??0)+1; $titleKeys[$tk]=1;
-  }
-  $perFeed[$url]=$new.' yeni / '.count($items).' toplam';
+  } unset($cf);
 }
+foreach($cands as $cf) $perFeed[$cf['url']]=$cf['new'].' yeni / '.$cf['total'].' toplam';
+
 /* YouTube videoları */
 $vfeeds=file_exists(__DIR__.'/videos.php')?(include __DIR__.'/videos.php'):[]; $vadded=0;
 foreach($vfeeds as [$url,$cat,$srcName]){
