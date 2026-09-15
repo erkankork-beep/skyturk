@@ -27,6 +27,9 @@ $boost=null; $bf=__DIR__.'/boost.json'; if(file_exists($bf)){ $boost=json_decode
 $ovf=__DIR__.'/budget_override.json'; if(file_exists($ovf)){ $ov=json_decode(file_get_contents($ovf),true); if(($ov['date']??'')===date('Y-m-d')) $DAILY_BUDGET=(int)$ov['cap']; else @unlink($ovf); }
 $hw=[0.4,0.3,0.3,0.3,0.3,0.4,0.7,1.1,1.3,1.4,1.4,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.3,1.2,1.1,1.0,0.8,0.6]; // saat ağırlıkları (gece az, gündüz çok)
 $hNow=(int)date('G'); $mNow=(int)date('i'); $cum=array_sum(array_slice($hw,0,$hNow))+$hw[$hNow]*$mNow/60; $allowedSoFar=(int)ceil($DAILY_BUDGET*$cum/array_sum($hw))+10; // +10 esneklik
+/* Adil sıra: en uzun süredir haber almayan kategorinin kaynakları önce taranır (magazin vb. aç kalmasın) */
+$catLast=[]; foreach($news as $x0){ $c0=$x0['cat']??''; $t0=(int)($x0['ts']??0); if(empty($x0['video'])&&$t0>($catLast[$c0]??0)) $catLast[$c0]=$t0; }
+usort($feeds,function($a,$b)use($catLast){ $ta=$catLast[$a[1]]??0; $tb=$catLast[$b[1]]??0; return $ta<=>$tb ?: mt_rand(-1,1); });
 $catNew=[]; $dayKey=date('Y-m-d'); $titleKeys=[]; foreach($news as $x0) $titleKeys[mb_substr(preg_replace('/[^\p{L}\p{N}]+/u','',mb_strtolower($x0['t']??'')),0,30)]=1; $budgetFile=__DIR__.'/budget.json'; $budget=file_exists($budgetFile)?(json_decode(file_get_contents($budgetFile),true)?:[]):[]; $usedToday=(int)($budget[$dayKey]??0);
 
 $data=file_exists($file)?json_decode(file_get_contents($file),true):null;
