@@ -59,7 +59,10 @@ function sky_caption(array $n, string $site): string {
 function sky_social_autopost(array &$news, int $max=2): array {
   $c=sky_social_conf(); if(empty($c['igAuto'])||empty($c['igToken'])) return ['skipped'=>'otomatik paylaşım kapalı'];
   $cats=array_filter(array_map('trim',explode(',',$c['igCats']??''))); $perDay=(int)($c['igPerDay']??20); $site=rtrim($c['siteUrl']??'https://testhabersitesimiz.site','/');
-  $today=date('Y-m-d'); $cnt=0; foreach($news as $x) if(!empty($x['ig']['d'])&&$x['ig']['d']===$today) $cnt++; if($cnt>=$perDay) return ['skipped'=>'günlük paylaşım sınırı'];
+  $h=(int)date('G'); $h0=(int)($c['igFrom']??7); $h1=(int)($c['igTo']??23); if($h<$h0||$h>=$h1) return ['skipped'=>'saat aralığı dışı'];
+  $today=date('Y-m-d'); $cnt=0; $lastTs=0; foreach($news as $x){ if(!empty($x['ig']['d'])&&$x['ig']['d']===$today&&!empty($x['ig']['id'])){ $cnt++; $t=strtotime($x['ig']['d'].' '.($x['ig']['t']??'00:00')); if($t>$lastTs) $lastTs=$t; } } if($cnt>=$perDay) return ['skipped'=>'günlük paylaşım sınırı'];
+  $gap=(int)($c['igGapMin']??70); if($lastTs&&(time()-$lastTs)<$gap*60) return ['skipped'=>'son paylaşımdan '.round((time()-$lastTs)/60).' dk geçti, aralık '.$gap];
+  $max=1; /* zamanlamayla tur başına 1 gönderi */
   $root=dirname(__DIR__); $done=[]; $err=[];
   foreach($news as &$n){ if(count($done)>=$max||$cnt>=$perDay) break; if(empty($n['rw'])||!empty($n['video'])||!empty($n['ig'])||($n['st']??'')!=='Yayında'||empty($n['imgUrl'])) continue; if($cats&&!in_array($n['cat'],$cats)) continue; if((time()-(int)($n['ts']??0))>6*3600) continue;
     $file='media/cards/'.$n['id'].'.jpg'; if(!file_exists($root.'/'.$file)&&!sky_make_card($n,$root.'/'.$file)){ $err[]=$n['id'].': kart'; $n['ig']=['err'=>'kart']; continue; }
