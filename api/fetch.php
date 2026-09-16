@@ -21,7 +21,7 @@ function sky_merge_write($file,$news,$data){
 
 $feeds=require __DIR__.'/feeds.php'; $dj=json_decode(@file_get_contents(__DIR__.'/data.json'),true); if(!empty($dj['settings']['feeds'])&&is_array($dj['settings']['feeds'])) $feeds=array_values(array_filter(array_map(fn($x)=>isset($x['url'],$x['cat'],$x['name'])?[$x['url'],$x['cat'],$x['name']]:null,$dj['settings']['feeds'])));
 $KEEP_DAYS=7; $MAX_ITEMS=900; $PER_FEED=25;
-$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=400; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
+$PER_CAT=3; $MAX_AGE_H=24; $DAILY_BUDGET=500; // tur başına kategori başına en fazla 3 yeni haber; 24 saatten eski alınmaz; günlük özgünleştirme tavanı
 $boost=null; $bf=__DIR__.'/boost.json'; if(file_exists($bf)){ $boost=json_decode(file_get_contents($bf),true); @unlink($bf); } // tek seferlik: belirli kategoriden fazla haber çek
 /* Günlük tavan: bugüne özel geçici tavan (override) + saatlik dağıtım (pacing) */
 $ovf=__DIR__.'/budget_override.json'; if(file_exists($ovf)){ $ov=json_decode(file_get_contents($ovf),true); if(($ov['date']??'')===date('Y-m-d')) $DAILY_BUDGET=(int)$ov['cap']; else @unlink($ovf); }
