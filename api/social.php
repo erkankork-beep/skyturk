@@ -12,7 +12,7 @@ function sky_make_card(array $n, string $outPath): bool {
   /* fotoğraf (üst %58) */
   $ph=(int)($H*0.56); $img=null;
   if(!empty($n['imgUrl'])){ $ch=curl_init($n['imgUrl']); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>1,CURLOPT_TIMEOUT=>10,CURLOPT_FOLLOWLOCATION=>1,CURLOPT_USERAGENT=>'SKYTURK/1.0 (news; contact@skyturk)']); $bin=curl_exec($ch); curl_close($ch); if($bin) $img=@imagecreatefromstring($bin); }
-  if($img){ $w=imagesx($img); $h=imagesy($img); $r=max($S/$w,$ph/$h); $cw=(int)($S/$r); $chh=(int)($ph/$r); imagecopyresampled($im,$img,0,0,(int)(($w-$cw)/2),(int)(($h-$chh)/2),$S,$ph,$cw,$chh); imagedestroy($img); }
+  if($img){ $w=imagesx($img); $h=imagesy($img); $r=max($S/$w,$ph/$h); $cw=(int)($S/$r); $chh=(int)($ph/$r); $sy=(int)(($h-$chh)*0.12); /* dikey kırpma üste yakın: yüzler kesilmesin */ imagecopyresampled($im,$img,0,0,(int)(($w-$cw)/2),$sy,$S,$ph,$cw,$chh); imagedestroy($img); }
   else { for($y=0;$y<$ph;$y+=2){ $t=$y/$ph; $col=imagecolorallocate($im,(int)(11+30*$t),(int)(79-30*$t),(int)(158-60*$t)); imagefilledrectangle($im,0,$y,$S,$y+1,$col); imagecolordeallocate($im,$col); } }
   /* alt blok */
   imagefilledrectangle($im,0,$ph,$S,$H,$navy2); imagefilledrectangle($im,0,$ph,$S,$ph+6,$red);
