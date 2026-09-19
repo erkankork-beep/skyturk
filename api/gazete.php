@@ -10,7 +10,7 @@ function trUp($s){ return mb_strtoupper(str_replace(['i','ı'],['İ','I'],$s)); 
 class SkyPDF extends tFPDF {
   function W(){return $this->w;} function Hh(){return $this->h;}
   public $ink=[17,17,17]; public $grey=[85,85,85]; public $sky=[46,155,240]; public $navy=[11,42,107]; public $red=[216,35,42]; public $yel=[255,212,0]; public $line=[201,211,227]; public $soft=[243,246,250];
-  public $catMap=['gundem'=>['GÜNDEM','#0B4F9E'],'politika'=>['POLİTİKA','#3F51B5'],'dunya'=>['DÜNYA','#00897B'],'ekonomi'=>['EKONOMİ','#F9A825'],'spor'=>['SPOR','#2E7D32'],'kultur-sanat'=>['KÜLTÜR-SANAT','#8E24AA'],'saglik'=>['SAĞLIK','#D81B60'],'yasam'=>['YAŞAM','#FB8C00'],'teknoloji'=>['TEKNOLOJİ','#2E9BF0'],'magazin'=>['MAGAZİN','#E91E63'],'egitim'=>['EĞİTİM','#5C6BC0'],'genel'=>['GENEL','#546E7A'],'son-dakika'=>['SON DAKİKA','#E8262C'],'istanbul'=>['İSTANBUL','#455A64'],'ankara'=>['ANKARA','#7B1FA2']];
+  public $catMap=['gundem'=>['GÜNDEM','#0B4F9E'],'politika'=>['POLİTİKA','#3F51B5'],'dunya'=>['DÜNYA','#00897B'],'ekonomi'=>['EKONOMİ','#F9A825'],'spor'=>['SPOR','#2E7D32'],'kultur-sanat'=>['KÜLTÜR-SANAT','#8E24AA'],'saglik'=>['SAĞLIK','#D81B60'],'yasam'=>['YAŞAM','#FB8C00'],'teknoloji'=>['TEKNOLOJİ','#2E9BF0'],'magazin'=>['MAGAZİN','#E91E63'],'surmanset'=>['SÜRMANŞET','#B71C1C'],'egitim'=>['EĞİTİM','#5C6BC0'],'genel'=>['GENEL','#546E7A'],'son-dakika'=>['SON DAKİKA','#E8262C'],'istanbul'=>['İSTANBUL','#455A64'],'ankara'=>['ANKARA','#7B1FA2']];
   public $imgDir; public $dateStr; public $issueNo; public $pageNo=0; public $totalPages=10;
   function hex($h){ $h=ltrim($h,'#'); return [hexdec(substr($h,0,2)),hexdec(substr($h,2,2)),hexdec(substr($h,4,2))]; }
   function fill($c){ $this->SetFillColor($c[0],$c[1],$c[2]); } function color($c){ $this->SetTextColor($c[0],$c[1],$c[2]); } function draw($c){ $this->SetDrawColor($c[0],$c[1],$c[2]); }
@@ -140,8 +140,8 @@ function skyturk_gazete_build($force=false,$forDate=null){
     else { $pdf->fill($pdf->navy); $pdf->Rect(0,0,$W,84,'F'); $pdf->fill($pdf->red); $pdf->Rect(0,78,$W,6,'F'); $pdf->SetFont('T','',60); $pdf->color([255,255,255]); $s='SKYTÜRK'; $pdf->T(($W-$pdf->GetStringWidth($s))/2,62,$s);
       $pdf->SetFont('SC','',8.5); $pdf->color([201,211,227]); $pdf->T($M,76,trUp($dateStr)); $s='SAYI '.$no.' · 10 SAYFA · testhabersitesimiz.site'; $pdf->T($W-$M-$pdf->GetStringWidth($s),76,$s); }
     $pdf->fill($pdf->ink); $pdf->Rect(0,84,$W,16,'F'); $pdf->SetFont('SC','',7.5); $pdf->color([255,255,255]); $pdf->T($M,95,'DOLAR 48,65   EURO 56,49   ALTIN 6.784   BİST 100 14.467   BİTCOİN 3.754.831'); $s='İSTANBUL 24° PARÇALI BULUTLU  ·  TRAFİK: 15 TEMMUZ KÖPRÜSÜ YOĞUN'; $pdf->T($W-$M-$pdf->GetStringWidth($s),95,$s); return 108; };
-  $lead=$take(['gundem','son-dakika','politika','genel'],1)[0]??$win[0]; if(!in_array($lead['id'],$used)) $used[]=$lead['id']; $pool=$take(['gundem','politika','dunya','ekonomi','spor','saglik','genel','teknoloji','egitim','kultur-sanat'],12); $fillTo($pool,12);
-  $CN=fn($k)=>$pdf->catName($k); $PG=fn($k)=>['gundem'=>2,'genel'=>3,'politika'=>4,'dunya'=>5,'ekonomi'=>6,'spor'=>7,'saglik'=>8,'teknoloji'=>8,'egitim'=>9,'kultur-sanat'=>9,'magazin'=>9][$k]??2;
+  $lead=$take(['surmanset','gundem','son-dakika','politika','genel'],1)[0]??$win[0]; if(!in_array($lead['id'],$used)) $used[]=$lead['id']; $pool=$take(['gundem','politika','dunya','ekonomi','spor','saglik','genel','teknoloji','egitim','kultur-sanat'],12); $fillTo($pool,12);
+  $CN=fn($k)=>$pdf->catName($k); $PG=fn($k)=>['gundem'=>2,'genel'=>3,'politika'=>4,'dunya'=>5,'ekonomi'=>6,'spor'=>7,'saglik'=>8,'teknoloji'=>8,'egitim'=>9,'kultur-sanat'=>9,'magazin'=>9,'surmanset'=>2][$k]??2;
   $bottom3=function($y,$start)use($pdf,$pool,$W,$M,$CN,$PG){ $cw=($W-2*$M-20)/3; for($i=0;$i<3;$i++){ $n=$pool[$start+$i]??null; if(!$n) continue; $x=$M+$i*($cw+10); $pdf->fill([241,241,241]); $pdf->Rect($x,$y,$cw,70,'F'); $pdf->img($x+6,$y+6,64,58,$n); $pdf->head($x+78,$y+10,$cw-84,50,$n['t'],$pdf->ink,13,true,1.0); $pdf->SetFont('SC','',7); $pdf->color($pdf->sky); $pdf->T($x+78,$y+66,$CN($n['cat']).' · sayfa '.$PG($n['cat'])); } };
   if($rnd==0){ $y=$mast(0); $ph=300; $pdf->img($M,$y,$W-2*$M,$ph,$lead); $pdf->fill([0,0,0]); $pdf->Rect($M,$y+$ph-150,$W-2*$M,150,'F'); $pdf->kicker($M+12,$y+$ph-146,$CN($lead['cat']),$pdf->yel,$pdf->ink);
     $pdf->head($M+12,$y+$ph-124,$W-2*$M-24,100,$lead['t'],[255,255,255],44); $pdf->SetFont('B','',8.5); $pdf->color([255,255,255]); $pdf->T($M+12,$y+$ph-8,mb_substr($lead['s']??'',0,130).'…');
@@ -166,7 +166,7 @@ function skyturk_gazete_build($force=false,$forDate=null){
   $pdf->SetFont('SC','',6.5); $pdf->color($pdf->grey); $s='Fotoğraflar temsilidir · Kaynaklar künyede · Sayfa 1/10'; $pdf->T($W-$M-$pdf->GetStringWidth($s),$H-24,$s);
   /* ---------- İÇ SAYFALAR ---------- */
   $used=[$lead['id']]; // kapaktakiler iç sayfada tekrar kullanılabilir (gazete mantığı: kapak = özet)
-  $pageCats=[[2,['gundem','son-dakika']],[3,['gundem','son-dakika','genel','istanbul','ankara']],[4,['politika']],[5,['dunya']],[6,['ekonomi']],[7,['spor']],[8,['saglik','teknoloji']],[9,['magazin','kultur-sanat','egitim','yasam']]];
+  $pageCats=[[2,['surmanset','gundem','son-dakika']],[3,['gundem','son-dakika','genel','istanbul','ankara']],[4,['politika']],[5,['dunya']],[6,['ekonomi']],[7,['spor']],[8,['saglik','teknoloji']],[9,['magazin','kultur-sanat','egitim','yasam']]];
   $tpls=sky_templates(); $order=range(0,count($tpls)-1); shuffle($order); $usedT=[];
   $stand=[['Galatasaray',5,13],['Fenerbahçe',5,11],['Beşiktaş',5,10],['Trabzonspor',5,9],['Konyaspor',5,8],['Göztepe',5,8],['Kocaelispor',5,7],['Gençlerbirliği',5,6]];
   foreach($pageCats as $pi=>[$pn,$cats]){

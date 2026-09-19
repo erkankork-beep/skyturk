@@ -41,7 +41,7 @@ function skyturk_rewrite(array &$news, int $maxItems=30, int $budgetSec=70): arr
     $n['srcTitle']=$n['t']; $n['srcSpot']=$n['s']??'';
     if(!empty($o['body'])&&is_array($o['body'])){ $ps=array_values(array_filter(array_map(fn($x)=>trim((string)$x),$o['body']),fn($x)=>mb_strlen($x)>30)); if($ps){ $n['p']=array_slice($ps,0,8); $n['long']=true; } }
     $n['t']=mb_substr(trim($o['title']),0,140); $n['s']=mb_substr(trim($o['spot']??''),0,300);
-    if(!empty($o['cat'])&&in_array($o['cat'],$cats)&&$n['cat']!=='magazin'&&($n['cat']!=='son-dakika'||(time()-($n['ts']??time()))>6*3600)) $n['cat']=$o['cat'];
+    if(!empty($o['cat'])&&in_array($o['cat'],$cats)&&$n['cat']!=='magazin'&&$n['cat']!=='surmanset'&&($n['cat']!=='son-dakika'||(time()-($n['ts']??time()))>6*3600)) $n['cat']=$o['cat'];
     if(!empty($o['tags'])&&is_array($o['tags'])) $n['tags']=array_slice(array_map(fn($t)=>mb_strtolower(trim((string)$t)),$o['tags']),0,4);
     if(!empty($o['imgPrompt'])) $n['imgPrompt']=trim($o['imgPrompt']);
     if(!empty($o['imgQuery'])) $n['imgQuery']=trim($o['imgQuery']);

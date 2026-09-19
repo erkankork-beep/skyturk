@@ -171,6 +171,7 @@ main{padding:26px 0 40px}
 
 /* Galeri bandı */
 .gallery-band{background:var(--ink);color:#fff;padding:40px 0;margin-top:44px}
+.gallery-band.vitrin{margin:0 0 26px;padding:26px 0 30px;background:linear-gradient(135deg,#14213D,#1E2A4A)}.gallery-band.vitrin .sec-h h2 span{display:inline-block;margin-left:10px;padding:3px 10px;border-radius:12px;background:#B71C1C;font-size:12px;font-weight:700;letter-spacing:.06em;vertical-align:middle}
 .gallery-band .sec-h h2{color:#fff}.gallery-band .sec-h hr{border-color:rgba(255,255,255,.12)}
 .gallery-band .card h3 a:hover{color:var(--sky)}
 .gallery-band .card p,.gallery-band .card .meta{color:#B7C2D4}.gallery-band .card .meta time{color:#fff}
@@ -536,7 +537,7 @@ const CATS = [
   {id:'kultur-sanat',n:'Kültür-Sanat',c:'#8E24AA'},
   {id:'saglik',n:'Sağlık',c:'#D81B60'},
   {id:'yasam',n:'Yaşam',c:'#FB8C00'},
-  {id:'teknoloji',n:'Teknoloji',c:'#2E9BF0'},{id:'magazin',n:'Magazin',c:'#E91E63'},
+  {id:'teknoloji',n:'Teknoloji',c:'#2E9BF0'},{id:'magazin',n:'Magazin',c:'#E91E63'},{id:'surmanset',n:'Sürmanşet',c:'#B71C1C'},
   {id:'egitim',n:'Eğitim',c:'#5C6BC0'},
   {id:'genel',n:'Genel',c:'#546E7A'},
   {id:'ankara',n:'Ankara Haberleri',c:'#7B1FA2'},
@@ -713,7 +714,7 @@ const go=h=>{location.hash='#'+h};
 const byId=id=>NEWS.find(n=>n.id==id)||(typeof COLUMNS!=='undefined'?COLUMNS.find(n=>n.id==id):null);
 const inCat=c=>NEWS.filter(n=>n.cat===c);
 const pd=d=>{const [dd,mm,yy]=d.slice(0,10).split('.');return new Date(`${yy}-${mm}-${dd}T${d.slice(11)}:00`)};
-let sorted=[...NEWS].filter(n=>n.cat!=='resmi-ilan').sort((a,b)=>pd(b.d)-pd(a.d));
+let sorted=[...NEWS].filter(n=>n.cat!=='resmi-ilan'&&n.cat!=='surmanset').sort((a,b)=>pd(b.d)-pd(a.d));
 let ozelN=NEWS.filter(n=>n.ozel);
 const fmt=n=>n.toLocaleString('tr-TR');
 const dayNames=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
@@ -810,6 +811,8 @@ function tabbed(){const ids=['dunya','ekonomi','kultur-sanat','spor','egitim','y
 function tabTo(id,btn){btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');btn.parentNode.style.setProperty('--cc',CAT[id].c);$('#tabBody').innerHTML=inCat(id).slice(0,4).map(n=>card(n)).join('')||'<p style="color:var(--ink2)">Bu kategoride henüz haber yok.</p>'}
 /* ---- Sayfalar ---- */
 function skyAds(){const h=location.hash||'#/';const on=h==='#/'||h==='#';document.querySelectorAll('.skyad').forEach(e=>e.remove());if(!on)return;const mk=(k,cls)=>{const tall=ADS[k+'1200']&&ADS[k+'1200'].on!==false&&(ADS[k+'1200'].img||ADS[k+'1200'].html);const d=document.createElement('div');d.className='skyad '+cls+(tall?' tall':'');d.innerHTML=tall?adSlot(k+'1200',160,1200):adSlot(k,160,600);document.body.appendChild(d)};mk('skyL','l');mk('skyR','r')}
+function vitrinN(){return NEWS.filter(n=>n.cat==='surmanset'&&(n.st||'Yayında')==='Yayında'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d))}
+function vitrinBand(){const L=vitrinN();if(!L.length)return '';return `<section class="gallery-band vitrin" aria-label="Sürmanşet"><div class="wrap">${secH('Sürmanşet <span>HABER VİTRİNİ</span>','#B71C1C','#/kategori/surmanset','Tümü')}<div class="cards">${L.slice(0,4).map(n=>card(n,{noP:true})).join('')}</div></div></section>`}
 function home(){setTimeout(skyAds,0);if(ISSUES===null){fetch('gazete/issues.json?t='+Date.now()).then(r=>r.ok?r.json():[]).then(j=>{ISSUES=Array.isArray(j)?j:[];if((location.hash||'#/')==='#/')route()}).catch(()=>{ISSUES=[]})}
   const heroN=heroList();
   const hero=`<section class="hero" aria-label="Manşetler">
@@ -819,6 +822,7 @@ function home(){setTimeout(skyAds,0);if(ISSUES===null){fetch('gazete/issues.json
   </section>`;
   const cb=(c)=>{const l=inCat(c);const lead=l[0];if(!lead)return `<div class="catblock">${secH(CAT[c].n,CAT[c].c,'#/kategori/'+c)}<p style="color:var(--ink2)">Henüz haber yok.</p></div>`;return `<div class="catblock" style="--cc:${CAT[c].c}">${secH(CAT[c].n,CAT[c].c,'#/kategori/'+c)}<div class="lead">${card(lead)}</div><ul>${l.slice(1,4).map(n=>`<li><a href="#/haber/${n.id}"><img src="${n.img(192,128)}" alt=""><span>${esc(n.t)}</span></a></li>`).join('')}</ul></div>`};
   return `
+  ${vitrinBand()}
   <div class="grid-hero"><div>${hero}<div class="cards three" style="margin-top:22px">${sorted.filter(n=>!n.video).slice(heroN.length,heroN.length+3).map(n=>card(n,{noP:true})).join('')}</div>
   <section class="sec" style="margin-top:30px">${secH('Gündem','#0B4F9E','#/kategori/gundem')}<div class="cards two">${inCat('gundem').slice(0,4).map(n=>card(n)).join('')}</div></section>
   <section class="sec" style="margin-top:30px">${secH('Politika','#3F51B5','#/kategori/politika')}<div class="cards two">${inCat('politika').slice(0,4).map(n=>card(n)).join('')}</div></section>
@@ -948,7 +952,7 @@ function routeInner(){
   scrollTo(0,0);
 }
 addEventListener('hashchange',route);
-fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d){applySaved(d);try{applyServer(d)}catch(e){console.error(e)}sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));$('#breakItems').innerHTML=sorted.slice(0,6).map((n,i)=>`<a href="#/haber/${n.id}" class="${i?'':'on'}"><time>${n.d.slice(11)}</time>${esc(n.t)}</a>`).join('');bi=0;}}).catch(()=>{}).finally(route);
+fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(d){applySaved(d);try{applyServer(d)}catch(e){console.error(e)}sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan'&&n.cat!=='surmanset'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));$('#breakItems').innerHTML=sorted.slice(0,6).map((n,i)=>`<a href="#/haber/${n.id}" class="${i?'':'on'}"><time>${n.d.slice(11)}</time>${esc(n.t)}</a>`).join('');bi=0;}}).catch(()=>{}).finally(route);
 addEventListener('scroll',()=>$('#toTop').classList.toggle('show',scrollY>600));
 try{if(location.protocol.startsWith('http'))fetch('api/hit.php',{keepalive:true}).catch(()=>{})}catch(e){}
 </script>
@@ -1004,7 +1008,7 @@ function directoryPage(){return `<div class="page" style="max-width:var(--w)"><h
 function classifiedsPage(){return `<div class="page" style="max-width:var(--w)"><h1>Seri İlan</h1><p class="sub">Emlak, vasıta, iş ve hizmet ilanları. İlan vermek için <a href="#/iletisim" style="color:var(--navy)">iletişime geçin</a>.</p>${CLASSIFIEDS.length?`<div class="dir">${CLASSIFIEDS.map(d=>{const x=d[3]||{};return `<a href="#/ilan"><b>${esc(d[0])}</b><small>${esc(d[2])}${x.tel?' · '+esc(x.tel):''}</small>${x.desc?`<small>${esc(x.desc)}</small>`:''}<span class="tag">${esc(d[1])}</span></a>`}).join('')}</div>`:`<p style="color:var(--ink2);padding:30px 0">Henüz ilan yok.</p>`}</div>`}
 </script>
 <script>
-function refreshSite(){fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;applySaved(d);try{applyServer(d)}catch(e){}sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));const h=location.hash||'#/';if(h==='#/'||h==='#'||h.startsWith('#/kategori')||h.startsWith('#/yazar'))route()}).catch(()=>{})}
+function refreshSite(){fetch('api/data.php?t='+Date.now()).then(r=>r.ok?r.json():null).then(d=>{if(!d)return;applySaved(d);try{applyServer(d)}catch(e){}sorted.length=0;[...NEWS].filter(n=>n.cat!=='resmi-ilan'&&n.cat!=='surmanset'&&!isColumn(n)).sort((a,b)=>pd(b.d)-pd(a.d)).forEach(n=>sorted.push(n));ozelN.length=0;NEWS.filter(n=>n.ozel).forEach(n=>ozelN.push(n));const h=location.hash||'#/';if(h==='#/'||h==='#'||h.startsWith('#/kategori')||h.startsWith('#/yazar'))route()}).catch(()=>{})}
 setInterval(refreshSite,300000);
 </script>
 
